@@ -1,0 +1,154 @@
+.loading-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+}
+
+.loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+/* Modern Spinner */
+.spinner {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spinner::before {
+  content: '';
+  position: absolute;
+  width: 70px;
+  height: 70px;
+  border: 4px solid rgba(82, 85, 93, 0.2);
+  border-radius: 50%;
+  animation: spinnerRotate1 3s linear infinite;
+}
+
+.spinner::after {
+  content: '';
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  border: 3px solid rgba(82, 85, 93, 0.1);
+  border-radius: 50%;
+  animation: spinnerRotate2 4s linear infinite;
+}
+
+.spinner .spinner-center {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  background-color: #52555D;
+  border-radius: 50%;
+  z-index: 10;
+}
+
+@keyframes spinnerRotate1 {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes spinnerRotate2 {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
+}
+
+.loading-text {
+  color: white;
+  font-weight: 500;
+  font-size: 1rem;
+  margin: 0;
+  text-align: center;
+  animation: fadeInOut 1.5s ease-in-out infinite;
+}
+
+@keyframes fadeInOut {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+.skeleton {
+  height: 200px;
+  background: linear-gradient(
+    90deg,
+    var(--light) 0%,
+    #ffffff 50%,
+    var(--light) 100%
+  );
+  background-size: 200% 100%;
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-lg);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .spinner {
+    width: 60px;
+    height: 60px;
+  }
+
+  .spinner::before {
+    width: 50px;
+    height: 50px;
+    border-width: 3px;
+  }
+
+  .spinner::after {
+    width: 35px;
+    height: 35px;
+    border-width: 2px;
+  }
+
+  .spinner .spinner-center {
+    width: 10px;
+    height: 10px;
+  }
+
+  .loading-text {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .spinner {
+    width: 50px;
+    height: 50px;
+  }
+
+  .spinner::before {
+    width: 40px;
+    height: 40px;
+    border-width: 3px;
+  }
+
+  .spinner::after {
+    width: 25px;
+    height: 25px;
+    border-width: 2px;
+  }
+
+  .spinner .spinner-center {
+    width: 8px;
+    height: 8px;
+  }
+
+  .loading-text {
+    font-size: 0.8rem;
+  }
+}

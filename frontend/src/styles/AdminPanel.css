@@ -1,0 +1,587 @@
+.admin-panel {
+  padding: 20px;
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.admin-header h1 {
+  margin: 0;
+  color: #333;
+}
+
+.admin-header p {
+  margin: 5px 0 0 0;
+  color: #999;
+}
+
+.admin-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 30px;
+  border-bottom: 2px solid #f0f0f0;
+  overflow-x: auto;
+}
+
+.admin-tabs .tab {
+  padding: 12px 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  color: #666;
+  border-bottom: 3px solid transparent;
+  transition: all 0.3s;
+  white-space: nowrap;
+}
+
+.admin-tabs .tab:hover {
+  color: #333;
+}
+
+.admin-tabs .tab.active {
+  color: #ff5500;
+  border-bottom-color: #ff5500;
+}
+
+.admin-content {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.overview {
+  max-width: 600px;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  padding: 15px;
+  background: #f9f9f9;
+  border-radius: 5px;
+}
+
+.info-item .label {
+  color: #666;
+  font-size: 12px;
+  margin-bottom: 5px;
+}
+
+.info-item .value {
+  font-weight: bold;
+  color: #333;
+  font-size: 16px;
+}
+
+.services-table,
+.bookings-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.services-table th,
+.bookings-table th {
+  background: #f0f0f0;
+  padding: 12px;
+  text-align: right;
+  border-bottom: 2px solid #ddd;
+}
+
+.services-table td,
+.bookings-table td {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+}
+
+.services-table tr:hover,
+.bookings-table tr:hover {
+  background: #f9f9f9;
+}
+
+/* ==========================================
+   TABLET (768px - 1024px)
+   ========================================== */
+@media (max-width: 1024px) {
+  /* Responsive grid layout */
+  div[style*="gridTemplateColumns: 'minmax(260px, 0.25fr) 1fr'"],
+  div[style*="gridTemplateColumns: '260px 1fr'"] {
+    grid-template-columns: 220px 1fr !important;
+    gap: 1rem !important;
+  }
+
+  /* Reduce padding */
+  div[style*="padding: '2rem 1.5rem'"] {
+    padding: 1.5rem 1rem !important;
+  }
+
+  /* Adjust font sizes */
+  h1[style*="fontSize: 'clamp"] {
+    font-size: clamp(1.2rem, 2vw, 1.8rem) !important;
+  }
+
+  h2[style*="fontSize: '1.4rem"] {
+    font-size: 1.2rem !important;
+  }
+
+  /* Better table handling */
+  div[style*="overflowX: 'auto'"] {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 8px;
+  }
+
+  /* Reduce table font for tablet */
+  table {
+    font-size: 13px !important;
+  }
+
+  table th,
+  table td {
+    padding: 10px !important;
+  }
+}
+
+/* ==========================================
+   MOBILE (480px - 768px)
+   ========================================== */
+@media (max-width: 768px) {
+  .admin-header {
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-start;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+  }
+
+  .admin-tabs {
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+
+  .admin-tabs .tab {
+    padding: 10px 16px;
+    font-size: 12px;
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .services-table,
+  .bookings-table {
+    font-size: 12px;
+  }
+
+  .services-table th,
+  .bookings-table th,
+  .services-table td,
+  .bookings-table td {
+    padding: 8px;
+  }
+
+  /* Convert main layout to single column */
+  div[style*="gridTemplateColumns: 'minmax(260px, 0.25fr) 1fr'"],
+  div[style*="gridTemplateColumns: '260px 1fr'"] {
+    grid-template-columns: 1fr !important;
+    padding: 1rem 1rem !important;
+    gap: 1rem !important;
+    max-width: 100% !important;
+  }
+
+  /* Sidebar becomes full width on mobile */
+  aside[style*="position: 'sticky'"],
+  aside[style*="top: '100px'"] {
+    position: relative !important;
+    top: 0 !important;
+    margin-bottom: 1.5rem;
+    width: 100% !important;
+  }
+
+  /* Collapsible mobile menu: hide sidebar by default, show toggle button */
+  .admin-aside {
+    display: none;
+  }
+
+  .admin-aside-open {
+    display: block !important;
+  }
+
+  .admin-mobile-menu-toggle {
+    display: flex !important;
+  }
+
+  /* Reduce padding everywhere */
+  div[style*="padding: '2rem"] {
+    padding: 1.5rem 1rem !important;
+  }
+
+  div[style*="padding: '1.5rem"] {
+    padding: 1rem !important;
+  }
+
+  div[style*="padding: '1rem"] {
+    padding: 0.75rem !important;
+  }
+
+  /* All form grids become single column */
+  div[style*="gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))"] {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+
+  div[style*="gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))"] {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+
+  /* Reduce icon sizes */
+  div[style*="width: '56px"] {
+    width: 40px !important;
+    height: 40px !important;
+  }
+
+  div[style*="width: '48px"] {
+    width: 36px !important;
+    height: 36px !important;
+  }
+
+  /* Adjust button sizes */
+  button[style*="padding: '12px 28px'"],
+  button[style*="padding: '12px 32px'"] {
+    padding: 10px 20px !important;
+    font-size: 0.9rem !important;
+  }
+
+  /* Reduce heading sizes */
+  h1 {
+    font-size: 1.5rem !important;
+  }
+
+  h2 {
+    font-size: 1.2rem !important;
+  }
+
+  h3 {
+    font-size: 1rem !important;
+  }
+
+  /* Make tables scrollable horizontally with wrapper */
+  div[style*="overflowX: 'auto'"] {
+    overflow-x: auto !important;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    -ms-overflow-style: -ms-autohiding-scrollbar;
+    border-radius: 8px;
+    max-width: 100vw;
+  }
+
+  /* Better table readability */
+  table[style*="minWidth:"] {
+    width: 100% !important;
+    font-size: 11px !important;
+  }
+
+  table th {
+    padding: 8px 6px !important;
+    font-size: 11px !important;
+    white-space: normal !important;
+  }
+
+  table td {
+    padding: 8px 6px !important;
+    font-size: 11px !important;
+  }
+
+  /* Button grids stack vertically */
+  div[style*="gridTemplateColumns: '1fr 1fr'"] {
+    grid-template-columns: 1fr !important;
+    gap: 0.75rem !important;
+  }
+
+  /* Reduce general gaps */
+  div[style*="gap: '1.5rem'"] {
+    gap: 1rem !important;
+  }
+
+  div[style*="gap: '2rem'"] {
+    gap: 1rem !important;
+  }
+
+  div[style*="gap: '1rem'"] {
+    gap: 0.75rem !important;
+  }
+
+  /* Make select/input fields full width */
+  input[style*="width: '100%'"],
+  select[style*="width: '100%'"],
+  textarea[style*="width: '100%'"] {
+    box-sizing: border-box;
+    width: 100% !important;
+  }
+
+  /* Improve text field visibility */
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+
+  /* Better header layout */
+  header[style*="padding: '1.5rem"] {
+    padding: 1rem !important;
+  }
+
+  /* Improve main content padding */
+  main[style*="initial"] {
+    padding: 1rem !important;
+  }
+}
+
+/* ==========================================
+   SMALL MOBILE (max-width: 480px)
+   ========================================== */
+@media (max-width: 480px) {
+  .admin-header {
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+  }
+
+  .admin-tabs {
+    gap: 4px;
+    padding: 0 -10px;
+  }
+
+  .admin-tabs .tab {
+    padding: 8px 12px;
+    font-size: 10px;
+    flex: 1;
+    min-width: 50px;
+  }
+
+  .info-grid {
+    gap: 10px;
+  }
+
+  /* Super aggressive padding reduction */
+  div[style*="padding: '2rem"] {
+    padding: 0.75rem !important;
+  }
+
+  div[style*="padding: '1.5rem"] {
+    padding: 0.5rem !important;
+  }
+
+  div[style*="padding: '1rem"] {
+    padding: 0.5rem !important;
+  }
+
+  /* Convert to single column immediately */
+  div[style*="gridTemplateColumns: 'minmax(260px"],
+  div[style*="gridTemplateColumns: '260px 1fr'"] {
+    grid-template-columns: 1fr !important;
+    padding: 0.75rem 0.75rem !important;
+    gap: 0.75rem !important;
+  }
+
+  aside {
+    margin-bottom: 1rem !important;
+  }
+
+  /* Stack everything vertically */
+  div[style*="display: 'flex'"][style*="gap"] {
+    flex-direction: column !important;
+  }
+
+  /* Icon sizes */
+  svg {
+    width: 14px !important;
+    height: 14px !important;
+  }
+
+  svg[size="24"] {
+    width: 18px !important;
+    height: 18px !important;
+  }
+
+  svg[size="28"] {
+    width: 22px !important;
+    height: 22px !important;
+  }
+
+  svg[size="64"] {
+    width: 36px !important;
+    height: 36px !important;
+  }
+
+  /* Small button sizes */
+  button {
+    padding: 8px 14px !important;
+    font-size: 0.8rem !important;
+    min-height: 40px;
+  }
+
+  /* Table optimization for small screens */
+  table {
+    font-size: 9px !important;
+    width: 100%;
+  }
+
+  table th,
+  table td {
+    padding: 4px 3px !important;
+    font-size: 9px !important;
+    white-space: nowrap;
+  }
+
+  table th {
+    white-space: normal !important;
+  }
+
+  /* Make scrollable tables easier to use */
+  div[style*="overflowX: 'auto'"] {
+    overflow-x: auto !important;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 4px;
+    max-width: 100vw;
+    margin: 0 -0.75rem;
+    padding: 0 0.75rem;
+  }
+
+  /* Reduce spacing in complex grids */
+  div[style*="gridTemplateColumns"] {
+    gap: 0.5rem !important;
+  }
+
+  /* Form inputs better visibility on small screens */
+  input[type="text"],
+  input[type="number"],
+  input[type="time"],
+  select,
+  textarea {
+    font-size: 16px !important;
+    padding: 10px 8px !important;
+  }
+
+  /* Heading sizes for mobile */
+  h1 {
+    font-size: 1.1rem !important;
+  }
+
+  h2 {
+    font-size: 0.95rem !important;
+  }
+
+  h3 {
+    font-size: 0.9rem !important;
+  }
+
+  p {
+    font-size: 0.75rem !important;
+  }
+
+  label {
+    font-size: 0.75rem !important;
+  }
+
+  /* Header adjustments */
+  header {
+    padding: 0.75rem !important;
+  }
+
+  /* Main content adjustments */
+  main {
+    padding: 0.75rem !important;
+  }
+
+  /* Limited width for better UX */
+  div[style*="maxWidth: '1400px'"] {
+    max-width: 100vw !important;
+  }
+}
+
+/* ==========================================
+   LANDSCAPE MODE (height-based adjustments)
+   ========================================== */
+@media (max-height: 600px) and (orientation: landscape) {
+  div[style*="padding: '2rem'"] {
+    padding: 1rem !important;
+  }
+
+  /* Reduce header spacing */
+  header[style*="padding"] {
+    padding: 1rem !important;
+  }
+
+  /* Reduce gaps */
+  div[style*="gap: '1.5rem'"] {
+    gap: 0.75rem !important;
+  }
+
+  /* Reduce icon sizes in landscape */
+  div[style*="width: '56px"] {
+    width: 40px !important;
+    height: 40px !important;
+  }
+}
+
+/* ==========================================
+   GLOBAL RESPONSIVE FIXES
+   ========================================== */
+
+/* Ensure all scrollable tables work smoothly on mobile */
+div[style*="overflow"] {
+  /* Smooth scrolling for touch devices */
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Improve form inputs on all devices */
+input,
+select,
+textarea {
+  box-sizing: border-box;
+}
+
+/* Ensure buttons are clickable on mobile */
+button {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Direction rtl support for tables */
+table[dir="rtl"],
+div[style*="direction: 'rtl'"] table {
+  text-align: right;
+}
+
+/* Ensure proper flex wrap on small containers */
+@media (max-width: 640px) {
+  div[style*="display: 'flex'"] {
+    flex-wrap: wrap;
+  }
+}
+
+/* Improve grid auto-fit behavior */
+@media (max-width: 500px) {
+  div[style*="gridTemplateColumns: 'repeat(auto-fit"] {
+    grid-auto-flow: dense;
+  }
+}

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Font Testing Debug</title>
+  <link rel="stylesheet" href="./src/index.css">
+  <style>
+    body {
+      font-family: 'Vazirmatn', sans-serif;
+      padding: 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background: white;
+      border-radius: 15px;
+      padding: 30px;
+      max-width: 900px;
+      margin: 0 auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    h1 {
+      color: #333;
+      text-align: center;
+      border-bottom: 3px solid #667eea;
+      padding-bottom: 15px;
+    }
+    .test-section {
+      margin: 20px 0;
+      padding: 15px;
+      background: #f5f5f5;
+      border-radius: 8px;
+      border-right: 4px solid #667eea;
+    }
+    .test-section h2 {
+      color: #667eea;
+      margin-top: 0;
+      font-size: 1.2em;
+    }
+    .result {
+      font-family: 'Courier New', monospace;
+      background: white;
+      padding: 10px;
+      border-radius: 5px;
+      margin: 10px 0;
+      word-break: break-all;
+    }
+    .success { color: #10b981; font-weight: bold; }
+    .error { color: #ef4444; font-weight: bold; }
+    .info { color: #0ea5e9; }
+    .text-sample {
+      font-size: 1.5em;
+      padding: 20px;
+      background: white;
+      border-radius: 8px;
+      margin: 10px 0;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔍 تست فونت‌های Vazirmatn</h1>
+    
+    <div class="test-section">
+      <h2>📋 معلومات فونت</h2>
+      <div class="result">
+        <strong>Root Font Family:</strong> <span id="root-font" class="info">checking...</span>
+      </div>
+      <div class="result">
+        <strong>Body Font Family:</strong> <span id="body-font" class="info">checking...</span>
+      </div>
+      <div class="result">
+        <strong>CSS Variable (--font-family):</strong> <span id="css-var" class="info">checking...</span>
+      </div>
+    </div>
+
+    <div class="test-section">
+      <h2>📦 وضعیت بارگذاری فایل‌های فونت</h2>
+      <div id="font-status">checking...</div>
+    </div>
+
+    <div class="test-section">
+      <h2>✨ نمونه متن</h2>
+      <div class="text-sample">
+        سلام! این تکست باید با فونت Vazirmatn نمایش داده شود.
+      </div>
+      <div class="text-sample">
+        اگر متن بالا با خط فارسی صحیح نمایش داده شود، فونت درست بارگذاری شدند ✅
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Check computed styles
+    const root = document.documentElement;
+    const body = document.body;
+    
+    const rootFont = getComputedStyle(root).fontFamily;
+    const bodyFont = getComputedStyle(body).fontFamily;
+    const cssVar = getComputedStyle(root).getPropertyValue('--font-family').trim();
+    
+    document.getElementById('root-font').textContent = rootFont;
+    document.getElementById('body-font').textContent = bodyFont;
+    document.getElementById('css-var').textContent = cssVar;
+    
+    // Check if Vazirmatn is in the fonts
+    const hasVazirmatn = rootFont.includes('Vazirmatn') || bodyFont.includes('Vazirmatn') || cssVar.includes('Vazirmatn');
+    if (hasVazirmatn) {
+      document.getElementById('root-font').classList.add('success');
+      document.getElementById('body-font').classList.add('success');
+      document.getElementById('css-var').classList.add('success');
+    } else {
+      document.getElementById('root-font').classList.add('error');
+      document.getElementById('body-font').classList.add('error');
+      document.getElementById('css-var').classList.add('error');
+    }
+
+    // Test font files
+    const fontFiles = [
+      '/fonts/Vazirmatn%5Bwght%5D.woff2',
+      '/fonts/Vazirmatn-Regular.woff2',
+      '/fonts/Vazirmatn-Bold.woff2',
+      '/fonts/Vazirmatn-Light.woff2',
+      '/fonts/Vazirmatn-Medium.woff2',
+      '/fonts/Vazirmatn-SemiBold.woff2',
+      '/fonts/Vazirmatn-ExtraBold.woff2'
+    ];
+
+    let completed = 0;
+    const statusDiv = document.getElementById('font-status');
+    statusDiv.innerHTML = '';
+
+    fontFiles.forEach(file => {
+      fetch(file)
+        .then(r => {
+          completed++;
+          const result = document.createElement('div');
+          result.className = 'result';
+          
+          if (r.ok) {
+            result.innerHTML = `<span class="success">✅ ${file}</span> (${r.status} OK)`;
+          } else {
+            result.innerHTML = `<span class="error">❌ ${file}</span> (${r.status})`;
+          }
+          statusDiv.appendChild(result);
+        })
+        .catch(e => {
+          completed++;
+          const result = document.createElement('div');
+          result.className = 'result';
+          result.innerHTML = `<span class="error">❌ ${file}</span> (ERROR: ${e.message})`;
+          statusDiv.appendChild(result);
+        });
+    });
+
+    // If all checked
+    setTimeout(() => {
+      if (completed === fontFiles.length) {
+        console.log('All font files checked');
+      }
+    }, 2000);
+  </script>
+</body>
+</html>

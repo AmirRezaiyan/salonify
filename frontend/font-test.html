@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Font Test</title>
+  <link rel="stylesheet" href="http://localhost:5174/src/index.css">
+</head>
+<body>
+  <h1>تست فونت واضح</h1>
+  <p>اگر این متن با فونت Vazirmatn نمایش داده شود، فونت بارگذاری شد ✅</p>
+  
+  <script>
+    console.log('🧪 Font Loading Test Started...\n');
+    
+    // Check computed font
+    const bodyFont = getComputedStyle(document.body).fontFamily;
+    console.log('Body Font Family:', bodyFont);
+    
+    // Test each font URL
+    const fontUrls = [
+      '/fonts/Vazirmatn%5Bwght%5D.woff2',
+      '/fonts/Vazirmatn-Regular.woff2',
+      '/fonts/Vazirmatn-Bold.woff2',
+      '/fonts/Vazirmatn-Light.woff2',
+      '/fonts/Vazirmatn-Medium.woff2',
+      '/fonts/Vazirmatn-SemiBold.woff2',
+      '/fonts/Vazirmatn-ExtraBold.woff2'
+    ];
+    
+    console.log('\n📋 Testing Font URLs:\n');
+    
+    fontUrls.forEach(url => {
+      fetch(url).then(r => {
+        console.log(`${r.ok ? '✅' : '❌'} ${url} (${r.status})`);
+      }).catch(e => {
+        console.log(`❌ ${url} - ${e.message}`);
+      });
+    });
+  </script>
+</body>
+</html>
