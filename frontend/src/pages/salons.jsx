@@ -519,11 +519,31 @@ export default function Salons() {
                 background: 'rgba(255,255,255,0.14)',
                 border: '1px solid rgba(255,255,255,0.22)',
                 color: '#fff', fontSize: '0.86rem', fontWeight: 700,
-                marginBottom: '1.5rem',
+                marginBottom: '0.75rem',
               }}
             >
               <Shield size={13} />
               فقط آرایشگاه‌های {viewerGenderLabel} نمایش داده می‌شود
+            </motion.div>
+          )}
+
+          {/* City badge for customer */}
+          {user?.role === 'customer' && viewerCity && (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.14 }}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: '7px',
+                padding: '8px 18px', borderRadius: '50px',
+                background: 'rgba(255,255,255,0.14)',
+                border: '1px solid rgba(255,255,255,0.22)',
+                color: '#fff', fontSize: '0.86rem', fontWeight: 700,
+                marginBottom: '1.5rem',
+              }}
+            >
+              <MapPin size={13} />
+              فقط آرایشگاه‌های شهر شما نمایش داده می‌شود
             </motion.div>
           )}
 

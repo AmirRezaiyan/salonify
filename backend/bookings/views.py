@@ -120,6 +120,17 @@ class BookingListCreateView(generics.ListCreateAPIView):
                 disable_message += f". دلیل: {salon.disable_reason}"
             logger.warning("Booking creation: salon_id=%s is currently disabled", salon_id)
             return Response({"message": disable_message}, status=status.HTTP_403_FORBIDDEN)
+        
+        
+        user = request.user
+        try:
+            user_city = (getattr(user, 'city', '') or '').strip().lower()
+            salon_city = (salon.city or '').strip().lower()
+            if user and getattr(user, 'is_authenticated', False) and user_city and salon_city and user_city != salon_city:
+                return Response({"message": "این سالن متعلق به شهر دیگری است و امکان رزرو از شهر شما وجود ندارد."}, status=status.HTTP_403_FORBIDDEN)
+        except Exception:
+            # در صورت بروز هر خطا، اجازه ادامه بده — لاگ شود
+            logger.exception("Error comparing user and salon city during booking check")
 
         data = request.data
         service_id = data.get("service_id")

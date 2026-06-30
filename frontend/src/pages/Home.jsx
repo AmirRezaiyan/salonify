@@ -1930,10 +1930,12 @@ export default function Home() {
         {isAuthenticated && isCustomer && (() => {
           const TOP_COUNT = 5;
           const viewerGender = normalizeGender(user?.gender || user?.salon?.gender);
+          const viewerCity = String(user?.city || '').trim().toLowerCase();
 
-          /* Pool: gender-filtered only (no search/city filter — this is the homepage showcase) */
+          /* Pool: gender + city filtered — only show salons the customer can actually book from */
           const pool = salons.filter(s => {
             if (viewerGender && normalizeGender(s.gender) !== viewerGender) return false;
+            if (viewerCity && String(s.city || '').trim().toLowerCase() !== viewerCity) return false;
             return true;
           });
 

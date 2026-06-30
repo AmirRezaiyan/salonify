@@ -79,6 +79,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             "username": user.username,
             "email": user.email,
             "role": user.role,
+            "city": getattr(user, 'city', ''),
         }
         return token
 
@@ -104,6 +105,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
                     "role": user.role,
                     "phone_number": getattr(user, "phone_number", None),
                     "gender": getattr(user, "gender", None),
+                    "city": getattr(user, "city", None),
                 }
                 if user.role in ["owner", "staff"] and getattr(user, "salon", None):
                     user_data["salon"] = {

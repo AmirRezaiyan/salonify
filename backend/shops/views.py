@@ -492,6 +492,11 @@ class SalonListView(generics.ListAPIView):
         gender = self.request.GET.get('gender')
         if gender in ('male', 'female'):
             qs = qs.filter(gender=gender)
+        user = getattr(self.request, 'user', None)
+        if user and getattr(user, 'is_authenticated', False) and getattr(user, 'role', None) == 'customer':
+            user_city = (getattr(user, 'city', '') or '').strip()
+            if user_city:
+                qs = qs.filter(city__iexact=user_city)
         return qs
 
 

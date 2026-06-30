@@ -19,7 +19,8 @@ class RegisterSerializer(serializers.ModelSerializer):
     salon_gender = serializers.CharField(write_only=True, required=False, allow_blank=True)
     salon_address = serializers.CharField(write_only=True, required=False, allow_blank=True)
     services = serializers.ListField(child=serializers.DictField(), write_only=True, required=False)
-
+    city = serializers.CharField(required=False, allow_blank=True)
+    
     class Meta:
         model = User
         fields = (
@@ -46,48 +47,12 @@ class RegisterSerializer(serializers.ModelSerializer):
         """اعتبارسنجی شهر - باید در لیست شهرها باشد"""
         if not value:
             return value
-        valid_cities = [city[0] for city in IRAN_CITIES]
-        if value not in valid_cities:
-            raise serializers.ValidationError("شهر انتخاب شده معتبر نیست.")
-        return value
-    
-    
-    def validate_city(self, value):
-        """اعتبارسنجی شهر - باید در لیست شهرها باشد"""
-        if not value:
-            return value
-        valid_cities = [city[0] for city in IRAN_CITIES]
+        from .constants import IRAN_CITIES as _IRAN_CITIES
+        valid_cities = [city[0] for city in _IRAN_CITIES]
         if value not in valid_cities:
             raise serializers.ValidationError("شهر انتخاب شده معتبر نیست.")
         return value
 
-    def validate(self, attrs):
-        if attrs.get("password") != attrs.get("password_confirm"):
-            raise serializers.ValidationError({"password_confirm": "رمزهای عبور مطابقت ندارند"})
-
-        # برای مشتری، شهر الزامی است
-        if attrs.get("role") == "customer" and not attrs.get("city", "").strip():
-            raise serializers.ValidationError({"city": "شهر برای مشتری الزامی است"})
-
-        # برای مالک، اطلاعات سالن الزامی است
-        if attrs.get("role") == "owner":
-            if not attrs.get("salon_name", "").strip():
-                raise serializers.ValidationError({"salon_name": "نام سالن برای مالک الزامی است"})
-            if not attrs.get("salon_city", "").strip():
-                raise serializers.ValidationError({"salon_city": "شهر سالن برای مالک الزامی است"})
-            if not attrs.get("salon_gender", "").strip():
-                raise serializers.ValidationError({"salon_gender": "جنسیت سالن برای مالک الزامی است"})
-            if not attrs.get("salon_address", "").strip():
-                raise serializers.ValidationError({"salon_address": "آدرس سالن برای مالک الزامی است"})
-
-        try:
-            validate_password(attrs.get("password"))
-        except serializers.ValidationError as e:
-            raise serializers.ValidationError({"password": e.messages})
-
-        return attrs
-    
-    
     def validate_username(self, value):
         value = value.strip()
         if len(value) < 6:
@@ -162,6 +127,11 @@ class RegisterSerializer(serializers.ModelSerializer):
         if attrs.get("password") != attrs.get("password_confirm"):
             raise serializers.ValidationError({"password_confirm": "رمزهای عبور مطابقت ندارند"})
 
+        # برای مشتری، شهر الزامی است
+        if attrs.get("role") == "customer" and not attrs.get("city", "").strip():
+            raise serializers.ValidationError({"city": "شهر برای مشتری الزامی است"})
+
+        # برای مالک، اطلاعات سالن الزامی است
         if attrs.get("role") == "owner":
             if not attrs.get("salon_name", "").strip():
                 raise serializers.ValidationError({"salon_name": "نام سالن برای مالک الزامی است"})
@@ -171,6 +141,9 @@ class RegisterSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError({"salon_gender": "جنسیت سالن برای مالک الزامی است"})
             if not attrs.get("salon_address", "").strip():
                 raise serializers.ValidationError({"salon_address": "آدرس سالن برای مالک الزامی است"})
+            if attrs.get("role") == "customer":
+                if not attrs.get("city", "").strip():
+                    raise serializers.ValidationError({"city": "شهر برای مشتری الزامی است"})
 
         try:
             validate_password(attrs.get("password"))
@@ -190,6 +163,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         services = validated_data.pop("services", None)
 
         user = User(**validated_data)
+        user.city = validated_data.get('city', '')
         user.set_password(password)
         user.save()
 

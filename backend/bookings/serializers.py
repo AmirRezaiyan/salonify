@@ -2,6 +2,7 @@ from datetime import timedelta
 
 from django.utils import timezone
 from rest_framework import serializers
+from rest_framework.exceptions import PermissionDenied
 
 from .models import Booking, Service
 
@@ -53,6 +54,37 @@ class BookingSerializer(serializers.ModelSerializer):
             logger.warning("Validation failed: booking for inactive service_id=%s", value.id)
             raise serializers.ValidationError("This service is not available for booking")
         return value
+
+    def validate(self, attrs):
+        """
+        جلوگیری از رزرو نوبت در سالنی که در شهر دیگری نسبت به شهر ثبت‌شده‌ی
+        مشتری قرار دارد. این چک علاوه بر فیلتر سمت فرانت‌اند انجام می‌شود تا
+        حتی در صورت دستکاری مستقیم درخواست (curl/Postman/فرانت قدیمی)، رزرو
+        از شهر اشتباه رد شود.
+        """
+        request = self.context.get("request")
+        salon = getattr(request, "salon", None)
+        user = getattr(request, "user", None)
+
+        if (
+            salon is not None
+            and user is not None
+            and getattr(user, "is_authenticated", False)
+            and getattr(user, "role", None) == "customer"
+        ):
+            customer_city = (getattr(user, "city", "") or "").strip()
+            salon_city = (getattr(salon, "city", "") or "").strip()
+
+            if customer_city and salon_city and customer_city.lower() != salon_city.lower():
+                logger.warning(
+                    "City mismatch on booking attempt: user_id=%s user_city=%s salon_id=%s salon_city=%s",
+                    user.id, customer_city, salon.id, salon_city,
+                )
+                raise PermissionDenied(
+                    "این سالن متعلق به شهر دیگری است و امکان رزرو نوبت برای شهر شما وجود ندارد."
+                )
+
+        return attrs
 
     def create(self, validated_data):
         request = self.context.get("request")

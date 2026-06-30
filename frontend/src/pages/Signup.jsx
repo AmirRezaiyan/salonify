@@ -143,6 +143,47 @@ const FormAlert = ({ msg }) => {
 };
 
 // ─── کامپوننت اصلی ────────────────────────────────────────────────────────────
+// ─── لیست شهرهای ایران ───────────────────────────────────────────────────────
+const IRAN_CITIES = [
+  { value: 'تهران', label: 'تهران' },
+  { value: 'مشهد', label: 'مشهد' },
+  { value: 'اصفهان', label: 'اصفهان' },
+  { value: 'شیراز', label: 'شیراز' },
+  { value: 'تبریز', label: 'تبریز' },
+  { value: 'قم', label: 'قم' },
+  { value: 'کاشان', label: 'کاشان' },
+  { value: 'کرمانشاه', label: 'کرمانشاه' },
+  { value: 'بندرعباس', label: 'بندرعباس' },
+  { value: 'اهواز', label: 'اهواز' },
+  { value: 'یزد', label: 'یزد' },
+  { value: 'کرج', label: 'کرج' },
+  { value: 'اراک', label: 'اراک' },
+  { value: 'همدان', label: 'همدان' },
+  { value: 'خرم آباد', label: 'خرم آباد' },
+  { value: 'سنندج', label: 'سنندج' },
+  { value: 'بجنورد', label: 'بجنورد' },
+  { value: 'سبزوار', label: 'سبزوار' },
+  { value: 'رشت', label: 'رشت' },
+  { value: 'بابل', label: 'بابل' },
+  { value: 'گرگان', label: 'گرگان' },
+  { value: 'رامسر', label: 'رامسر' },
+  { value: 'ساری', label: 'ساری' },
+  { value: 'اردبیل', label: 'اردبیل' },
+  { value: 'زنجان', label: 'زنجان' },
+  { value: 'اردستان', label: 'اردستان' },
+  { value: 'بوشهر', label: 'بوشهر' },
+  { value: 'خوی', label: 'خوی' },
+  { value: 'مهاباد', label: 'مهاباد' },
+  { value: 'مریوان', label: 'مریوان' },
+  { value: 'قائم‌شهر', label: 'قائم‌شهر' },
+  { value: 'لاهیجان', label: 'لاهیجان' },
+  { value: 'علی‌آباد', label: 'علی‌آباد' },
+  { value: 'انزلی', label: 'انزلی' },
+  { value: 'چالوس', label: 'چالوس' },
+  { value: 'نوشهر', label: 'نوشهر' },
+  { value: 'نیشابور', label: 'نیشابور' },
+];
+
 export default function Signup() {
   const [formData, setFormData] = useState({
     username: '',
@@ -190,7 +231,7 @@ export default function Signup() {
   };
 
   const onBlur = (e) => {
-    e.target.style.borderColor = '';
+    e.target.style.border = '';
     e.target.style.boxShadow = '';
     e.target.style.backgroundColor = '';
   };
@@ -595,7 +636,7 @@ export default function Signup() {
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
               gap: '1rem',
-              marginBottom: '2rem'
+              marginBottom: '1rem'
             }}
           >
             <div>
@@ -640,23 +681,16 @@ export default function Signup() {
               </div>
               <FieldError msg={errors.gender} />
             </div>
-            <div>
-              <label style={labelStyle}>شهر</label>
-              <div style={{ position: 'relative' }}>
-                <input
-                  type="text"
-                  name="city"
-                  placeholder="مثال: مشهد"
-                  value={formData.city}
-                  onChange={handleChange}
-                  style={errors.city ? inputRtlError : inputRtl}
-                  onFocus={(e) => onFocus(e, !!errors.city)}
-                  onBlur={onBlur}
-                />
-                <MapPin size={16} color={errors.city ? COLORS.danger : '#94a3b8'} style={iconStyle('left')} />
-              </div>
-              <FieldError msg={errors.city} />
-            </div>
+          </div>
+
+          <div style={{ marginBottom: '2rem' }}>
+            <CitySelect
+              name="city"
+              label="شهر"
+              value={formData.city}
+              onChange={handleChange}
+              error={errors.city}
+            />
           </div>
 
           {/* ───── اطلاعات سالن فقط برای مالک ───── */}
@@ -691,21 +725,13 @@ export default function Signup() {
                 </div>
 
                 <div>
-                  <label style={labelStyle}>شهر</label>
-                  <div style={{ position: 'relative' }}>
-                    <input
-                      type="text"
-                      name="salon_city"
-                      placeholder="شهر سالن"
-                      value={formData.salon_city}
-                      onChange={handleChange}
-                    style={errors.salon_city ? inputRtlError : inputRtl}
-                      onFocus={(e) => onFocus(e, !!errors.salon_city)}
-                      onBlur={onBlur}
-                    />
-                    <MapPin size={16} color={errors.salon_city ? '#f5576c' : '#94a3b8'} style={iconStyle('left')} />
-                  </div>
-                  <FieldError msg={errors.salon_city} />
+                  <CitySelect
+                    name="salon_city"
+                    label="شهر سالن"
+                    value={formData.salon_city}
+                    onChange={handleChange}
+                    error={errors.salon_city}
+                  />
                 </div>
               </div>
 
@@ -892,6 +918,130 @@ export default function Signup() {
 }
 
 // ─── کامپوننت‌های کمکی ────────────────────────────────────────────────────────
+
+function CitySelect({ name, label, value, onChange, error }) {
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState('');
+
+  const filtered = IRAN_CITIES.filter(c => c.label.includes(search) || c.value.includes(search));
+  const selected = IRAN_CITIES.find(c => c.value === value);
+
+  const pick = (val) => {
+    onChange({ target: { name, value: val } });
+    setOpen(false);
+    setSearch('');
+  };
+
+  return (
+    <>
+      <label style={labelStyle}>{label}</label>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        style={{
+          width: '100%',
+          padding: '0.75rem 1rem',
+          border: error ? `1.5px solid ${COLORS.danger}` : `1.5px solid ${COLORS.border}`,
+          borderRadius: '10px',
+          fontSize: '0.95rem',
+          color: selected ? COLORS.text : '#94a3b8',
+          backgroundColor: error ? COLORS.errorBg : COLORS.lightBg,
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          direction: 'rtl',
+          fontFamily: 'inherit',
+          boxSizing: 'border-box'
+        }}
+      >
+        <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <MapPin size={15} color={error ? COLORS.danger : '#94a3b8'} />
+          {selected ? selected.label : 'انتخاب شهر'}
+        </span>
+        <ChevronDown size={15} color={error ? COLORS.danger : '#94a3b8'} />
+      </button>
+      <FieldError msg={error} />
+
+      {open && (
+        <div
+          onClick={() => { setOpen(false); setSearch(''); }}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 1000,
+            backgroundColor: 'rgba(0,0,0,0.45)',
+            display: 'flex', alignItems: 'flex-end', justifyContent: 'center'
+          }}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{
+              width: '100%',
+              maxWidth: '520px',
+              background: 'white',
+              borderRadius: '20px 20px 0 0',
+              padding: '1rem',
+              maxHeight: '75vh',
+              display: 'flex',
+              flexDirection: 'column',
+              direction: 'rtl'
+            }}
+          >
+            {/* handle */}
+            <div style={{ width: '40px', height: '4px', borderRadius: '2px', background: '#e2e8f0', margin: '0 auto 0.75rem' }} />
+            <p style={{ fontWeight: 700, fontSize: '1rem', color: COLORS.text, margin: '0 0 0.75rem', textAlign: 'center' }}>انتخاب شهر</p>
+
+            {/* search */}
+            <div style={{ position: 'relative', marginBottom: '0.75rem' }}>
+              <input
+                autoFocus
+                type="text"
+                placeholder="جستجو..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                style={{
+                  width: '100%', padding: '0.6rem 0.9rem',
+                  border: `1.5px solid ${COLORS.border}`,
+                  borderRadius: '8px', fontSize: '0.9rem',
+                  outline: 'none', boxSizing: 'border-box',
+                  direction: 'rtl', fontFamily: 'inherit',
+                  color: COLORS.text, backgroundColor: COLORS.lightBg
+                }}
+              />
+            </div>
+
+            {/* list */}
+            <div style={{ overflowY: 'auto', flex: 1 }}>
+              {filtered.length === 0 && (
+                <p style={{ color: '#94a3b8', textAlign: 'center', padding: '1rem 0', fontSize: '0.9rem' }}>شهری یافت نشد</p>
+              )}
+              {filtered.map(c => (
+                <button
+                  key={c.value}
+                  type="button"
+                  onClick={() => pick(c.value)}
+                  style={{
+                    width: '100%', padding: '0.75rem 1rem',
+                    border: 'none', borderRadius: '8px',
+                    background: value === c.value ? 'rgba(102,126,234,0.1)' : 'transparent',
+                    color: value === c.value ? '#667eea' : COLORS.text,
+                    fontWeight: value === c.value ? 700 : 400,
+                    fontSize: '0.95rem', cursor: 'pointer',
+                    textAlign: 'right', fontFamily: 'inherit',
+                    marginBottom: '2px', display: 'flex',
+                    alignItems: 'center', justifyContent: 'space-between'
+                  }}
+                >
+                  {c.label}
+                  {value === c.value && <span style={{ color: '#667eea', fontSize: '1.1rem' }}>✓</span>}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
 
 function SectionTitle({ icon, title }) {
   return (
