@@ -42,7 +42,7 @@ const SalonQRCode = () => {
           width: 300,
           color: {
             dark: '#000000',
-            light: '#FFFFFF',
+            light: 'var(--card)',
           },
         });
         
@@ -86,7 +86,7 @@ const SalonQRCode = () => {
             font-family: Arial, sans-serif;
           }
           h1 {
-            color: #333;
+            color: var(--text-primary);
             margin-bottom: 20px;
           }
           .qr-container {
@@ -97,7 +97,7 @@ const SalonQRCode = () => {
           img {
             border: 2px solid #333;
             padding: 10px;
-            background: white;
+            background: var(--card);
           }
           .info {
             margin-top: 30px;

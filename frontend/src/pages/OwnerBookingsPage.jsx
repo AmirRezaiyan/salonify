@@ -18,7 +18,7 @@ export default function OwnerBookingsPage() {
       transition={{ duration: 0.3 }}
       style={{
         minHeight: '100vh',
-        background: 'linear-gradient(to bottom, #f8fafc 0%, #ffffff 100%)',
+        background: 'var(--background)',
         direction: 'rtl'
       }}
     >
@@ -29,7 +29,7 @@ export default function OwnerBookingsPage() {
         transition={{ duration: 0.6 }}
         style={{
           position: 'relative',
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
           padding: '3rem 1.5rem',
           overflow: 'hidden'
         }}
@@ -41,7 +41,7 @@ export default function OwnerBookingsPage() {
           right: '-5%',
           width: '300px',
           height: '300px',
-          background: 'rgba(255, 255, 255, 0.1)',
+          background: 'var(--surface-glass)',
           borderRadius: '50%',
           filter: 'blur(60px)'
         }} />
@@ -51,7 +51,7 @@ export default function OwnerBookingsPage() {
           left: '-5%',
           width: '250px',
           height: '250px',
-          background: 'rgba(255, 255, 255, 0.08)',
+          background: 'var(--surface-glass-muted)',
           borderRadius: '50%',
           filter: 'blur(50px)'
         }} />
@@ -169,12 +169,12 @@ export default function OwnerBookingsPage() {
             transition={{ duration: 0.6, delay: 0.2 }}
             whileHover={{ y: -5, scale: 1.01 }}
             style={{
-              background: 'white',
+              background: 'var(--card)',
               borderRadius: '24px',
               padding: '2rem',
               marginBottom: '2.5rem',
               boxShadow: '0 8px 30px rgba(0,0,0,0.08)',
-              border: '1px solid #f1f5f9',
+              border: "1px solid var(--border)",
               position: 'relative',
               overflow: 'hidden'
             }}
@@ -186,7 +186,7 @@ export default function OwnerBookingsPage() {
               left: 0,
               right: 0,
               height: '4px',
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+              background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)'
             }} />
 
             <div style={{
@@ -199,7 +199,7 @@ export default function OwnerBookingsPage() {
                 width: '48px',
                 height: '48px',
                 borderRadius: '14px',
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -209,7 +209,7 @@ export default function OwnerBookingsPage() {
                 <Sparkles size={24} />
               </div>
               <h2 style={{
-                color: '#1e293b',
+                color: "var(--text-primary)",
                 fontSize: '1.4rem',
                 fontWeight: 700,
                 margin: 0
@@ -251,11 +251,11 @@ export default function OwnerBookingsPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
           style={{
-            background: 'white',
+            background: 'var(--card)',
             borderRadius: '24px',
             padding: '2rem',
             boxShadow: '0 8px 30px rgba(0,0,0,0.08)',
-            border: '1px solid #f1f5f9',
+            border: "1px solid var(--border)",
             position: 'relative'
           }}
         >
@@ -266,7 +266,7 @@ export default function OwnerBookingsPage() {
             left: 0,
             right: 0,
             height: '4px',
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+            background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)'
           }} />
 
           <div style={{
@@ -289,7 +289,7 @@ export default function OwnerBookingsPage() {
               <Clock size={24} />
             </div>
             <h2 style={{
-              color: '#1e293b',
+              color: "var(--text-primary)",
               fontSize: '1.4rem',
               fontWeight: 700,
               margin: 0
@@ -316,7 +316,7 @@ function InfoItem({ icon, label, value, gradient }) {
         alignItems: 'center',
         gap: '16px',
         padding: '1rem',
-        background: '#f8fafc',
+        background: 'var(--background-secondary)',
         borderRadius: '16px',
         transition: 'all 0.3s ease'
       }}
@@ -337,7 +337,7 @@ function InfoItem({ icon, label, value, gradient }) {
       <div>
         <div style={{
           fontSize: '0.85rem',
-          color: '#64748b',
+          color: "var(--text-secondary)",
           marginBottom: '4px',
           fontWeight: 500
         }}>
@@ -346,7 +346,7 @@ function InfoItem({ icon, label, value, gradient }) {
         <div style={{
           fontSize: '1.1rem',
           fontWeight: 700,
-          color: '#1e293b'
+          color: "var(--text-primary)"
         }}>
           {value}
         </div>

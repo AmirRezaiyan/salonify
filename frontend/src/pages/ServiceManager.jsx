@@ -155,8 +155,8 @@ export default function ServiceManager() {
   return (
     <div style={{
       minHeight: '100vh',
-      backgroundColor: '#f8f9fa',
-      color: '#52555D',
+      backgroundColor: 'var(--background-secondary)',
+      color: 'var(--text-primary)',
       padding: '2rem 0'
     }}>
       <div style={{
@@ -166,7 +166,7 @@ export default function ServiceManager() {
       }}>
         {/* هدر */}
         <div style={{
-          background: 'white',
+          background: 'var(--card)',
           borderRadius: '12px',
           padding: '2rem',
           border: '1px solid #e9ecef',
@@ -175,7 +175,7 @@ export default function ServiceManager() {
           <h1 style={{
             fontSize: '1.8rem',
             fontWeight: 700,
-            color: '#52555D',
+            color: 'var(--text-primary)',
             margin: 0,
             marginBottom: '0.5rem',
             display: 'flex',
@@ -185,14 +185,14 @@ export default function ServiceManager() {
             <Scissors size={28} />
             مدیریت خدمات
           </h1>
-          <p style={{ color: '#6c757d', margin: 0 }}>
+          <p style={{ color: 'var(--text-secondary)', margin: 0 }}>
             در این بخش می‌توانید خدمات سالن خود را مدیریت کنید.
           </p>
         </div>
 
         {/* فرم */}
         <div style={{
-          background: 'white',
+          background: 'var(--card)',
           borderRadius: '12px',
           padding: '2rem',
           border: '1px solid #e9ecef',
@@ -259,7 +259,7 @@ export default function ServiceManager() {
                     borderRadius: '8px',
                     fontSize: '1rem',
                     color: '#52555D',
-                    backgroundColor: errors.name ? '#fef2f2' : '#ffffff',
+                    backgroundColor: errors.name ? 'var(--danger-surface)' : 'var(--card)',
                     transition: 'border-color 0.2s',
                     outline: 'none',
                     boxSizing: 'border-box'
@@ -293,17 +293,17 @@ export default function ServiceManager() {
                     style={{
                       width: '100%',
                       padding: '0.75rem 1rem 0.75rem 3rem',
-                      border: errors.price ? '1.5px solid #fca5ac' : '1px solid #dee2e6',
+                      border: errors.price ? '1.5px solid #fca5ac' : '1px solid var(--border)',
                       borderRadius: '8px',
                       fontSize: '1rem',
-                      color: '#52555D',
-                      backgroundColor: errors.price ? '#fef2f2' : '#ffffff',
+                      color: 'var(--text-primary)',
+                      backgroundColor: errors.price ? 'var(--danger-surface)' : 'var(--card)',
                       transition: 'border-color 0.2s',
                       outline: 'none',
                       boxSizing: 'border-box'
                     }}
-                    onFocus={(e) => e.target.style.borderColor = errors.price ? '#f5576c' : '#52555D'}
-                    onBlur={(e) => e.target.style.borderColor = errors.price ? '#fca5ac' : '#dee2e6'}
+                    onFocus={(e) => e.target.style.borderColor = errors.price ? '#f5576c' : 'var(--border)'}
+                    onBlur={(e) => e.target.style.borderColor = errors.price ? '#fca5ac' : 'var(--border)'}
                     required
                   />
                   <DollarSign 
@@ -342,17 +342,17 @@ export default function ServiceManager() {
                     style={{
                       width: '100%',
                       padding: '0.75rem 1rem 0.75rem 3rem',
-                      border: errors.duration_minutes ? '1.5px solid #fca5ac' : '1px solid #dee2e6',
+                      border: errors.duration_minutes ? '1.5px solid #fca5ac' : '1px solid var(--border)',
                       borderRadius: '8px',
                       fontSize: '1rem',
-                      color: '#52555D',
-                      backgroundColor: errors.duration_minutes ? '#fef2f2' : '#ffffff',
+                      color: 'var(--text-primary)',
+                      backgroundColor: errors.duration_minutes ? 'var(--danger-surface)' : 'var(--card)',
                       transition: 'border-color 0.2s',
                       outline: 'none',
                       boxSizing: 'border-box'
                     }}
-                    onFocus={(e) => e.target.style.borderColor = errors.duration_minutes ? '#f5576c' : '#52555D'}
-                    onBlur={(e) => e.target.style.borderColor = errors.duration_minutes ? '#fca5ac' : '#dee2e6'}
+                    onFocus={(e) => e.target.style.borderColor = errors.duration_minutes ? '#f5576c' : 'var(--border)'}
+                    onBlur={(e) => e.target.style.borderColor = errors.duration_minutes ? '#fca5ac' : 'var(--border)'}
                     required
                   />
                   <Clock 
@@ -374,7 +374,7 @@ export default function ServiceManager() {
             <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
               <Button 
                 type="submit" 
-                style={{ backgroundColor: '#52555D' }}
+                style={{ backgroundColor: 'var(--text-secondary)' }}
                 disabled={submitting}
               >
                 {submitting ? (
@@ -409,14 +409,14 @@ export default function ServiceManager() {
 
         {/* لیست خدمات */}
         <div style={{
-          background: 'white',
+          background: 'var(--card)',
           borderRadius: '12px',
           border: '1px solid #e9ecef',
           overflow: 'hidden'
         }}>
           <div style={{
             padding: '1.5rem 2rem',
-            borderBottom: '1px solid #e9ecef',
+            borderBottom: '1px solid var(--border)',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center'
@@ -436,10 +436,10 @@ export default function ServiceManager() {
             
             <div style={{
               padding: '0.5rem 1rem',
-              backgroundColor: '#f8f9fa',
+              backgroundColor: 'var(--background-secondary)',
               borderRadius: '20px',
               fontSize: '0.9rem',
-              color: '#52555D'
+              color: 'var(--text-primary)'
             }}>
               {toPersianNumber(services.filter(s => s.is_active).length)} فعال
             </div>
@@ -476,8 +476,8 @@ export default function ServiceManager() {
               }}>
                 <thead>
                   <tr style={{ 
-                    backgroundColor: '#f8f9fa',
-                    borderBottom: '1px solid #e9ecef'
+                    backgroundColor: 'var(--surface)',
+                    borderBottom: '1px solid var(--border)'
                   }}>
                     <th style={{
                       padding: '1rem',
@@ -528,7 +528,7 @@ export default function ServiceManager() {
                       onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                     >
                       <td style={{ padding: '1rem', textAlign: 'right' }}>
-                        <div style={{ fontWeight: 600, color: '#52555D' }}>
+                        <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
                           {service.name}
                         </div>
                       </td>
@@ -552,7 +552,7 @@ export default function ServiceManager() {
                           padding: '0.25rem 0.75rem',
                           borderRadius: '20px',
                           backgroundColor: service.is_active ? 'rgba(76, 175, 80, 0.1)' : 'rgba(244, 67, 54, 0.1)',
-                          color: service.is_active ? '#4CAF50' : '#f44336',
+                          color: service.is_active ? 'var(--success)' : 'var(--danger)',
                           fontSize: '0.85rem',
                           fontWeight: 500
                         }}>
@@ -575,20 +575,20 @@ export default function ServiceManager() {
                               gap: '0.25rem',
                               padding: '0.5rem 0.75rem',
                               borderRadius: '6px',
-                              border: '1px solid #52555D',
+                              border: '1px solid var(--border)',
                               backgroundColor: 'transparent',
-                              color: '#52555D',
+                              color: 'var(--text-primary)',
                               cursor: 'pointer',
                               fontSize: '0.9rem',
                               transition: 'all 0.2s'
                             }}
                             onMouseEnter={(e) => {
-                              e.currentTarget.style.backgroundColor = '#52555D';
-                              e.currentTarget.style.color = 'white';
+                              e.currentTarget.style.backgroundColor = 'var(--surface-glass)';
+                              e.currentTarget.style.color = 'var(--text-primary)';
                             }}
                             onMouseLeave={(e) => {
                               e.currentTarget.style.backgroundColor = 'transparent';
-                              e.currentTarget.style.color = '#52555D';
+                              e.currentTarget.style.color = 'var(--text-primary)';
                             }}
                           >
                             <Edit size={16} />
@@ -603,20 +603,20 @@ export default function ServiceManager() {
                               gap: '0.25rem',
                               padding: '0.5rem 0.75rem',
                               borderRadius: '6px',
-                              border: '1px solid #f44336',
+                              border: '1px solid var(--danger)',
                               backgroundColor: 'transparent',
-                              color: '#f44336',
+                              color: 'var(--danger)',
                               cursor: 'pointer',
                               fontSize: '0.9rem',
                               transition: 'all 0.2s'
                             }}
                             onMouseEnter={(e) => {
-                              e.currentTarget.style.backgroundColor = '#f44336';
+                              e.currentTarget.style.backgroundColor = 'var(--danger)';
                               e.currentTarget.style.color = 'white';
                             }}
                             onMouseLeave={(e) => {
                               e.currentTarget.style.backgroundColor = 'transparent';
-                              e.currentTarget.style.color = '#f44336';
+                              e.currentTarget.style.color = 'var(--danger)';
                             }}
                             disabled={submitting}
                           >

@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from .models import Salon, Service, SalonWorkingHours, Review, PortfolioCategory, PortfolioItem
@@ -163,9 +165,17 @@ class ServiceSerializer(serializers.ModelSerializer):
         return value
 
     def validate_price(self, value):
-        if value is None or value < 0:
-            raise serializers.ValidationError('قیمت نمی‌تواند منفی باشد')
-        return value
+        if value in (None, ''):
+            raise serializers.ValidationError('قیمت این سرویس باید بیشتر از صفر باشد')
+
+        try:
+            price = Decimal(str(value))
+        except Exception:
+            raise serializers.ValidationError('قیمت این سرویس باید یک عدد معتبر باشد')
+
+        if price <= 0:
+            raise serializers.ValidationError('قیمت این سرویس باید بیشتر از صفر باشد')
+        return price
 
 
 class ReviewSerializer(serializers.ModelSerializer):

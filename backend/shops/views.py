@@ -7,6 +7,7 @@ from rest_framework.exceptions import NotFound, PermissionDenied
 from django.db.models import Q
 from django.db import connection, IntegrityError
 from django.utils import timezone
+from decimal import Decimal
 
 from .models import Salon, Service, SalonWorkingHours, Review, PortfolioCategory, PortfolioItem
 from .serializers import (
@@ -28,9 +29,20 @@ class ServiceManageViewSet(viewsets.ModelViewSet):
             return Service.objects.filter(salon=user.salon)
         return Service.objects.none()
 
+    def _has_valid_price(self, price):
+        if price in (None, ''):
+            return False
+        try:
+            return Decimal(str(price)) > 0
+        except Exception:
+            return False
+
     def perform_create(self, serializer):
         user = self.request.user
         if hasattr(user, 'salon') and user.salon:
+            price = serializer.validated_data.get('price')
+            if not self._has_valid_price(price):
+                raise serializers.ValidationError({'price': 'قیمت این سرویس باید بیشتر از صفر باشد'})
             try:
                 serializer.save(salon=user.salon)
             except IntegrityError:
@@ -44,6 +56,11 @@ class ServiceManageViewSet(viewsets.ModelViewSet):
             service = self.get_object()
             if service.salon != user.salon:
                 raise serializers.ValidationError('شما اجازه تغییر این سرویس را ندارید')
+
+            updated_price = serializer.validated_data.get('price', service.price)
+            is_becoming_active = serializer.validated_data.get('is_active', service.is_active)
+            if is_becoming_active and not self._has_valid_price(updated_price):
+                raise serializers.ValidationError({'price': 'قیمت این سرویس را قبل از فعال‌سازی مشخص کنید'})
             try:
                 serializer.save()
             except IntegrityError:
@@ -333,7 +350,7 @@ class ServiceListView(generics.ListAPIView):
             logger.warning("ServiceListView: salon_id=%s does not exist", salon_id)
             raise NotFound(detail="Tenant not found")
         
-        qs = Service.objects.filter(salon_id=salon_id, is_active=True).order_by("id")
+        qs = Service.objects.filter(salon_id=salon_id, is_active=True, price__gt=0).order_by("id")
         try:
             _ = list(qs.values_list('price', flat=True)[:20])
             return qs
@@ -365,9 +382,9 @@ class ServiceListView(generics.ListAPIView):
                                 cursor.execute("UPDATE shops_service SET price = 0 WHERE id = ?", [sid])
                             except Exception:
                                 logger.exception("Failed to update invalid price for service id=%s", sid)
-            qs = Service.objects.filter(salon_id=salon_id, is_active=True).order_by("id")
+            qs = Service.objects.filter(salon_id=salon_id, is_active=True, price__gt=0).order_by("id")
             return qs
-        return Service.objects.filter(salon_id=salon_id, is_active=True).order_by("id")
+        return Service.objects.filter(salon_id=salon_id, is_active=True, price__gt=0).order_by("id")
 
 
 class WorkingHoursListView(generics.ListAPIView):

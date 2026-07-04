@@ -20,14 +20,14 @@ import {
 
 // ─── استایل‌های مشترک ─────────────────────────────────────────────────────────
 const COLORS = {
-  primary: '#667eea',
-  primaryDark: '#764ba2',
-  danger: '#f5576c',
-  text: '#1e293b',
-  muted: '#64748b',
-  lightBg: '#f8fafc',
-  border: '#e2e8f0',
-  errorBg: '#fff5f7'
+  primary: 'var(--primary)',
+  primaryDark: 'var(--primary-dark)',
+  danger: 'var(--danger)',
+  text: 'var(--text-primary)',
+  muted: 'var(--text-muted)',
+  lightBg: 'var(--surface-muted)',
+  border: 'var(--border)',
+  errorBg: 'var(--danger-surface)'
 };
 
 const inputBase = {
@@ -73,7 +73,7 @@ const inputRtlError = {
 const labelStyle = {
   display: 'block',
   marginBottom: '0.4rem',
-  color: '#374151',
+  color: 'var(--text-primary)',
   fontWeight: 600,
   fontSize: '0.9rem'
 };
@@ -127,7 +127,7 @@ const FormAlert = ({ msg }) => {
   return (
     <div
       style={{
-        backgroundColor: '#fef2f2',
+        backgroundColor: 'var(--danger-surface)',
         border: '1px solid #fecaca',
         borderRadius: '10px',
         padding: '0.85rem 1rem',
@@ -223,17 +223,15 @@ export default function Signup() {
   };
 
   const onFocus = (e, hasErr) => {
-    e.target.style.borderColor = hasErr ? '#f5576c' : '#667eea';
+    e.target.style.borderColor = hasErr ? COLORS.danger : COLORS.primary;
     e.target.style.boxShadow = hasErr
-      ? '0 0 0 3px rgba(245,87,108,0.12)'
-      : '0 0 0 3px rgba(102,126,234,0.15)';
-    e.target.style.backgroundColor = '#ffffff';
+      ? '0 0 0 3px rgba(239,68,68,0.12)'
+      : '0 0 0 3px rgba(37,99,235,0.15)';
   };
 
   const onBlur = (e) => {
     e.target.style.border = '';
     e.target.style.boxShadow = '';
-    e.target.style.backgroundColor = '';
   };
 
   // ─── اعتبارسنجی ─────────────────────────────────────────────────────────────
@@ -380,7 +378,7 @@ export default function Signup() {
     <div
       style={{
         minHeight: '100vh',
-        background: 'linear-gradient(to bottom, #f8fafc 0%, #ffffff 100%)',
+        background: 'var(--background)',
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'flex-start',
@@ -399,7 +397,7 @@ export default function Signup() {
             right: '-5%',
             width: '400px',
             height: '400px',
-            background: 'linear-gradient(135deg, rgba(102,126,234,0.15) 0%, rgba(118,75,162,0.1) 100%)',
+            background: 'linear-gradient(135deg, rgba(37,99,235,0.08) 0%, rgba(59,130,246,0.05) 100%)',
             borderRadius: '50%',
             filter: 'blur(60px)'
           }}
@@ -411,7 +409,7 @@ export default function Signup() {
             left: '-5%',
             width: '350px',
             height: '350px',
-            background: 'linear-gradient(135deg, rgba(118,75,162,0.1) 0%, rgba(102,126,234,0.08) 100%)',
+            background: 'linear-gradient(135deg, rgba(59,130,246,0.05) 0%, rgba(37,99,235,0.04) 100%)',
             borderRadius: '50%',
             filter: 'blur(50px)'
           }}
@@ -423,13 +421,13 @@ export default function Signup() {
         animate={{ scale: 1, opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: 'easeOut' }}
         style={{
-          background: 'white',
+          background: 'var(--card)',
           borderRadius: '20px',
           padding: 'clamp(1.25rem, 4vw, 2.5rem)',
           width: '100%',
           maxWidth: '820px',
-          border: '1px solid #e2e8f0',
-          boxShadow: '0 20px 60px rgba(102,126,234,0.12)',
+          border: '1px solid var(--border)',
+          boxShadow: '0 20px 60px rgba(37,99,235,0.1)',
           position: 'relative',
           zIndex: 1
         }}
@@ -437,7 +435,7 @@ export default function Signup() {
         {/* ── هدر ── */}
         <div
           style={{
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
             borderRadius: '14px',
             padding: '1.75rem 1.5rem',
             textAlign: 'center',
@@ -451,14 +449,14 @@ export default function Signup() {
             style={{
               width: '60px',
               height: '60px',
-              backgroundColor: 'rgba(255,255,255,0.2)',
+              backgroundColor: 'var(--surface-glass-strong)',
               borderRadius: '14px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               margin: '0 auto 1rem',
               backdropFilter: 'blur(10px)',
-              border: '1px solid rgba(255,255,255,0.3)'
+              border: '1px solid var(--surface-glass-strong)'
             }}
           >
             <Scissors size={28} color="white" />
@@ -474,7 +472,7 @@ export default function Signup() {
           >
             ساخت حساب کاربری
           </h1>
-          <p style={{ color: 'rgba(255,255,255,0.85)', margin: 0, fontSize: '0.95rem' }}>
+          <p style={{ color: 'var(--text-light)', margin: 0, fontSize: '0.95rem' }}>
             اطلاعات خود را وارد کنید
           </p>
         </div>
@@ -511,8 +509,8 @@ export default function Signup() {
                       gap: '0.75rem',
                       padding: '0.85rem 1rem',
                       borderRadius: '12px',
-                      border: active ? '2px solid #667eea' : '1.5px solid #e2e8f0',
-                      backgroundColor: active ? 'rgba(102,126,234,0.06)' : '#f8fafc',
+                      border: active ? `2px solid ${COLORS.primary}` : `1.5px solid ${COLORS.border}`,
+                      backgroundColor: active ? 'rgba(37,99,235,0.06)' : 'var(--surface-muted)',
                       cursor: 'pointer',
                       transition: 'all 0.2s',
                       textAlign: 'right'
@@ -527,16 +525,16 @@ export default function Signup() {
                       justifyContent: 'center',
                       flexShrink: 0,
                       background: active
-                        ? 'linear-gradient(135deg, #667eea, #764ba2)'
-                        : '#e2e8f0',
-                      color: active ? 'white' : '#94a3b8',
+                        ? `linear-gradient(135deg, ${COLORS.primary}, ${COLORS.primaryDark})`
+                        : 'var(--border)',
+                      color: active ? 'white' : 'var(--text-muted)',
                       transition: 'all 0.2s'
                     }}>
                       {icon}
                     </span>
                     <span>
-                      <span style={{ display: 'block', fontWeight: 700, fontSize: '0.9rem', color: active ? '#667eea' : '#374151' }}>{label}</span>
-                      <span style={{ display: 'block', fontSize: '0.78rem', color: '#94a3b8', marginTop: '0.1rem' }}>{desc}</span>
+                      <span style={{ display: 'block', fontWeight: 700, fontSize: '0.9rem', color: active ? COLORS.primary : 'var(--text-primary)' }}>{label}</span>
+                      <span style={{ display: 'block', fontSize: '0.78rem', color: "var(--text-muted)", marginTop: '0.1rem' }}>{desc}</span>
                     </span>
                   </button>
                 );
@@ -861,7 +859,7 @@ export default function Signup() {
               type="submit"
               loading={loading}
               style={{
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
                 color: 'white',
                 padding: '0.9rem 2.5rem',
                 fontSize: '1rem',
@@ -883,13 +881,13 @@ export default function Signup() {
         </form>
 
         {/* ── فوتر ── */}
-        <p style={{ textAlign: 'center', marginTop: '1.75rem', color: '#64748b', fontSize: '0.95rem' }}>
+        <p style={{ textAlign: 'center', marginTop: '1.75rem', color: "var(--text-secondary)", fontSize: '0.95rem' }}>
           حساب کاربری دارید؟{' '}
           <Link
             to="/login"
-            style={{ color: '#667eea', fontWeight: 700, textDecoration: 'none' }}
-            onMouseEnter={(e) => (e.target.style.color = '#764ba2')}
-            onMouseLeave={(e) => (e.target.style.color = '#667eea')}
+            style={{ color: COLORS.primary, fontWeight: 700, textDecoration: 'none' }}
+            onMouseEnter={(e) => (e.target.style.color = COLORS.primaryDark)}
+            onMouseLeave={(e) => (e.target.style.color = COLORS.primary)}
           >
             وارد شوید
           </Link>
@@ -899,7 +897,7 @@ export default function Signup() {
           <p
             style={{
               fontSize: '0.85rem',
-              color: '#94a3b8',
+              color: "var(--text-muted)",
               margin: '0 0 0.3rem 0',
               display: 'flex',
               alignItems: 'center',
@@ -944,7 +942,7 @@ function CitySelect({ name, label, value, onChange, error }) {
           border: error ? `1.5px solid ${COLORS.danger}` : `1.5px solid ${COLORS.border}`,
           borderRadius: '10px',
           fontSize: '0.95rem',
-          color: selected ? COLORS.text : '#94a3b8',
+          color: selected ? COLORS.text : COLORS.muted,
           backgroundColor: error ? COLORS.errorBg : COLORS.lightBg,
           cursor: 'pointer',
           display: 'flex',
@@ -956,10 +954,10 @@ function CitySelect({ name, label, value, onChange, error }) {
         }}
       >
         <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <MapPin size={15} color={error ? COLORS.danger : '#94a3b8'} />
+          <MapPin size={15} color={error ? COLORS.danger : COLORS.muted} />
           {selected ? selected.label : 'انتخاب شهر'}
         </span>
-        <ChevronDown size={15} color={error ? COLORS.danger : '#94a3b8'} />
+        <ChevronDown size={15} color={error ? COLORS.danger : COLORS.muted} />
       </button>
       <FieldError msg={error} />
 
@@ -977,7 +975,7 @@ function CitySelect({ name, label, value, onChange, error }) {
             style={{
               width: '100%',
               maxWidth: '520px',
-              background: 'white',
+              background: 'var(--card)',
               borderRadius: '20px 20px 0 0',
               padding: '1rem',
               maxHeight: '75vh',
@@ -987,7 +985,7 @@ function CitySelect({ name, label, value, onChange, error }) {
             }}
           >
             {/* handle */}
-            <div style={{ width: '40px', height: '4px', borderRadius: '2px', background: '#e2e8f0', margin: '0 auto 0.75rem' }} />
+            <div style={{ width: '40px', height: '4px', borderRadius: '2px', background: 'var(--surface-muted)', margin: '0 auto 0.75rem' }} />
             <p style={{ fontWeight: 700, fontSize: '1rem', color: COLORS.text, margin: '0 0 0.75rem', textAlign: 'center' }}>انتخاب شهر</p>
 
             {/* search */}
@@ -1012,7 +1010,7 @@ function CitySelect({ name, label, value, onChange, error }) {
             {/* list */}
             <div style={{ overflowY: 'auto', flex: 1 }}>
               {filtered.length === 0 && (
-                <p style={{ color: '#94a3b8', textAlign: 'center', padding: '1rem 0', fontSize: '0.9rem' }}>شهری یافت نشد</p>
+                <p style={{ color: "var(--text-muted)", textAlign: 'center', padding: '1rem 0', fontSize: '0.9rem' }}>شهری یافت نشد</p>
               )}
               {filtered.map(c => (
                 <button
@@ -1022,8 +1020,8 @@ function CitySelect({ name, label, value, onChange, error }) {
                   style={{
                     width: '100%', padding: '0.75rem 1rem',
                     border: 'none', borderRadius: '8px',
-                    background: value === c.value ? 'rgba(102,126,234,0.1)' : 'transparent',
-                    color: value === c.value ? '#667eea' : COLORS.text,
+                    background: value === c.value ? 'rgba(37,99,235,0.1)' : 'transparent',
+                    color: value === c.value ? COLORS.primary : COLORS.text,
                     fontWeight: value === c.value ? 700 : 400,
                     fontSize: '0.95rem', cursor: 'pointer',
                     textAlign: 'right', fontFamily: 'inherit',
@@ -1032,7 +1030,7 @@ function CitySelect({ name, label, value, onChange, error }) {
                   }}
                 >
                   {c.label}
-                  {value === c.value && <span style={{ color: '#667eea', fontSize: '1.1rem' }}>✓</span>}
+                  {value === c.value && <span style={{ color: COLORS.primary, fontSize: '1.1rem' }}>✓</span>}
                 </button>
               ))}
             </div>
@@ -1052,11 +1050,11 @@ function SectionTitle({ icon, title }) {
         gap: '0.5rem',
         marginBottom: '1rem',
         paddingBottom: '0.75rem',
-        borderBottom: '2px solid rgba(102,126,234,0.15)'
+        borderBottom: `2px solid rgba(37,99,235,0.15)`
       }}
     >
-      <span style={{ color: '#667eea' }}>{icon}</span>
-      <h3 style={{ fontSize: '1rem', fontWeight: 700, color: '#374151', margin: 0 }}>{title}</h3>
+      <span style={{ color: COLORS.primary }}>{icon}</span>
+      <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>{title}</h3>
     </div>
   );
 }
@@ -1082,7 +1080,7 @@ function EyeToggle({ show, onToggle, hasErr }) {
         padding: '0.2rem',
         display: 'flex',
         alignItems: 'center',
-        color: hovered ? '#667eea' : hasErr ? '#f5576c' : '#94a3b8',
+        color: hovered ? COLORS.primary : hasErr ? COLORS.danger : COLORS.muted,
         transition: 'color 0.2s'
       }}
     >

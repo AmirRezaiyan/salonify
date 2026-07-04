@@ -1,7 +1,7 @@
 .booking-page {
   min-height: 100vh;
   padding: var(--spacing-2xl) 0;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: linear-gradient(135deg, var(--background-secondary) 0%, var(--background) 100%);
 }
 
 .booking-wrapper {
@@ -12,7 +12,7 @@
 }
 
 .booking-form-section {
-  background: white;
+  background: var(--card);
   border-radius: var(--radius-lg);
   padding: var(--spacing-2xl);
   box-shadow: var(--shadow-lg);
@@ -60,7 +60,7 @@
 
 .service-preview {
   padding: var(--spacing-xl);
-  background: white;
+  background: var(--card);
   box-shadow: var(--shadow-lg);
 }
 

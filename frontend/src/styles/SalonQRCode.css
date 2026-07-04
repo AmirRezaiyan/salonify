@@ -10,7 +10,7 @@
 }
 
 .qr-code-container {
-  background: white;
+  background: var(--card);
   border-radius: 12px;
   padding: 40px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
@@ -61,12 +61,12 @@
   border: 2px solid #667eea;
   border-radius: 8px;
   padding: 10px;
-  background: white;
+  background: var(--card);
   margin-bottom: 20px;
 }
 
 .qr-info {
-  color: #666;
+  color: var(--text-muted);
   font-size: 14px;
   line-height: 1.6;
   margin: 0;
@@ -80,20 +80,20 @@
 }
 
 .qr-code-url p {
-  color: #666;
+  color: var(--text-muted);
   font-size: 14px;
   margin: 0 0 10px 0;
 }
 
 .qr-code-url code {
   display: block;
-  background: white;
+  background: var(--card);
   padding: 10px;
   border-radius: 4px;
   font-size: 12px;
   word-break: break-all;
-  color: #333;
-  border: 1px solid #ddd;
+  color: var(--text-primary);
+  border: 1px solid var(--border);
   font-family: 'Courier New', monospace;
 }
 
@@ -117,7 +117,7 @@
 
 .btn-primary {
   background-color: #667eea;
-  color: white;
+  color: var(--text-light);
 }
 
 .btn-primary:hover {
@@ -128,7 +128,7 @@
 
 .btn-secondary {
   background-color: #48bb78;
-  color: white;
+  color: var(--text-light);
 }
 
 .btn-secondary:hover {
@@ -139,7 +139,7 @@
 
 .btn-back {
   background-color: #e2e8f0;
-  color: #333;
+  color: var(--text-primary);
   width: 100%;
 }
 
@@ -148,7 +148,7 @@
 }
 
 .instructions {
-  background: #eff6ff;
+  background: var(--info-surface);
   border-left: 4px solid #667eea;
   padding: 20px;
   border-radius: 6px;
@@ -173,7 +173,7 @@
 }
 
 .loading-spinner {
-  background: white;
+  background: var(--card);
   border-radius: 12px;
   padding: 40px;
   text-align: center;
@@ -196,13 +196,13 @@
 }
 
 .loading-spinner p {
-  color: #333;
+  color: var(--text-primary);
   font-size: 16px;
   margin: 0;
 }
 
 .error-container {
-  background: white;
+  background: var(--card);
   border-radius: 12px;
   padding: 40px;
   text-align: center;
@@ -224,7 +224,7 @@
 
 .error-container button {
   background-color: #667eea;
-  color: white;
+  color: var(--text-light);
   border: none;
   padding: 12px 30px;
   border-radius: 6px;
@@ -274,7 +274,7 @@
 
 @media print {
   .qr-code-page {
-    background: white;
+    background: var(--card);
     padding: 0;
   }
 
@@ -291,6 +291,6 @@
 
   .qr-code-display {
     border: 1px solid #ccc;
-    background: white;
+    background: var(--card);
   }
 }

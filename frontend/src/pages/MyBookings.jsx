@@ -38,23 +38,23 @@ function useInterval(callback, delay) {
 }
 
 function timeLeft(startAt) {
-  if (!startAt) return { finished: false, text: '—', color: '#64748b' };
+  if (!startAt) return { finished: false, text: '—', color: "var(--text-secondary)" };
   const now = new Date();
   const then = new Date(startAt);
   const diff = then - now;
-  if (Number.isNaN(then.getTime())) return { finished: false, text: '—', color: '#64748b' };
-  if (diff <= 0) return { finished: true, text: 'شروع شده', color: '#10b981' };
+  if (Number.isNaN(then.getTime())) return { finished: false, text: '—', color: "var(--text-secondary)" };
+  if (diff <= 0) return { finished: true, text: 'شروع شده', color: 'var(--success)' };
   const mins = Math.floor(diff / 60000);
   const hours = Math.floor(mins / 60);
   const minutes = mins % 60;
   if (hours > 24) {
     const days = Math.floor(hours / 24);
-    return { finished: false, text: `${days} روز`, color: '#10b981' };
+    return { finished: false, text: `${days} روز`, color: 'var(--success)' };
   }
   if (hours > 0) {
-    return { finished: false, text: `${hours} ساعت و ${minutes} دقیقه`, color: '#3b82f6' };
+    return { finished: false, text: `${hours} ساعت و ${minutes} دقیقه`, color: 'var(--primary)' };
   }
-  return { finished: false, text: `${minutes} دقیقه`, color: '#f59e0b' };
+  return { finished: false, text: `${minutes} دقیقه`, color: 'var(--warning)' };
 }
 
 function canModifyBookingLocally(booking) {
@@ -82,13 +82,13 @@ function getBookingSalonId(booking) {
 function getStatusConfig(status) {
   switch (status) {
     case 'confirmed':
-      return { label: 'تأیید شده', color: '#10b981', bg: '#d1fae5', dot: '#10b981', icon: CheckCircle };
+      return { label: 'تأیید شده', color: 'var(--success)', bg: 'var(--success-surface)', dot: 'var(--success)', icon: CheckCircle };
     case 'pending':
-      return { label: 'در انتظار', color: '#f59e0b', bg: '#fef3c7', dot: '#f59e0b', icon: Clock };
+      return { label: 'در انتظار', color: 'var(--warning)', bg: 'var(--warning-surface)', dot: 'var(--warning)', icon: Clock };
     case 'cancelled':
-      return { label: 'لغو شده', color: '#ef4444', bg: '#fee2e2', dot: '#ef4444', icon: XCircle };
+      return { label: 'لغو شده', color: 'var(--danger)', bg: 'var(--danger-surface)', dot: 'var(--danger)', icon: XCircle };
     default:
-      return { label: status || 'نامشخص', color: '#64748b', bg: '#f1f5f9', dot: '#94a3b8', icon: Clock };
+      return { label: status || 'نامشخص', color: "var(--text-secondary)", bg: 'var(--surface-muted)', dot: 'var(--text-muted)', icon: Clock };
   }
 }
 
@@ -152,9 +152,9 @@ function StatChip({ label, value, color, bg }) {
 function Detail({ icon, label, value }) {
   return (
     <div style={{ display: 'flex', alignItems: 'flex-start', gap: 7 }}>
-      <span style={{ color: '#94a3b8', marginTop: 2, flexShrink: 0 }}>{icon}</span>
+      <span style={{ color: "var(--text-muted)", marginTop: 2, flexShrink: 0 }}>{icon}</span>
       <div>
-        <div style={{ fontSize: '0.72rem', color: '#94a3b8', marginBottom: 2 }}>{label}</div>
+        <div style={{ fontSize: '0.72rem', color: "var(--text-muted)", marginBottom: 2 }}>{label}</div>
         <div style={{ fontSize: '0.85rem', fontWeight: 600, color: '#334155' }}>{value}</div>
       </div>
     </div>
@@ -202,14 +202,14 @@ function PageBtn({ onClick, disabled, icon }) {
         width: 36,
         height: 36,
         borderRadius: 10,
-        border: '1px solid #E2E8F0',
-        background: '#fff',
+        border: '1px solid var(--border)',
+        background: 'var(--card)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         cursor: disabled ? 'not-allowed' : 'pointer',
         opacity: disabled ? 0.4 : 1,
-        color: '#64748B',
+        color: 'var(--text-secondary)',
       }}
     >
       {icon}
@@ -242,7 +242,7 @@ function Pagination({ current, total, onChange }) {
             height: 36,
             borderRadius: 10,
             border: 'none',
-            background: current === p ? '#667eea' : '#F8FAFC',
+            background: current === p ? '#667eea' : 'var(--background-secondary)',
             color: current === p ? '#fff' : '#64748B',
             fontWeight: current === p ? 700 : 500,
             fontSize: '0.88rem',
@@ -254,7 +254,7 @@ function Pagination({ current, total, onChange }) {
         </button>
       ))}
       <PageBtn onClick={() => onChange(Math.min(total, current + 1))} disabled={current === total} icon={<ChevronLeft size={15} />} />
-      <span style={{ fontSize: '0.82rem', color: '#94A3B8', marginRight: 4 }}>
+      <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginRight: 4 }}>
         {toPersianNumber(current)} / {toPersianNumber(total)}
       </span>
     </div>
@@ -287,8 +287,8 @@ function BookingCard({
       whileHover={{ y: -4 }}
       transition={{ duration: 0.22 }}
       style={{
-        background: '#fff',
-        border: '1px solid #E2E8F0',
+        background: 'var(--card)',
+        border: '1px solid var(--border)',
         borderRadius: 16,
         padding: '1.25rem 1.5rem',
         display: 'flex',
@@ -314,14 +314,14 @@ function BookingCard({
             <User size={18} color="#667eea" />
           </div>
           <div>
-            <div style={{ fontWeight: 700, color: '#1E293B', fontSize: '0.95rem' }}>{customerName}</div>
-            <div style={{ fontSize: '0.78rem', color: '#94A3B8', marginTop: 2 }}>{phone}</div>
+            <div style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '0.95rem' }}>{customerName}</div>
+            <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: 2 }}>{phone}</div>
           </div>
         </div>
         <StatusBadge status={booking.status} />
       </div>
 
-      <div style={{ height: 1, background: '#F1F5F9' }} />
+      <div style={{ height: 1, background: 'var(--card-hover)' }} />
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
         <Detail icon={<Scissors size={14} />} label="خدمت" value={serviceName} />
@@ -354,9 +354,9 @@ function BookingCard({
               gap: 6,
               padding: '7px 12px',
               borderRadius: 999,
-              background: '#F8FAFC',
-              color: '#64748B',
-              border: '1px solid #E2E8F0',
+              background: 'var(--background-secondary)',
+              color: 'var(--text-secondary)',
+              border: '1px solid var(--border)',
               fontSize: '0.82rem',
               fontWeight: 600,
             }}
@@ -409,9 +409,9 @@ function BookingCard({
             marginTop: 4,
             padding: '10px 12px',
             borderRadius: 12,
-            background: '#F8FAFC',
-            border: '1px solid #E2E8F0',
-            color: '#64748B',
+            background: 'var(--background-secondary)',
+            border: '1px solid var(--border)',
+            color: 'var(--text-secondary)',
             fontSize: '0.82rem',
             lineHeight: 1.8,
           }}
@@ -432,7 +432,7 @@ function InfoItem({ icon, label, value, gradient }) {
         alignItems: 'center',
         gap: '16px',
         padding: '1rem',
-        background: '#f8fafc',
+        background: 'var(--background-secondary)',
         borderRadius: '16px',
         transition: 'all 0.3s ease',
       }}
@@ -456,7 +456,7 @@ function InfoItem({ icon, label, value, gradient }) {
         <div
           style={{
             fontSize: '0.85rem',
-            color: '#64748b',
+            color: "var(--text-secondary)",
             marginBottom: '4px',
             fontWeight: 500,
           }}
@@ -467,7 +467,7 @@ function InfoItem({ icon, label, value, gradient }) {
           style={{
             fontSize: '1.1rem',
             fontWeight: 700,
-            color: '#1e293b',
+            color: "var(--text-primary)",
           }}
         >
           {value}
@@ -513,7 +513,7 @@ function CancelConfirmModal({ open, booking, onClose, onConfirm, processing }) {
           style={{
             width: '100%',
             maxWidth: '460px',
-            background: '#fff',
+            background: 'var(--card)',
             borderRadius: '24px',
             overflow: 'hidden',
             boxShadow: '0 20px 60px rgba(0,0,0,0.25)',
@@ -548,7 +548,7 @@ function CancelConfirmModal({ open, booking, onClose, onConfirm, processing }) {
                   width: 44,
                   height: 44,
                   borderRadius: 14,
-                  background: '#fee2e2',
+                  background: 'var(--danger-surface)',
                   color: '#dc2626',
                   display: 'flex',
                   alignItems: 'center',
@@ -560,10 +560,10 @@ function CancelConfirmModal({ open, booking, onClose, onConfirm, processing }) {
               </div>
 
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: '1rem', fontWeight: 700, color: '#1e293b', marginBottom: 6 }}>
+                <div style={{ fontSize: '1rem', fontWeight: 700, color: "var(--text-primary)", marginBottom: 6 }}>
                   مطمئنی که می‌خواهی این نوبت را لغو کنی؟
                 </div>
-                <div style={{ fontSize: '0.9rem', color: '#64748b', lineHeight: 1.9 }}>
+                <div style={{ fontSize: '0.9rem', color: "var(--text-secondary)", lineHeight: 1.9 }}>
                   این عملیات قابل بازگشت نیست. در صورت لغو، نوبت مربوط به <b>{serviceName}</b> حذف می‌شود.
                 </div>
               </div>
@@ -571,12 +571,12 @@ function CancelConfirmModal({ open, booking, onClose, onConfirm, processing }) {
 
             <div
               style={{
-                background: '#f8fafc',
-                border: '1px solid #e2e8f0',
+                background: 'var(--background-secondary)',
+                border: '1px solid var(--border)',
                 borderRadius: 16,
                 padding: '0.9rem 1rem',
                 marginBottom: '1.25rem',
-                color: '#475569',
+                color: "var(--text-secondary)",
                 fontSize: '0.9rem',
                 lineHeight: 1.8,
               }}
@@ -592,8 +592,8 @@ function CancelConfirmModal({ open, booking, onClose, onConfirm, processing }) {
                   flex: 1,
                   padding: '12px 16px',
                   borderRadius: 14,
-                  border: '1px solid #e2e8f0',
-                  background: '#fff',
+                  border: '1px solid var(--border)',
+                  background: 'var(--card)',
                   color: '#334155',
                   fontWeight: 700,
                   cursor: processing ? 'not-allowed' : 'pointer',
@@ -674,7 +674,7 @@ function SuccessModal({ open, message, onClose }) {
           style={{
             width: '100%',
             maxWidth: '400px',
-            background: '#fff',
+            background: 'var(--card)',
             borderRadius: '24px',
             overflow: 'hidden',
             boxShadow: '0 20px 60px rgba(0,0,0,0.2)',
@@ -696,7 +696,7 @@ function SuccessModal({ open, message, onClose }) {
                 width: 64,
                 height: 64,
                 borderRadius: '50%',
-                background: 'rgba(255,255,255,0.25)',
+                background: 'var(--surface-glass)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -868,18 +868,18 @@ export default function MyBookings() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          background: 'linear-gradient(to bottom, #f8fafc 0%, #ffffff 100%)',
+          background: 'var(--background)',
           padding: '1rem',
         }}
       >
         <div
           style={{
             textAlign: 'center',
-            background: 'white',
+            background: 'var(--card)',
             borderRadius: '24px',
             padding: '3rem 2rem',
             boxShadow: '0 8px 30px rgba(0,0,0,0.08)',
-            border: '1px solid #f1f5f9',
+            border: "1px solid var(--border)",
             maxWidth: '500px',
             width: '100%',
             position: 'relative',
@@ -893,16 +893,16 @@ export default function MyBookings() {
               left: 0,
               right: 0,
               height: '4px',
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
             }}
           />
           <Calendar size={64} color="#94a3b8" style={{ marginBottom: '1.5rem' }} />
-          <h2 style={{ color: '#1e293b', fontSize: '1.8rem', fontWeight: 700, marginBottom: '1rem' }}>سالن انتخاب نشده</h2>
-          <p style={{ color: '#64748b', marginBottom: '2rem' }}>لطفاً ابتدا از صفحه اصلی یک سالن را انتخاب کنید.</p>
+          <h2 style={{ color: "var(--text-primary)", fontSize: '1.8rem', fontWeight: 700, marginBottom: '1rem' }}>سالن انتخاب نشده</h2>
+          <p style={{ color: "var(--text-secondary)", marginBottom: '2rem' }}>لطفاً ابتدا از صفحه اصلی یک سالن را انتخاب کنید.</p>
           <Button
             onClick={() => (window.location.href = '/')}
             style={{
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
               color: 'white',
               border: 'none',
               borderRadius: '12px',
@@ -926,7 +926,7 @@ export default function MyBookings() {
       transition={{ duration: 0.3 }}
       style={{
         minHeight: '100vh',
-        background: 'linear-gradient(to bottom, #f8fafc 0%, #ffffff 100%)',
+        background: 'var(--background)',
         direction: 'rtl',
       }}
     >
@@ -936,7 +936,7 @@ export default function MyBookings() {
         transition={{ duration: 0.6 }}
         style={{
           position: 'relative',
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
           padding: '3rem 1.5rem',
           overflow: 'hidden',
         }}
@@ -948,7 +948,7 @@ export default function MyBookings() {
             right: '-5%',
             width: '300px',
             height: '300px',
-            background: 'rgba(255, 255, 255, 0.1)',
+            background: 'var(--surface-glass)',
             borderRadius: '50%',
             filter: 'blur(60px)',
           }}
@@ -960,7 +960,7 @@ export default function MyBookings() {
             left: '-5%',
             width: '250px',
             height: '250px',
-            background: 'rgba(255, 255, 255, 0.08)',
+            background: 'var(--surface-glass-muted)',
             borderRadius: '50%',
             filter: 'blur(50px)',
           }}
@@ -1076,12 +1076,12 @@ export default function MyBookings() {
             transition={{ duration: 0.6, delay: 0.2 }}
             whileHover={{ y: -5, scale: 1.01 }}
             style={{
-              background: 'white',
+              background: 'var(--card)',
               borderRadius: '24px',
               padding: '2rem',
               marginBottom: '2.5rem',
               boxShadow: '0 8px 30px rgba(0,0,0,0.08)',
-              border: '1px solid #f1f5f9',
+              border: "1px solid var(--border)",
               position: 'relative',
               overflow: 'hidden',
             }}
@@ -1093,7 +1093,7 @@ export default function MyBookings() {
                 left: 0,
                 right: 0,
                 height: '4px',
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
               }}
             />
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '1.5rem' }}>
@@ -1102,7 +1102,7 @@ export default function MyBookings() {
                   width: '48px',
                   height: '48px',
                   borderRadius: '14px',
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -1112,7 +1112,7 @@ export default function MyBookings() {
               >
                 <Sparkles size={24} />
               </div>
-              <h2 style={{ color: '#1e293b', fontSize: '1.4rem', fontWeight: 700, margin: 0 }}>اطلاعات حساب کاربری</h2>
+              <h2 style={{ color: "var(--text-primary)", fontSize: '1.4rem', fontWeight: 700, margin: 0 }}>اطلاعات حساب کاربری</h2>
             </div>
             <div
               style={{
@@ -1133,11 +1133,11 @@ export default function MyBookings() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
           style={{
-            background: 'white',
+            background: 'var(--card)',
             borderRadius: '24px',
             padding: '2rem',
             boxShadow: '0 8px 30px rgba(0,0,0,0.08)',
-            border: '1px solid #f1f5f9',
+            border: "1px solid var(--border)",
             position: 'relative',
           }}
         >
@@ -1148,7 +1148,7 @@ export default function MyBookings() {
               left: 0,
               right: 0,
               height: '4px',
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
             }}
           />
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '1.5rem' }}>
@@ -1167,7 +1167,7 @@ export default function MyBookings() {
             >
               <Clock size={24} />
             </div>
-            <h2 style={{ color: '#1e293b', fontSize: '1.4rem', fontWeight: 700, margin: 0 }}>لیست رزروها</h2>
+            <h2 style={{ color: "var(--text-primary)", fontSize: '1.4rem', fontWeight: 700, margin: 0 }}>لیست رزروها</h2>
           </div>
 
           <AnimatePresence>
@@ -1189,11 +1189,11 @@ export default function MyBookings() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.45 }}
               style={{
-                background: '#f8fafc',
+                background: 'var(--background-secondary)',
                 borderRadius: '20px',
                 padding: '1.5rem',
                 marginBottom: '2rem',
-                border: '1px solid #e2e8f0',
+                border: '1px solid var(--border)',
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '1rem' }}>
@@ -1202,7 +1202,7 @@ export default function MyBookings() {
                     width: '40px',
                     height: '40px',
                     borderRadius: '12px',
-                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -1211,12 +1211,12 @@ export default function MyBookings() {
                 >
                   <Search size={20} />
                 </div>
-                <h3 style={{ color: '#1e293b', fontSize: '1.2rem', fontWeight: 700, margin: 0 }}>جستجوی نوبت‌ها</h3>
+                <h3 style={{ color: "var(--text-primary)", fontSize: '1.2rem', fontWeight: 700, margin: 0 }}>جستجوی نوبت‌ها</h3>
               </div>
               <form onSubmit={handleSearch}>
                 <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end', flexWrap: 'wrap' }}>
                   <div style={{ flex: 1, minWidth: '250px' }}>
-                    <label style={{ display: 'block', marginBottom: '8px', color: '#475569', fontWeight: 600, fontSize: '0.9rem' }}>
+                    <label style={{ display: 'block', marginBottom: '8px', color: "var(--text-secondary)", fontWeight: 600, fontSize: '0.9rem' }}>
                       شماره موبایل
                     </label>
                     <Input
@@ -1228,7 +1228,7 @@ export default function MyBookings() {
                       style={{
                         width: '100%',
                         padding: '12px 16px',
-                        border: '2px solid #e2e8f0',
+                        border: '2px solid var(--border)',
                         borderRadius: '14px',
                         fontSize: '0.95rem',
                       }}
@@ -1244,7 +1244,7 @@ export default function MyBookings() {
                       gap: '8px',
                       padding: '12px 32px',
                       borderRadius: '50px',
-                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                      background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
                       color: 'white',
                       border: 'none',
                       fontSize: '1rem',
@@ -1267,7 +1267,7 @@ export default function MyBookings() {
                     )}
                   </Button>
                 </div>
-                <p style={{ marginTop: '1rem', color: '#64748b', fontSize: '0.9rem' }}>
+                <p style={{ marginTop: '1rem', color: "var(--text-secondary)", fontSize: '0.9rem' }}>
                   برای دسترسی ساده‌تر و مشاهده تمامی نوبت‌ها، وارد حساب کاربری خود شوید.
                 </p>
               </form>
@@ -1277,7 +1277,7 @@ export default function MyBookings() {
           {loading && !bookings.length ? (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ textAlign: 'center', padding: '4rem' }}>
               <Loading />
-              <p style={{ marginTop: '1rem', color: '#64748b' }}>در حال بارگذاری نوبت‌ها...</p>
+              <p style={{ marginTop: '1rem', color: "var(--text-secondary)" }}>در حال بارگذاری نوبت‌ها...</p>
             </motion.div>
           ) : (
             <>
@@ -1307,14 +1307,14 @@ export default function MyBookings() {
                   style={{
                     textAlign: 'center',
                     padding: '4rem 2rem',
-                    background: '#f8fafc',
+                    background: 'var(--background-secondary)',
                     borderRadius: '20px',
-                    border: '1px solid #E2E8F0',
+                    border: '1px solid var(--border)',
                   }}
                 >
-                  <Clock size={64} style={{ color: '#94a3b8', marginBottom: '1.5rem' }} />
-                  <h3 style={{ color: '#475569', fontSize: '1.5rem', marginBottom: '0.5rem' }}>نوبتی یافت نشد</h3>
-                  <p style={{ color: '#64748b' }}>
+                  <Clock size={64} style={{ color: "var(--text-muted)", marginBottom: '1.5rem' }} />
+                  <h3 style={{ color: "var(--text-secondary)", fontSize: '1.5rem', marginBottom: '0.5rem' }}>نوبتی یافت نشد</h3>
+                  <p style={{ color: "var(--text-secondary)" }}>
                     {!isAuthenticated && !phone
                       ? 'برای مشاهده نوبت‌های خود، شماره موبایل خود را وارد کنید.'
                       : 'شما هنوز نوبتی ثبت نکرده‌اید یا نوبتی با این مشخصات وجود ندارد.'}

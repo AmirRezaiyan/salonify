@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { api } from '../api/client';
 import QRCode from 'qrcode';
 import { Button } from '../components/Button';
@@ -40,7 +41,9 @@ import {
   RotateCcw,
   Menu,
   X,
-  ChevronDown
+  ChevronDown,
+  Moon,
+  Sun
 } from 'lucide-react';
 import { formatToman, toPersianNumber } from '../utils/formatCurrency';
 import ManageReviews from '../components/ManageReviews';
@@ -225,6 +228,7 @@ function groupWorkingHoursByDay(workingHours) {
   });
 }
 export default function AdminPanel() {
+  const { theme, toggleTheme } = useTheme();
   const { isAuthenticated, user, logout } = useAuth();
   const navigate = useNavigate();
   const [salon, setSalon] = useState(null);
@@ -448,8 +452,14 @@ export default function AdminPanel() {
 
   const handleAddService = async (e) => {
     e.preventDefault();
-    if (!newService.name || !newService.price) {
-      setError('لطفاً نام و قیمت خدمت را وارد کنید');
+    if (!newService.name.trim()) {
+      setErrorModal({ open: true, title: 'نام خدمت', message: 'لطفاً نام خدمت را وارد کنید' });
+      return;
+    }
+
+    const parsedPrice = parseFloat(newService.price);
+    if (!Number.isFinite(parsedPrice) || parsedPrice <= 0) {
+      setErrorModal({ open: true, title: 'قیمت خدمت', message: 'قیمت این سرویس باید بیشتر از صفر باشد' });
       return;
     }
 
@@ -457,7 +467,7 @@ export default function AdminPanel() {
       setLoading(true);
       await api.createService({
         name: newService.name,
-        price: parseFloat(newService.price) || 0,
+        price: parsedPrice,
         duration_minutes: parseInt(newService.duration_minutes, 10) || 30,
         is_active: true
       });
@@ -503,8 +513,14 @@ export default function AdminPanel() {
   };
 
   const handleUpdateService = async () => {
-    if (!editingService.name || !editingService.price) {
-      setError('لطفاً نام و قیمت خدمت را وارد کنید');
+    if (!editingService.name.trim()) {
+      setErrorModal({ open: true, title: 'نام خدمت', message: 'لطفاً نام خدمت را وارد کنید' });
+      return;
+    }
+
+    const parsedPrice = parseFloat(editingService.price);
+    if (!Number.isFinite(parsedPrice) || parsedPrice <= 0) {
+      setErrorModal({ open: true, title: 'قیمت خدمت', message: 'قیمت این سرویس باید بیشتر از صفر باشد' });
       return;
     }
 
@@ -512,7 +528,7 @@ export default function AdminPanel() {
       setLoading(true);
       const payload = {
         name: editingService.name,
-        price: parseFloat(editingService.price) || 0,
+        price: parsedPrice,
         duration_minutes: parseInt(editingService.duration_minutes, 10) || 30
       };
       console.log('Updating service with payload:', payload);
@@ -569,13 +585,18 @@ export default function AdminPanel() {
   };
 
   const handleToggleServiceStatus = async (service) => {
+    const hasValidPrice = Number(service?.price) > 0;
+    if (!service.is_active && !hasValidPrice) {
+      setErrorModal({
+        open: true,
+        title: 'قیمت سرویس',
+        message: 'برای فعال‌سازی این سرویس، ابتدا قیمت آن را بیشتر از صفر وارد کنید.'
+      });
+      return;
+    }
+
     try {
       setLoading(true);
-      console.log('Toggle service:', service);
-      console.log('Service ID:', service.id);
-      console.log('Current is_active:', service.is_active);
-      console.log('New is_active:', !service.is_active);
-      
       await api.updateService(service.id, {
         is_active: !service.is_active
       });
@@ -1027,7 +1048,7 @@ export default function AdminPanel() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'linear-gradient(to bottom, #f8fafc 0%, #ffffff 100%)',
+        background: 'var(--background)',
         padding: '20px'
       }}>
         <motion.div
@@ -1035,13 +1056,13 @@ export default function AdminPanel() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
           style={{
-            background: 'white',
+            background: 'var(--card)',
             borderRadius: '24px',
             padding: '40px',
             maxWidth: '500px',
             textAlign: 'center',
             boxShadow: '0 8px 30px rgba(0,0,0,0.08)',
-            border: '1px solid #f1f5f9'
+            border: "1px solid var(--border)"
           }}
         >
           <Alert type="error" message="دسترسی رد شد. فقط مالک و کارمند می‌توانند وارد شوند." />
@@ -1049,7 +1070,7 @@ export default function AdminPanel() {
             onClick={() => navigate('/')}
             style={{
               marginTop: '20px',
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
               color: 'white',
               padding: '12px 32px',
               borderRadius: '12px',
@@ -1075,7 +1096,7 @@ export default function AdminPanel() {
       transition={{ duration: 0.3 }}
       style={{
         minHeight: '100vh',
-        background: 'linear-gradient(to bottom, #f8fafc 0%, #ffffff 100%)',
+        background: 'var(--background)',
         direction: 'rtl'
       }}
     >
@@ -1204,7 +1225,7 @@ export default function AdminPanel() {
         transition={{ duration: 0.6 }}
         style={{
           position: 'relative',
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
           padding: 'clamp(1rem, 3vw, 1.5rem) clamp(1rem, 4vw, 2rem)',
           overflow: 'hidden',
           boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
@@ -1217,7 +1238,7 @@ export default function AdminPanel() {
           right: '-5%',
           width: '250px',
           height: '250px',
-          background: 'rgba(255, 255, 255, 0.1)',
+          background: 'var(--surface-glass)',
           borderRadius: '50%',
           filter: 'blur(60px)'
         }} />
@@ -1227,7 +1248,7 @@ export default function AdminPanel() {
           left: '-5%',
           width: '200px',
           height: '200px',
-          background: 'rgba(255, 255, 255, 0.08)',
+          background: 'var(--surface-glass-muted)',
           borderRadius: '50%',
           filter: 'blur(50px)'
         }} />
@@ -1358,11 +1379,11 @@ export default function AdminPanel() {
             gap: '10px',
             padding: '12px 16px',
             borderRadius: '16px',
-            border: '1px solid #e2e8f0',
-            background: 'white',
+            border: '1px solid var(--border)',
+            background: 'var(--card)',
             boxShadow: '0 8px 24px rgba(15, 23, 42, 0.06)',
             cursor: 'pointer',
-            color: '#1e293b',
+            color: "var(--text-primary)",
             fontSize: '0.92rem',
             fontWeight: 700
           }}
@@ -1372,7 +1393,7 @@ export default function AdminPanel() {
               width: '34px',
               height: '34px',
               borderRadius: '10px',
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
               color: 'white',
               display: 'flex',
               alignItems: 'center',
@@ -1383,7 +1404,7 @@ export default function AdminPanel() {
             </span>
             {TAB_META[activeTab]?.label}
           </span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#64748b' }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: "var(--text-secondary)" }}>
             {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
           </span>
         </button>
@@ -1403,24 +1424,23 @@ export default function AdminPanel() {
           className={`admin-aside${mobileMenuOpen ? ' admin-aside-open' : ''}`}
         >
           <div style={{
-            background: 'white',
-            borderRadius: '24px',
-            padding: 'clamp(1rem, 2vw, 1.5rem)',
-            boxShadow: '0 8px 30px rgba(0,0,0,0.08)',
-            border: '1px solid #f1f5f9',
-            position: 'relative',
-            overflow: 'hidden'
-          }}>
-            {/* نوار گرادیانت بالا */}
-            <div style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              height: '4px',
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-            }} />
-
+              background: 'var(--card)',
+              borderRadius: '24px',
+              padding: 'clamp(1rem, 2vw, 1.5rem)',
+              boxShadow: 'var(--shadow-lg)',
+              border: '1px solid var(--border)',
+              position: 'relative',
+              overflow: 'hidden'
+            }}>
+              {/* نوار گرادیانت بالا */}
+              <div style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: '4px',
+                background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)'
+              }} />
             <nav style={{ overflowY: 'auto', maxHeight: 'calc(100vh - 200px)' }}>
               <TabButton
                 icon={<BarChart3 size={20} />}
@@ -1549,11 +1569,11 @@ export default function AdminPanel() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.1 }}
                 style={{
-                  background: 'white',
+                  background: 'var(--card)',
                   borderRadius: '24px',
                   padding: 'clamp(1rem, 3vw, 2rem)',
                   boxShadow: '0 8px 30px rgba(0,0,0,0.08)',
-                  border: '1px solid #f1f5f9',
+                  border: "1px solid var(--border)",
                   position: 'relative'
                 }}
               >
@@ -1563,7 +1583,7 @@ export default function AdminPanel() {
                   left: 0,
                   right: 0,
                   height: '4px',
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+                  background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)'
                 }} />
 
                 <div style={{
@@ -1576,7 +1596,7 @@ export default function AdminPanel() {
                     width: 'clamp(36px, 6vw, 48px)',
                     height: 'clamp(36px, 6vw, 48px)',
                     borderRadius: '14px',
-                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -1587,7 +1607,7 @@ export default function AdminPanel() {
                     <Building2 size={20} />
                   </div>
                   <h2 style={{
-                    color: '#1e293b',
+                    color: "var(--text-primary)",
                     fontSize: 'clamp(1.1rem, 3vw, 1.4rem)',
                     fontWeight: 700,
                     margin: 0
@@ -1647,7 +1667,7 @@ export default function AdminPanel() {
                     width: 'clamp(36px, 6vw, 48px)',
                     height: 'clamp(36px, 6vw, 48px)',
                     borderRadius: '14px',
-                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -1659,7 +1679,7 @@ export default function AdminPanel() {
                   </div>
                   <div>
                     <h2 style={{
-                      color: '#1e293b',
+                      color: "var(--text-primary)",
                       fontSize: 'clamp(1.1rem, 3vw, 1.4rem)',
                       fontWeight: 700,
                       margin: 0
@@ -1668,7 +1688,7 @@ export default function AdminPanel() {
                     </h2>
                     <p style={{
                       margin: '4px 0 0 0',
-                      color: '#64748b',
+                      color: "var(--text-secondary)",
                       fontSize: 'clamp(0.75rem, 1.5vw, 0.9rem)'
                     }}>
                       خدمات سالن رو ببین، ویرایش کن یا فعال/غیرفعال کن.
@@ -1685,7 +1705,7 @@ export default function AdminPanel() {
                     gap: '8px',
                     padding: 'clamp(8px, 2vw, 12px) clamp(16px, 3vw, 28px)',
                     borderRadius: '50px',
-                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
                     color: 'white',
                     border: 'none',
                     fontSize: 'clamp(0.75rem, 2vw, 0.95rem)',
@@ -1717,36 +1737,36 @@ export default function AdminPanel() {
                 marginBottom: '1.25rem'
               }} className="working-hour-summary-grid">
                 <div style={{
-                  background: 'white',
+                  background: 'var(--card)',
                   borderRadius: '20px',
                   padding: '1rem',
-                  border: '1px solid #e2e8f0',
+                  border: '1px solid var(--border)',
                   boxShadow: '0 8px 24px rgba(15, 23, 42, 0.06)'
                 }}>
-                  <div style={{ color: '#64748b', fontSize: '0.82rem', marginBottom: '0.35rem' }}>تعداد خدمات</div>
-                  <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#0f172a' }}>{toPersianNumber(services.length)}</div>
+                  <div style={{ color: "var(--text-secondary)", fontSize: '0.82rem', marginBottom: '0.35rem' }}>تعداد خدمات</div>
+                  <div style={{ fontSize: '1.5rem', fontWeight: 800, color: "var(--text-primary)" }}>{toPersianNumber(services.length)}</div>
                 </div>
                 <div style={{
-                  background: 'white',
+                  background: 'var(--card)',
                   borderRadius: '20px',
                   padding: '1rem',
-                  border: '1px solid #e2e8f0',
+                  border: '1px solid var(--border)',
                   boxShadow: '0 8px 24px rgba(15, 23, 42, 0.06)'
                 }}>
-                  <div style={{ color: '#64748b', fontSize: '0.82rem', marginBottom: '0.35rem' }}>خدمات فعال</div>
-                  <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#0f172a' }}>
+                  <div style={{ color: "var(--text-secondary)", fontSize: '0.82rem', marginBottom: '0.35rem' }}>خدمات فعال</div>
+                  <div style={{ fontSize: '1.5rem', fontWeight: 800, color: "var(--text-primary)" }}>
                     {toPersianNumber(services.filter((s) => s.is_active).length)}
                   </div>
                 </div>
                 <div style={{
-                  background: 'white',
+                  background: 'var(--card)',
                   borderRadius: '20px',
                   padding: '1rem',
-                  border: '1px solid #e2e8f0',
+                  border: '1px solid var(--border)',
                   boxShadow: '0 8px 24px rgba(15, 23, 42, 0.06)'
                 }}>
-                  <div style={{ color: '#64748b', fontSize: '0.82rem', marginBottom: '0.35rem' }}>خدمات غیرفعال</div>
-                  <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#0f172a' }}>
+                  <div style={{ color: "var(--text-secondary)", fontSize: '0.82rem', marginBottom: '0.35rem' }}>خدمات غیرفعال</div>
+                  <div style={{ fontSize: '1.5rem', fontWeight: 800, color: "var(--text-primary)" }}>
                     {toPersianNumber(services.filter((s) => !s.is_active).length)}
                   </div>
                 </div>
@@ -1839,16 +1859,16 @@ export default function AdminPanel() {
                         width: 'min(560px, calc(100vw - 0.75rem))',
                         maxHeight: 'calc(100vh - 1.5rem)',
                         overflowY: 'auto',
-                        background: 'white',
+                        background: 'var(--card)',
                         borderRadius: '28px',
                         boxShadow: '0 24px 90px rgba(15, 23, 42, 0.3)',
-                        border: '1px solid #e2e8f0',
+                        border: '1px solid var(--border)',
                         position: 'relative'
                       }}
                     >
                       <div style={{
                         height: '4px',
-                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                        background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
                         borderTopLeftRadius: '28px',
                         borderTopRightRadius: '28px'
                       }} />
@@ -1859,7 +1879,7 @@ export default function AdminPanel() {
                             width: '44px',
                             height: '44px',
                             borderRadius: '14px',
-                            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                            background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
@@ -1869,7 +1889,7 @@ export default function AdminPanel() {
                             <Sparkles size={20} />
                           </div>
                           <h3 style={{
-                            color: '#0f172a',
+                            color: "var(--text-primary)",
                             fontSize: 'clamp(1.1rem, 3vw, 1.3rem)',
                             fontWeight: 800,
                             margin: 0
@@ -1926,19 +1946,19 @@ export default function AdminPanel() {
                                 padding: 'clamp(8px, 2vw, 12px) clamp(16px, 3vw, 32px)',
                                 borderRadius: '50px',
                                 border: '2px solid #e2e8f0',
-                                background: 'white',
-                                color: '#64748b',
+                                background: 'var(--card)',
+                                color: "var(--text-secondary)",
                                 fontSize: 'clamp(0.75rem, 2vw, 0.95rem)',
                                 fontWeight: 600,
                                 cursor: 'pointer',
                                 transition: 'all 0.3s ease'
                               }}
                               onMouseEnter={(e) => {
-                                e.currentTarget.style.background = '#f8fafc';
+                                e.currentTarget.style.background = 'var(--background-secondary)';
                                 e.currentTarget.style.borderColor = '#94a3b8';
                               }}
                               onMouseLeave={(e) => {
-                                e.currentTarget.style.background = 'white';
+                                e.currentTarget.style.background = 'var(--card)';
                                 e.currentTarget.style.borderColor = '#e2e8f0';
                               }}
                             >
@@ -2002,10 +2022,10 @@ export default function AdminPanel() {
                         width: 'min(560px, calc(100vw - 0.75rem))',
                         maxHeight: 'calc(100vh - 1.5rem)',
                         overflowY: 'auto',
-                        background: 'white',
+                        background: 'var(--card)',
                         borderRadius: '28px',
                         boxShadow: '0 24px 90px rgba(15, 23, 42, 0.3)',
-                        border: '1px solid #e2e8f0',
+                        border: '1px solid var(--border)',
                         position: 'relative'
                       }}
                     >
@@ -2032,7 +2052,7 @@ export default function AdminPanel() {
                             <Edit2 size={20} />
                           </div>
                           <h3 style={{
-                            color: '#0f172a',
+                            color: "var(--text-primary)",
                             fontSize: 'clamp(1.1rem, 3vw, 1.3rem)',
                             fontWeight: 800,
                             margin: 0
@@ -2085,19 +2105,19 @@ export default function AdminPanel() {
                               padding: 'clamp(8px, 2vw, 12px) clamp(16px, 3vw, 32px)',
                               borderRadius: '50px',
                               border: '2px solid #e2e8f0',
-                              background: 'white',
-                              color: '#64748b',
+                              background: 'var(--card)',
+                              color: "var(--text-secondary)",
                               fontSize: 'clamp(0.75rem, 2vw, 0.95rem)',
                               fontWeight: 600,
                               cursor: 'pointer',
                               transition: 'all 0.3s ease'
                             }}
                             onMouseEnter={(e) => {
-                              e.currentTarget.style.background = '#f8fafc';
+                              e.currentTarget.style.background = 'var(--background-secondary)';
                               e.currentTarget.style.borderColor = '#94a3b8';
                             }}
                             onMouseLeave={(e) => {
-                              e.currentTarget.style.background = 'white';
+                              e.currentTarget.style.background = 'var(--card)';
                               e.currentTarget.style.borderColor = '#e2e8f0';
                             }}
                           >
@@ -2137,21 +2157,21 @@ export default function AdminPanel() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.1 }}
                   style={{
-                    background: 'white',
+                    background: 'var(--card)',
                     borderRadius: '24px',
                     overflow: 'hidden',
                     boxShadow: '0 8px 30px rgba(0,0,0,0.08)',
-                    border: '1px solid #f1f5f9',
+                    border: "1px solid var(--border)",
                     textAlign: 'center',
                     padding: '4rem 2rem',
-                    color: '#64748b'
+                    color: "var(--text-secondary)"
                   }}
                 >
                   <Scissors size={64} style={{ marginBottom: '1rem', opacity: 0.3 }} />
                   <p style={{
                     fontSize: '1.1rem',
                     fontWeight: 600,
-                    color: '#475569',
+                    color: "var(--text-secondary)",
                     marginBottom: '0.5rem'
                   }}>
                     هنوز خدمتی ثبت نشده است
@@ -2208,7 +2228,7 @@ export default function AdminPanel() {
                   </div>
                   <div>
                     <h2 style={{
-                      color: '#1e293b',
+                      color: "var(--text-primary)",
                       fontSize: 'clamp(1.1rem, 3vw, 1.4rem)',
                       fontWeight: 700,
                       margin: 0
@@ -2217,7 +2237,7 @@ export default function AdminPanel() {
                     </h2>
                     <p style={{
                       margin: '4px 0 0 0',
-                      color: '#64748b',
+                      color: "var(--text-secondary)",
                       fontSize: 'clamp(0.75rem, 1.5vw, 0.9rem)'
                     }}>
                       روزها را کارت‌محور ببین، شیفت‌ها را با drag & drop بچین و فقط با یک لمس روی چند روز اعمال کن.
@@ -2275,34 +2295,34 @@ export default function AdminPanel() {
                 marginBottom: '1rem'
               }} className="working-hour-summary-grid">
                 <div style={{
-                  background: 'white',
+                  background: 'var(--card)',
                   borderRadius: '20px',
                   padding: '1rem',
-                  border: '1px solid #e2e8f0',
+                  border: '1px solid var(--border)',
                   boxShadow: '0 8px 24px rgba(15, 23, 42, 0.06)'
                 }}>
-                  <div style={{ color: '#64748b', fontSize: '0.82rem', marginBottom: '0.35rem' }}>روزهای فعال</div>
-                  <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#0f172a' }}>{activeWorkingDays}</div>
+                  <div style={{ color: "var(--text-secondary)", fontSize: '0.82rem', marginBottom: '0.35rem' }}>روزهای فعال</div>
+                  <div style={{ fontSize: '1.5rem', fontWeight: 800, color: "var(--text-primary)" }}>{activeWorkingDays}</div>
                 </div>
                 <div style={{
-                  background: 'white',
+                  background: 'var(--card)',
                   borderRadius: '20px',
                   padding: '1rem',
-                  border: '1px solid #e2e8f0',
+                  border: '1px solid var(--border)',
                   boxShadow: '0 8px 24px rgba(15, 23, 42, 0.06)'
                 }}>
-                  <div style={{ color: '#64748b', fontSize: '0.82rem', marginBottom: '0.35rem' }}>کل شیفت‌ها</div>
-                  <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#0f172a' }}>{toPersianNumber(workingHours.length)}</div>
+                  <div style={{ color: "var(--text-secondary)", fontSize: '0.82rem', marginBottom: '0.35rem' }}>کل شیفت‌ها</div>
+                  <div style={{ fontSize: '1.5rem', fontWeight: 800, color: "var(--text-primary)" }}>{toPersianNumber(workingHours.length)}</div>
                 </div>
                 <div style={{
-                  background: 'white',
+                  background: 'var(--card)',
                   borderRadius: '20px',
                   padding: '1rem',
-                  border: '1px solid #e2e8f0',
+                  border: '1px solid var(--border)',
                   boxShadow: '0 8px 24px rgba(15, 23, 42, 0.06)'
                 }}>
-                  <div style={{ color: '#64748b', fontSize: '0.82rem', marginBottom: '0.35rem' }}>روزهای چندشیفته</div>
-                  <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#0f172a' }}>{toPersianNumber(multiShiftDays)}</div>
+                  <div style={{ color: "var(--text-secondary)", fontSize: '0.82rem', marginBottom: '0.35rem' }}>روزهای چندشیفته</div>
+                  <div style={{ fontSize: '1.5rem', fontWeight: 800, color: "var(--text-primary)" }}>{toPersianNumber(multiShiftDays)}</div>
                 </div>
               </div>
 
@@ -2339,10 +2359,10 @@ export default function AdminPanel() {
                         width: 'min(1040px, calc(100vw - 0.75rem))',
                         maxHeight: 'calc(100vh - 1.5rem)',
                         overflowY: 'auto',
-                        background: 'white',
+                        background: 'var(--card)',
                         borderRadius: '28px',
                         boxShadow: '0 24px 90px rgba(15, 23, 42, 0.3)',
-                        border: '1px solid #e2e8f0',
+                        border: '1px solid var(--border)',
                         position: 'relative'
                       }}
                     >
@@ -2350,7 +2370,7 @@ export default function AdminPanel() {
                         position: 'sticky',
                         top: 0,
                         zIndex: 3,
-                        background: 'white',
+                        background: 'var(--card)',
                         borderBottom: '1px solid #eef2f7'
                       }}>
                         <div style={{
@@ -2369,7 +2389,7 @@ export default function AdminPanel() {
                         }}>
                           <div>
                             <h3 style={{
-                              color: '#0f172a',
+                              color: "var(--text-primary)",
                               fontSize: 'clamp(1.1rem, 3vw, 1.4rem)',
                               fontWeight: 800,
                               margin: 0
@@ -2378,7 +2398,7 @@ export default function AdminPanel() {
                             </h3>
                             <p style={{
                               margin: '0.35rem 0 0 0',
-                              color: '#64748b',
+                              color: "var(--text-secondary)",
                               fontSize: '0.92rem',
                               lineHeight: 1.7
                             }}>
@@ -2396,9 +2416,9 @@ export default function AdminPanel() {
                               width: '40px',
                               height: '40px',
                               borderRadius: '12px',
-                              border: '1px solid #e2e8f0',
-                              background: '#f8fafc',
-                              color: '#475569',
+                              border: '1px solid var(--border)',
+                              background: 'var(--background-secondary)',
+                              color: "var(--text-secondary)",
                               cursor: 'pointer',
                               flexShrink: 0
                             }}
@@ -2417,9 +2437,9 @@ export default function AdminPanel() {
                         }}>
                           <div style={{
                             gridColumn: '1 / -1',
-                            background: '#f8fafc',
+                            background: 'var(--background-secondary)',
                             borderRadius: '22px',
-                            border: '1px solid #e2e8f0',
+                            border: '1px solid var(--border)',
                             padding: 'clamp(0.9rem, 2.5vw, 1.15rem)'
                           }}>
                             <div style={{
@@ -2432,11 +2452,11 @@ export default function AdminPanel() {
                             }}>
                               <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
                                 <CalendarDays size={18} color="#0ea5e9" />
-                                <span style={{ fontWeight: 800, color: '#0f172a' }}>روز فعلی</span>
+                                <span style={{ fontWeight: 800, color: "var(--text-primary)" }}>روز فعلی</span>
                                 <span style={{
                                   padding: '0.35rem 0.7rem',
                                   borderRadius: '999px',
-                                  background: '#e0f2fe',
+                                  background: 'var(--info-surface)',
                                   color: '#0369a1',
                                   fontSize: '0.78rem',
                                   fontWeight: 700
@@ -2568,10 +2588,10 @@ export default function AdminPanel() {
                                   {toPersianNumber(currentWizardDayIndex + 1)}
                                 </div>
                                 <div>
-                                  <div style={{ fontWeight: 800, color: '#0f172a' }}>
+                                  <div style={{ fontWeight: 800, color: "var(--text-primary)" }}>
                                     {currentWizardDay.label}
                                   </div>
-                                  <div style={{ color: '#64748b', fontSize: '0.84rem' }}>
+                                  <div style={{ color: "var(--text-secondary)", fontSize: '0.84rem' }}>
                                     {nextWizardDay ? `بعدی: ${nextWizardDay.label}` : 'آخرین روز هفته'}
                                   </div>
                                 </div>
@@ -2603,8 +2623,8 @@ export default function AdminPanel() {
                               gap: '0.5rem',
                               padding: '0.6rem 0.95rem',
                               borderRadius: '999px',
-                              background: '#f8fafc',
-                              color: '#475569',
+                              background: 'var(--background-secondary)',
+                              color: "var(--text-secondary)",
                               fontSize: '0.88rem',
                               fontWeight: 700
                             }}>
@@ -2620,8 +2640,8 @@ export default function AdminPanel() {
                               }))}
                               style={{
                                 border: 'none',
-                                background: '#f8fafc',
-                                color: '#475569',
+                                background: 'var(--background-secondary)',
+                                color: "var(--text-secondary)",
                                 borderRadius: '999px',
                                 padding: '0.55rem 0.9rem',
                                 fontSize: '0.84rem',
@@ -2647,7 +2667,7 @@ export default function AdminPanel() {
                                 onClick={() => handleApplyWorkingHourPreset(preset)}
                                 style={{
                                   border: '1px solid #dbeafe',
-                                  background: 'white',
+                                  background: 'var(--card)',
                                   borderRadius: '18px',
                                   padding: '0.9rem 1rem',
                                   cursor: 'pointer',
@@ -2656,8 +2676,8 @@ export default function AdminPanel() {
                                 }}
                               >
                                 <div style={{ fontSize: '1.1rem', marginBottom: '0.35rem' }}>{preset.icon}</div>
-                                <div style={{ fontWeight: 800, color: '#0f172a', marginBottom: '0.25rem' }}>{preset.label}</div>
-                                <div style={{ color: '#64748b', fontSize: '0.82rem' }}>
+                                <div style={{ fontWeight: 800, color: "var(--text-primary)", marginBottom: '0.25rem' }}>{preset.label}</div>
+                                <div style={{ color: "var(--text-secondary)", fontSize: '0.82rem' }}>
                                   {(preset.shifts || []).map((shift) => formatWorkingRange(shift.start_time, shift.end_time)).join(' • ')}
                                 </div>
                               </button>
@@ -2708,7 +2728,7 @@ export default function AdminPanel() {
                                     }}>
                                       {index + 1}
                                     </span>
-                                    <strong style={{ color: '#0f172a', fontSize: '0.95rem' }}>
+                                    <strong style={{ color: "var(--text-primary)", fontSize: '0.95rem' }}>
                                       شیفت {toPersianNumber(index + 1)}
                                     </strong>
                                   </div>
@@ -2729,7 +2749,7 @@ export default function AdminPanel() {
                                       }}
                                       style={{
                                         border: 'none',
-                                        background: '#eff6ff',
+                                        background: 'var(--info-surface)',
                                         color: '#2563eb',
                                         borderRadius: '999px',
                                         padding: '0.45rem 0.75rem',
@@ -2752,7 +2772,7 @@ export default function AdminPanel() {
                                         }}
                                         style={{
                                           border: 'none',
-                                          background: '#fee2e2',
+                                          background: 'var(--danger-surface)',
                                           color: '#b91c1c',
                                           borderRadius: '999px',
                                           padding: '0.45rem 0.75rem',
@@ -2770,8 +2790,8 @@ export default function AdminPanel() {
                                       gap: '0.35rem',
                                       padding: '0.45rem 0.75rem',
                                       borderRadius: '999px',
-                                      background: '#f8fafc',
-                                      color: '#64748b',
+                                      background: 'var(--background-secondary)',
+                                      color: "var(--text-secondary)",
                                       fontSize: '0.8rem',
                                       fontWeight: 700
                                     }}>
@@ -2795,7 +2815,7 @@ export default function AdminPanel() {
                                       display: 'block',
                                       marginBottom: '0.55rem',
                                       fontSize: 'clamp(0.75rem, 1.5vw, 0.9rem)',
-                                      color: '#475569',
+                                      color: "var(--text-secondary)",
                                       fontWeight: 700
                                     }}>
                                       ساعت شروع
@@ -2822,8 +2842,8 @@ export default function AdminPanel() {
                                         border: '2px solid #e2e8f0',
                                         borderRadius: '14px',
                                         fontSize: 'clamp(0.75rem, 1.5vw, 0.95rem)',
-                                        color: '#1e293b',
-                                        backgroundColor: 'white',
+                                        color: "var(--text-primary)",
+                                        backgroundColor: 'var(--card)',
                                         outline: 'none'
                                       }}
                                     >
@@ -2840,7 +2860,7 @@ export default function AdminPanel() {
                                       display: 'block',
                                       marginBottom: '0.55rem',
                                       fontSize: 'clamp(0.75rem, 1.5vw, 0.9rem)',
-                                      color: '#475569',
+                                      color: "var(--text-secondary)",
                                       fontWeight: 700
                                     }}>
                                       ساعت پایان
@@ -2867,8 +2887,8 @@ export default function AdminPanel() {
                                         border: '2px solid #e2e8f0',
                                         borderRadius: '14px',
                                         fontSize: 'clamp(0.75rem, 1.5vw, 0.95rem)',
-                                        color: '#1e293b',
-                                        backgroundColor: 'white',
+                                        color: "var(--text-primary)",
+                                        backgroundColor: 'var(--card)',
                                         outline: 'none'
                                       }}
                                     >
@@ -2895,7 +2915,7 @@ export default function AdminPanel() {
                                           padding: '0.85rem 0.9rem',
                                           borderRadius: '14px',
                                           border: '1px dashed #93c5fd',
-                                          background: '#eff6ff',
+                                          background: 'var(--info-surface)',
                                           color: '#2563eb',
                                           fontSize: '0.85rem',
                                           fontWeight: 700,
@@ -2910,7 +2930,7 @@ export default function AdminPanel() {
                                         padding: '0.85rem 0.9rem',
                                         borderRadius: '14px',
                                         border: '1px solid #fde68a',
-                                        background: '#fffbeb',
+                                        background: 'var(--warning-surface)',
                                         color: '#92400e',
                                         fontSize: '0.82rem',
                                         fontWeight: 700,
@@ -2936,7 +2956,7 @@ export default function AdminPanel() {
                         }}>
                           <p style={{
                             margin: 0,
-                            color: '#64748b',
+                            color: "var(--text-secondary)",
                             fontSize: '0.85rem',
                             lineHeight: 1.7
                           }}>
@@ -2956,8 +2976,8 @@ export default function AdminPanel() {
                               }))}
                               style={{
                                 border: 'none',
-                                background: '#f8fafc',
-                                color: '#475569',
+                                background: 'var(--background-secondary)',
+                                color: "var(--text-secondary)",
                                 borderRadius: '999px',
                                 padding: '0.55rem 0.9rem',
                                 fontSize: '0.84rem',
@@ -3007,19 +3027,19 @@ export default function AdminPanel() {
                               padding: 'clamp(8px, 2vw, 12px) clamp(16px, 3vw, 32px)',
                               borderRadius: '50px',
                               border: '2px solid #e2e8f0',
-                              background: 'white',
-                              color: '#64748b',
+                              background: 'var(--card)',
+                              color: "var(--text-secondary)",
                               fontSize: 'clamp(0.75rem, 2vw, 0.95rem)',
                               fontWeight: 600,
                               cursor: 'pointer',
                               transition: 'all 0.3s ease'
                             }}
                             onMouseEnter={(e) => {
-                              e.currentTarget.style.background = '#f8fafc';
+                              e.currentTarget.style.background = 'var(--background-secondary)';
                               e.currentTarget.style.borderColor = '#94a3b8';
                             }}
                             onMouseLeave={(e) => {
-                              e.currentTarget.style.background = 'white';
+                              e.currentTarget.style.background = 'var(--card)';
                               e.currentTarget.style.borderColor = '#e2e8f0';
                             }}
                           >
@@ -3073,7 +3093,7 @@ export default function AdminPanel() {
                   <Calendar size={20} />
                 </div>
                 <h2 style={{
-                  color: '#1e293b',
+                  color: "var(--text-primary)",
                   fontSize: 'clamp(1.1rem, 3vw, 1.4rem)',
                   fontWeight: 700,
                   margin: 0
@@ -3087,11 +3107,11 @@ export default function AdminPanel() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.1 }}
                 style={{
-                  background: 'white',
+                  background: 'var(--card)',
                   borderRadius: '24px',
                   overflow: 'hidden',
                   boxShadow: '0 8px 30px rgba(0,0,0,0.08)',
-                  border: '1px solid #f1f5f9',
+                  border: "1px solid var(--border)",
                   position: 'relative'
                 }}
               >
@@ -3108,13 +3128,13 @@ export default function AdminPanel() {
                   <div style={{
                     textAlign: 'center',
                     padding: 'clamp(2rem, 4vw, 4rem) clamp(1rem, 2vw, 2rem)',
-                    color: '#64748b'
+                    color: "var(--text-secondary)"
                   }}>
                     <Calendar size={64} style={{ marginBottom: '1rem', opacity: 0.3 }} />
                     <p style={{
                       fontSize: 'clamp(0.95rem, 2vw, 1.1rem)',
                       fontWeight: 600,
-                      color: '#475569',
+                      color: "var(--text-secondary)",
                       marginBottom: '0.5rem'
                     }}>
                       هنوز رزروی ثبت نشده است
@@ -3133,7 +3153,7 @@ export default function AdminPanel() {
                     }}>
                       <thead>
                         <tr style={{
-                          background: '#f8fafc',
+                          background: 'var(--background-secondary)',
                           borderBottom: '1px solid #e2e8f0'
                         }}>
                           <TableHeader>مشتری</TableHeader>
@@ -3179,7 +3199,7 @@ export default function AdminPanel() {
                   <Star size={20} />
                 </div>
                 <h2 style={{
-                  color: '#1e293b',
+                  color: "var(--text-primary)",
                   fontSize: 'clamp(1.1rem, 3vw, 1.4rem)',
                   fontWeight: 700,
                   margin: 0
@@ -3193,11 +3213,11 @@ export default function AdminPanel() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
                 style={{
-                  background: 'white',
+                  background: 'var(--card)',
                   borderRadius: '24px',
                   padding: 'clamp(1rem, 3vw, 2rem)',
                   boxShadow: '0 8px 30px rgba(0,0,0,0.08)',
-                  border: '1px solid #f1f5f9',
+                  border: "1px solid var(--border)",
                   position: 'relative'
                 }}
               >
@@ -3239,7 +3259,7 @@ export default function AdminPanel() {
                   <Sparkles size={20} />
                 </div>
                 <h2 style={{
-                  color: '#1e293b',
+                  color: "var(--text-primary)",
                   fontSize: 'clamp(1.1rem, 3vw, 1.4rem)',
                   fontWeight: 700,
                   margin: 0
@@ -3288,7 +3308,7 @@ export default function AdminPanel() {
                   <Users size={20} />
                 </div>
                 <h2 style={{
-                  color: '#1e293b',
+                  color: "var(--text-primary)",
                   fontSize: 'clamp(1.1rem, 3vw, 1.4rem)',
                   fontWeight: 700,
                   margin: 0
@@ -3302,11 +3322,11 @@ export default function AdminPanel() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
                 style={{
-                  background: 'white',
+                  background: 'var(--card)',
                   borderRadius: '16px',
                   padding: 'clamp(1.5rem, 3vw, 2rem)',
                   boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
-                  border: '1px solid #e2e8f0'
+                  border: '1px solid var(--border)'
                 }}
               >
                 <form onSubmit={handleSaveOwnerInfo}>
@@ -3316,7 +3336,7 @@ export default function AdminPanel() {
                       display: 'block',
                       marginBottom: '0.75rem',
                       fontWeight: 600,
-                      color: '#1e293b',
+                      color: "var(--text-primary)",
                       fontSize: '0.95rem'
                     }}>
                       عکس مالک (دایره‌ای)
@@ -3339,9 +3359,9 @@ export default function AdminPanel() {
                           width: '120px',
                           height: '120px',
                           borderRadius: '50%',
-                          border: '3px solid #e0e7ff',
+                          border: '3px solid var(--border)',
                           overflow: 'hidden',
-                          backgroundColor: '#f8fafc',
+                          backgroundColor: 'var(--background-secondary)',
                           boxShadow: '0 4px 16px rgba(139,92,246,0.15)'
                         }}>
                           {ownerImagePreview ? (
@@ -3364,7 +3384,7 @@ export default function AdminPanel() {
                             </div>
                           )}
                         </div>
-                        <span style={{ fontSize: '0.8rem', color: '#64748b', textAlign: 'center' }}>
+                        <span style={{ fontSize: '0.8rem', color: "var(--text-secondary)", textAlign: 'center' }}>
                           پیش‌نمایش نهایی
                         </span>
 
@@ -3375,12 +3395,12 @@ export default function AdminPanel() {
                             style={{
                               display: 'flex', alignItems: 'center', gap: '5px',
                               padding: '6px 14px', borderRadius: '20px',
-                              border: '1.5px solid #8b5cf6', background: '#f5f3ff',
-                              color: '#7c3aed', fontSize: '0.8rem', fontWeight: 600,
+                              border: '1.5px solid var(--primary)', background: 'var(--surface)',
+                              color: 'var(--primary)', fontSize: '0.8rem', fontWeight: 600,
                               cursor: 'pointer', transition: 'all 0.2s'
                             }}
-                            onMouseEnter={e => { e.currentTarget.style.background = '#8b5cf6'; e.currentTarget.style.color = 'white'; }}
-                            onMouseLeave={e => { e.currentTarget.style.background = '#f5f3ff'; e.currentTarget.style.color = '#7c3aed'; }}
+                            onMouseEnter={e => { e.currentTarget.style.background = 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)'; e.currentTarget.style.color = 'white'; }}
+                            onMouseLeave={e => { e.currentTarget.style.background = 'var(--surface)'; e.currentTarget.style.color = 'var(--primary)'; }}
                           >
                             <Edit2 size={13} />
                             تنظیم موقعیت
@@ -3392,15 +3412,15 @@ export default function AdminPanel() {
                       {showPositionEditor && ownerImagePreview ? (
                         <div style={{
                           flex: 1, minWidth: '260px',
-                          background: '#f8fafc', borderRadius: '16px',
+                          background: 'var(--background-secondary)', borderRadius: '16px',
                           border: '1.5px solid #e0e7ff', padding: '1.25rem',
                           display: 'flex', flexDirection: 'column', gap: '1rem'
                         }}>
-                          <div style={{ fontWeight: 600, color: '#1e293b', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <div style={{ fontWeight: 600, color: "var(--text-primary)", fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
                             <Edit2 size={15} color="#8b5cf6" />
                             موقعیت عکس را تنظیم کنید
                           </div>
-                          <div style={{ fontSize: '0.8rem', color: '#64748b' }}>
+                          <div style={{ fontSize: '0.8rem', color: "var(--text-secondary)" }}>
                             عکس را در کادر زیر بکشید تا بهترین قاب دایره‌ای رو انتخاب کنید
                           </div>
 
@@ -3441,7 +3461,7 @@ export default function AdminPanel() {
                           {/* Sliders for fine-tuning */}
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
                             <div>
-                              <label style={{ fontSize: '0.78rem', color: '#475569', fontWeight: 500, display: 'flex', justifyContent: 'space-between' }}>
+                              <label style={{ fontSize: '0.78rem', color: "var(--text-secondary)", fontWeight: 500, display: 'flex', justifyContent: 'space-between' }}>
                                 <span>عمودی (بالا/پایین)</span>
                                 <span style={{ color: '#8b5cf6' }}>{Math.round(imagePosition.y)}%</span>
                               </label>
@@ -3460,8 +3480,8 @@ export default function AdminPanel() {
                               onClick={() => setImagePosition({ x: 50, y: 50 })}
                               style={{
                                 flex: 1, padding: '7px', borderRadius: '8px',
-                                border: '1px solid #e2e8f0', background: 'white',
-                                color: '#64748b', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer'
+                                border: '1px solid var(--border)', background: 'var(--card)',
+                                color: "var(--text-secondary)", fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer'
                               }}
                             >
                               بازنشانی مرکز
@@ -3479,7 +3499,7 @@ export default function AdminPanel() {
                             </button>
                           </div>
                         </div>
-                      ) : (
+                        ) : (
                         /* آپلود عکس */
                         <div style={{ flex: 1, minWidth: '200px' }}>
                           <label
@@ -3487,20 +3507,20 @@ export default function AdminPanel() {
                             style={{
                               display: 'block',
                               padding: '1.5rem',
-                              border: '2px dashed #cbd5e1',
+                              border: '2px dashed var(--border)',
                               borderRadius: '12px',
                               textAlign: 'center',
                               cursor: 'pointer',
                               transition: 'all 0.3s ease',
-                              backgroundColor: '#f8fafc',
+                              backgroundColor: 'var(--surface)'
                             }}
                             onMouseEnter={(e) => {
-                              e.currentTarget.style.borderColor = '#8b5cf6';
-                              e.currentTarget.style.backgroundColor = '#f5f3ff';
+                              e.currentTarget.style.borderColor = 'var(--primary)';
+                              e.currentTarget.style.backgroundColor = 'var(--card-hover)';
                             }}
                             onMouseLeave={(e) => {
-                              e.currentTarget.style.borderColor = '#cbd5e1';
-                              e.currentTarget.style.backgroundColor = '#f8fafc';
+                              e.currentTarget.style.borderColor = 'var(--border)';
+                              e.currentTarget.style.backgroundColor = 'var(--surface)';
                             }}
                           >
                             <div style={{ marginBottom: '0.5rem' }}>
@@ -3508,12 +3528,12 @@ export default function AdminPanel() {
                             </div>
                             <div style={{
                               fontWeight: 600,
-                              color: '#1e293b',
+                              color: "var(--text-primary)",
                               marginBottom: '0.25rem'
                             }}>
                               {ownerImagePreview ? 'تغییر عکس' : 'عکس را انتخاب کنید'}
                             </div>
-                            <div style={{ fontSize: '0.85rem', color: '#64748b' }}>
+                            <div style={{ fontSize: '0.85rem', color: "var(--text-secondary)" }}>
                               JPEG, PNG, WebP یا GIF (حداکثر 5 مگابایت)
                             </div>
                           </label>
@@ -3535,7 +3555,7 @@ export default function AdminPanel() {
                       display: 'block',
                       marginBottom: '0.75rem',
                       fontWeight: 600,
-                      color: '#1e293b',
+                      color: "var(--text-primary)",
                       fontSize: '0.95rem'
                     }}>
                       توضیح درباره خود (حداکثر ۵۰۰ کاراکتر)
@@ -3550,17 +3570,17 @@ export default function AdminPanel() {
                         minHeight: '120px',
                         padding: '0.75rem',
                         borderRadius: '8px',
-                        border: '1px solid #e2e8f0',
+                        border: '1px solid var(--border)',
                         fontFamily: 'inherit',
                         fontSize: '0.95rem',
-                        color: '#1e293b',
+                        color: "var(--text-primary)",
                         lineHeight: 1.5,
                         boxSizing: 'border-box'
                       }}
                     />
                     <div style={{
                       fontSize: '0.85rem',
-                      color: '#64748b',
+                      color: "var(--text-secondary)",
                       marginTop: '0.5rem'
                     }}>
                       {ownerDescription.length} / ۵۰۰ کاراکتر
@@ -3641,11 +3661,11 @@ export default function AdminPanel() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
                 style={{
-                  background: 'white',
+                  background: 'var(--card)',
                   borderRadius: '24px',
                   padding: 'clamp(1rem, 3vw, 2rem)',
                   boxShadow: '0 8px 30px rgba(0,0,0,0.08)',
-                  border: '1px solid #f1f5f9'
+                  border: "1px solid var(--border)"
                 }}
               >
                 {/* هدر */}
@@ -3660,7 +3680,7 @@ export default function AdminPanel() {
                     height: '48px',
                     flexShrink: 0,
                     borderRadius: '14px',
-                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -3671,7 +3691,7 @@ export default function AdminPanel() {
                   </div>
                   <div>
                     <h2 style={{
-                      color: '#1e293b',
+                      color: "var(--text-primary)",
                       fontSize: 'clamp(1rem, 3vw, 1.6rem)',
                       fontWeight: 700,
                       margin: 0
@@ -3679,7 +3699,7 @@ export default function AdminPanel() {
                       QR کد منحصربه‌فرد سالن
                     </h2>
                     <p style={{
-                      color: '#64748b',
+                      color: "var(--text-secondary)",
                       fontSize: 'clamp(0.8rem, 2vw, 0.95rem)',
                       margin: '4px 0 0 0'
                     }}>
@@ -3697,7 +3717,7 @@ export default function AdminPanel() {
                     justifyContent: 'center',
                     padding: '4rem 2rem',
                     gap: '1rem',
-                    color: '#64748b',
+                    color: "var(--text-secondary)",
                     textAlign: 'center'
                   }}>
                     <QrCode size={64} style={{ opacity: 0.3 }} />
@@ -3721,7 +3741,7 @@ export default function AdminPanel() {
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          background: '#f8fafc',
+                          background: 'var(--background-secondary)',
                           borderRadius: '16px',
                           border: '2px solid #e2e8f0'
                         }}>
@@ -3741,7 +3761,7 @@ export default function AdminPanel() {
                           alignItems: 'center',
                           justifyContent: 'center',
                           gap: '0.75rem',
-                          background: '#fee2e2',
+                          background: 'var(--danger-surface)',
                           borderRadius: '16px',
                           padding: '1.5rem',
                           textAlign: 'center'
@@ -3791,7 +3811,7 @@ export default function AdminPanel() {
                             border: '3px solid #667eea',
                             borderRadius: '16px',
                             padding: '12px',
-                            background: 'white',
+                            background: 'var(--card)',
                             boxShadow: '0 6px 24px rgba(102, 126, 234, 0.2)',
                             display: 'block'
                           }}
@@ -3800,7 +3820,7 @@ export default function AdminPanel() {
 
                       <p style={{
                         fontSize: '0.85rem',
-                        color: '#64748b',
+                        color: "var(--text-secondary)",
                         margin: 0,
                         textAlign: 'center'
                       }}>
@@ -3863,7 +3883,7 @@ export default function AdminPanel() {
                           }}
                           style={{
                             padding: 'clamp(9px, 2vw, 12px) clamp(10px, 2vw, 16px)',
-                            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                            background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
                             color: 'white',
                             border: 'none',
                             borderRadius: '10px',
@@ -3894,22 +3914,22 @@ export default function AdminPanel() {
                     }}>
                       {/* شناسه QR */}
                       <div style={{
-                        background: '#f8fafc',
+                        background: 'var(--background-secondary)',
                         padding: 'clamp(0.75rem, 2vw, 1.25rem)',
                         borderRadius: '12px',
-                        border: '1px solid #e2e8f0'
+                        border: '1px solid var(--border)'
                       }}>
-                        <p style={{ fontSize: '0.8rem', color: '#64748b', margin: '0 0 0.5rem 0', fontWeight: 600 }}>
+                        <p style={{ fontSize: '0.8rem', color: "var(--text-secondary)", margin: '0 0 0.5rem 0', fontWeight: 600 }}>
                           شناسه QR Code:
                         </p>
                         <div style={{
-                          background: 'white',
+                          background: 'var(--card)',
                           padding: '0.6rem 0.75rem',
                           borderRadius: '6px',
-                          border: '1px solid #e2e8f0',
+                          border: '1px solid var(--border)',
                           fontSize: 'clamp(0.7rem, 1.5vw, 0.82rem)',
                           fontFamily: 'monospace',
-                          color: '#1e293b',
+                          color: "var(--text-primary)",
                           wordBreak: 'break-all',
                           lineHeight: '1.6'
                         }}>
@@ -3919,7 +3939,7 @@ export default function AdminPanel() {
 
                       {/* لینک QR */}
                       <div style={{
-                        background: '#eff6ff',
+                        background: 'var(--info-surface)',
                         padding: 'clamp(0.75rem, 2vw, 1.25rem)',
                         borderRadius: '12px',
                         border: '1px solid #bfdbfe',
@@ -3929,13 +3949,13 @@ export default function AdminPanel() {
                           لینک QR Code:
                         </p>
                         <div style={{
-                          background: 'white',
+                          background: 'var(--card)',
                           padding: '0.6rem 0.75rem',
                           borderRadius: '6px',
                           border: '1px solid #bfdbfe',
                           fontSize: 'clamp(0.7rem, 1.5vw, 0.82rem)',
                           fontFamily: 'monospace',
-                          color: '#1e293b',
+                          color: "var(--text-primary)",
                           wordBreak: 'break-all',
                           lineHeight: '1.6'
                         }}>
@@ -3945,7 +3965,7 @@ export default function AdminPanel() {
 
                       {/* راهنمای استفاده */}
                       <div style={{
-                        background: '#f0fdf4',
+                        background: 'var(--success-surface)',
                         padding: 'clamp(0.75rem, 2vw, 1.25rem)',
                         borderRadius: '12px',
                         border: '1px solid #dcfce7',
@@ -4000,7 +4020,7 @@ export default function AdminPanel() {
                   <Building2 size={20} />
                 </div>
                 <h2 style={{
-                  color: '#1e293b',
+                  color: "var(--text-primary)",
                   fontSize: 'clamp(1.1rem, 3vw, 1.4rem)',
                   fontWeight: 700,
                   margin: 0
@@ -4015,11 +4035,11 @@ export default function AdminPanel() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.05 }}
                 style={{
-                  background: 'white',
+                  background: 'var(--card)',
                   borderRadius: '24px',
                   padding: 'clamp(1rem, 3vw, 2rem)',
                   boxShadow: '0 8px 30px rgba(0,0,0,0.08)',
-                  border: '1px solid #f1f5f9',
+                  border: "1px solid var(--border)",
                   position: 'relative',
                   marginBottom: 'clamp(0.75rem, 2vw, 1.5rem)'
                 }}
@@ -4030,7 +4050,7 @@ export default function AdminPanel() {
                   left: 0,
                   right: 0,
                   height: '4px',
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+                  background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)'
                 }} />
 
                 <div style={{
@@ -4042,7 +4062,7 @@ export default function AdminPanel() {
                   gap: '0.75rem'
                 }}>
                   <h3 style={{
-                    color: '#1e293b',
+                    color: "var(--text-primary)",
                     fontSize: 'clamp(0.95rem, 2vw, 1.1rem)',
                     fontWeight: 600,
                     margin: 0
@@ -4058,13 +4078,13 @@ export default function AdminPanel() {
                 }} className="admin-info-grid">
                   <div style={{
                     padding: 'clamp(0.75rem, 1.5vw, 1rem)',
-                    background: '#f8fafc',
+                    background: 'var(--background-secondary)',
                     borderRadius: '12px',
                     borderRight: '3px solid #667eea'
                   }}>
                     <p style={{
                       fontSize: 'clamp(0.7rem, 1.2vw, 0.85rem)',
-                      color: '#64748b',
+                      color: "var(--text-secondary)",
                       margin: '0 0 0.5rem 0',
                       fontWeight: 600
                     }}>
@@ -4072,7 +4092,7 @@ export default function AdminPanel() {
                     </p>
                     <p style={{
                       fontSize: 'clamp(0.85rem, 1.5vw, 1rem)',
-                      color: '#1e293b',
+                      color: "var(--text-primary)",
                       margin: 0,
                       fontWeight: 600
                     }}>
@@ -4082,13 +4102,13 @@ export default function AdminPanel() {
 
                   <div style={{
                     padding: 'clamp(0.75rem, 1.5vw, 1rem)',
-                    background: '#f8fafc',
+                    background: 'var(--background-secondary)',
                     borderRadius: '12px',
                     borderRight: '3px solid #f093fb'
                   }}>
                     <p style={{
                       fontSize: 'clamp(0.7rem, 1.2vw, 0.85rem)',
-                      color: '#64748b',
+                      color: "var(--text-secondary)",
                       margin: '0 0 0.5rem 0',
                       fontWeight: 600
                     }}>
@@ -4096,7 +4116,7 @@ export default function AdminPanel() {
                     </p>
                     <p style={{
                       fontSize: 'clamp(0.85rem, 1.5vw, 1rem)',
-                      color: '#1e293b',
+                      color: "var(--text-primary)",
                       margin: 0,
                       fontWeight: 600
                     }}>
@@ -4106,13 +4126,13 @@ export default function AdminPanel() {
 
                   <div style={{
                     padding: 'clamp(0.75rem, 1.5vw, 1rem)',
-                    background: '#f8fafc',
+                    background: 'var(--background-secondary)',
                     borderRadius: '12px',
                     borderRight: '3px solid #4facfe'
                   }}>
                     <p style={{
                       fontSize: 'clamp(0.7rem, 1.2vw, 0.85rem)',
-                      color: '#64748b',
+                      color: "var(--text-secondary)",
                       margin: '0 0 0.5rem 0',
                       fontWeight: 600
                     }}>
@@ -4120,7 +4140,7 @@ export default function AdminPanel() {
                     </p>
                     <p style={{
                       fontSize: 'clamp(0.85rem, 1.5vw, 1rem)',
-                      color: '#1e293b',
+                      color: "var(--text-primary)",
                       margin: 0,
                       fontWeight: 600
                     }}>
@@ -4130,14 +4150,14 @@ export default function AdminPanel() {
 
                   <div style={{
                     padding: 'clamp(0.75rem, 1.5vw, 1rem)',
-                    background: '#f8fafc',
+                    background: 'var(--background-secondary)',
                     borderRadius: '12px',
                     borderRight: '3px solid #10b981',
                     gridColumn: 'span 1'
                   }}>
                     <p style={{
                       fontSize: 'clamp(0.7rem, 1.2vw, 0.85rem)',
-                      color: '#64748b',
+                      color: "var(--text-secondary)",
                       margin: '0 0 0.5rem 0',
                       fontWeight: 600
                     }}>
@@ -4145,7 +4165,7 @@ export default function AdminPanel() {
                     </p>
                     <p style={{
                       fontSize: 'clamp(0.8rem, 1.3vw, 0.95rem)',
-                      color: '#1e293b',
+                      color: "var(--text-primary)",
                       margin: 0,
                       fontWeight: 600,
                       lineHeight: '1.4',
@@ -4157,13 +4177,13 @@ export default function AdminPanel() {
 
                   <div style={{
                     padding: 'clamp(0.75rem, 1.5vw, 1rem)',
-                    background: '#f8fafc',
+                    background: 'var(--background-secondary)',
                     borderRadius: '12px',
                     borderRight: '3px solid #34d399'
                   }}>
                     <p style={{
                       fontSize: 'clamp(0.7rem, 1.2vw, 0.85rem)',
-                      color: '#64748b',
+                      color: "var(--text-secondary)",
                       margin: '0 0 0.5rem 0',
                       fontWeight: 600
                     }}>
@@ -4171,7 +4191,7 @@ export default function AdminPanel() {
                     </p>
                     <p style={{
                       fontSize: 'clamp(0.85rem, 1.5vw, 1rem)',
-                      color: '#1e293b',
+                      color: "var(--text-primary)",
                       margin: 0,
                       fontWeight: 600
                     }}>
@@ -4195,7 +4215,7 @@ export default function AdminPanel() {
                       }}
                       style={{
                         padding: '0.6rem 1.25rem',
-                        background: 'white',
+                        background: 'var(--card)',
                         color: '#4facfe',
                         border: '1.5px solid #4facfe',
                         borderRadius: '8px',
@@ -4211,9 +4231,9 @@ export default function AdminPanel() {
                       onSubmit={handleSaveContactInfo}
                       style={{
                         padding: 'clamp(0.75rem, 2vw, 1.25rem)',
-                        background: '#f8fafc',
+                        background: 'var(--background-secondary)',
                         borderRadius: '14px',
-                        border: '1px solid #e2e8f0'
+                        border: '1px solid var(--border)'
                       }}
                     >
                       <div style={{
@@ -4226,7 +4246,7 @@ export default function AdminPanel() {
                             display: 'block',
                             marginBottom: '0.5rem',
                             fontWeight: 600,
-                            color: '#1e293b',
+                            color: "var(--text-primary)",
                             fontSize: '0.85rem'
                           }}>
                             تلفن ثابت (اختیاری)
@@ -4240,10 +4260,10 @@ export default function AdminPanel() {
                               width: '100%',
                               padding: '0.75rem',
                               borderRadius: '8px',
-                              border: '1px solid #e2e8f0',
+                              border: '1px solid var(--border)',
                               fontFamily: 'inherit',
                               fontSize: '0.95rem',
-                              color: '#1e293b',
+                              color: "var(--text-primary)",
                               boxSizing: 'border-box'
                             }}
                           />
@@ -4253,7 +4273,7 @@ export default function AdminPanel() {
                             display: 'block',
                             marginBottom: '0.5rem',
                             fontWeight: 600,
-                            color: '#1e293b',
+                            color: "var(--text-primary)",
                             fontSize: '0.85rem'
                           }}>
                             موبایل (الزامی)
@@ -4271,7 +4291,7 @@ export default function AdminPanel() {
                               border: contactInfoError ? '1px solid #ef4444' : '1px solid #e2e8f0',
                               fontFamily: 'inherit',
                               fontSize: '0.95rem',
-                              color: '#1e293b',
+                              color: "var(--text-primary)",
                               boxSizing: 'border-box'
                             }}
                           />
@@ -4306,9 +4326,9 @@ export default function AdminPanel() {
                           disabled={savingContactInfo}
                           style={{
                             padding: '0.7rem 1.5rem',
-                            background: 'white',
-                            color: '#64748b',
-                            border: '1px solid #e2e8f0',
+                            background: 'var(--card)',
+                            color: "var(--text-secondary)",
+                            border: '1px solid var(--border)',
                             borderRadius: '8px',
                             fontWeight: 600,
                             cursor: savingContactInfo ? 'not-allowed' : 'pointer',
@@ -4329,11 +4349,11 @@ export default function AdminPanel() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.1 }}
                 style={{
-                  background: 'white',
+                  background: 'var(--card)',
                   borderRadius: '24px',
                   padding: 'clamp(1rem, 3vw, 2rem)',
                   boxShadow: '0 8px 30px rgba(0,0,0,0.08)',
-                  border: '1px solid #f1f5f9',
+                  border: "1px solid var(--border)",
                   position: 'relative',
                   marginBottom: 'clamp(0.75rem, 2vw, 1.5rem)'
                 }}
@@ -4349,7 +4369,7 @@ export default function AdminPanel() {
 
                 <div style={{ marginBottom: 'clamp(0.75rem, 2vw, 1.5rem)' }}>
                   <h3 style={{
-                    color: '#1e293b',
+                    color: "var(--text-primary)",
                     fontSize: 'clamp(0.95rem, 2vw, 1.1rem)',
                     fontWeight: 600,
                     marginBottom: 'clamp(0.75rem, 1.5vw, 1rem)'
@@ -4473,11 +4493,11 @@ export default function AdminPanel() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3 }}
                   style={{
-                    background: 'white',
+                    background: 'var(--card)',
                     borderRadius: '24px',
                     padding: 'clamp(1rem, 3vw, 2rem)',
                     boxShadow: '0 8px 30px rgba(0,0,0,0.08)',
-                    border: '1px solid #f1f5f9',
+                    border: "1px solid var(--border)",
                     position: 'relative'
                   }}
                 >
@@ -4491,7 +4511,7 @@ export default function AdminPanel() {
                   }} />
 
                   <h3 style={{
-                    color: '#1e293b',
+                    color: "var(--text-primary)",
                     fontSize: 'clamp(0.95rem, 2vw, 1.1rem)',
                     fontWeight: 600,
                     marginBottom: 'clamp(0.75rem, 1.5vw, 1.5rem)'
@@ -4505,7 +4525,7 @@ export default function AdminPanel() {
                         display: 'block',
                         marginBottom: '0.5rem',
                         fontWeight: 600,
-                        color: '#475569',
+                        color: "var(--text-secondary)",
                         fontSize: 'clamp(0.75rem, 1.5vw, 0.95rem)'
                       }}>
                         مدت زمان غیرفعال بودن (روز) - اختیاری
@@ -4521,7 +4541,7 @@ export default function AdminPanel() {
                           width: '100%',
                           padding: '12px 16px',
                           borderRadius: '12px',
-                          border: '1px solid #e2e8f0',
+                          border: '1px solid var(--border)',
                           fontSize: 'clamp(0.75rem, 1.5vw, 0.95rem)',
                           fontFamily: 'inherit',
                           direction: 'rtl',
@@ -4534,7 +4554,7 @@ export default function AdminPanel() {
                       />
                       <p style={{
                         fontSize: 'clamp(0.7rem, 1.2vw, 0.85rem)',
-                        color: '#64748b',
+                        color: "var(--text-secondary)",
                         marginTop: '0.5rem'
                       }}>
                         اگر خالی بگذارید، سالن تا زمانی که خودتان فعال نکنید غیرفعال می‌ماند
@@ -4546,7 +4566,7 @@ export default function AdminPanel() {
                         display: 'block',
                         marginBottom: '0.5rem',
                         fontWeight: 600,
-                        color: '#475569',
+                        color: "var(--text-secondary)",
                         fontSize: 'clamp(0.75rem, 1.5vw, 0.95rem)'
                       }}>
                         دلیل غیرفعال کردن - اختیاری
@@ -4559,7 +4579,7 @@ export default function AdminPanel() {
                           width: '100%',
                           padding: '12px 16px',
                           borderRadius: '12px',
-                          border: '1px solid #e2e8f0',
+                          border: '1px solid var(--border)',
                           fontSize: 'clamp(0.75rem, 1.5vw, 0.95rem)',
                           fontFamily: 'inherit',
                           direction: 'rtl',
@@ -4607,8 +4627,8 @@ export default function AdminPanel() {
                           padding: 'clamp(8px, 1.5vw, 12px) clamp(12px, 2vw, 24px)',
                           borderRadius: '12px',
                           border: '2px solid #e2e8f0',
-                          background: 'white',
-                          color: '#475569',
+                          background: 'var(--card)',
+                          color: "var(--text-secondary)",
                           fontSize: 'clamp(0.75rem, 1.5vw, 0.95rem)',
                           fontWeight: 600,
                           cursor: 'pointer',
@@ -4616,11 +4636,11 @@ export default function AdminPanel() {
                         }}
                         onMouseEnter={(e) => {
                           e.currentTarget.style.borderColor = '#cbd5e1';
-                          e.currentTarget.style.background = '#f8fafc';
+                          e.currentTarget.style.background = 'var(--background-secondary)';
                         }}
                         onMouseLeave={(e) => {
                           e.currentTarget.style.borderColor = '#e2e8f0';
-                          e.currentTarget.style.background = 'white';
+                          e.currentTarget.style.background = 'var(--card)';
                         }}
                       >
                         انصراف
@@ -4708,7 +4728,7 @@ function TabButton({ icon, label, badge, active, onClick }) {
         <span style={{
           padding: '2px 8px',
           borderRadius: '20px',
-          background: active ? 'rgba(255,255,255,0.2)' : '#e2e8f0',
+          background: active ? 'var(--surface-glass)' : '#e2e8f0',
           fontSize: 'clamp(0.65rem, 1.2vw, 0.75rem)',
           fontWeight: 700,
           color: active ? 'white' : '#475569'
@@ -4727,11 +4747,11 @@ function StatCard({ icon, value, label, gradient, color }) {
       whileHover={{ y: -8, scale: 1.02 }}
       transition={{ type: 'spring', stiffness: 300 }}
       style={{
-        background: 'white',
+        background: 'var(--card)',
         borderRadius: '24px',
         padding: 'clamp(1rem, 2vw, 1.5rem)',
         boxShadow: '0 8px 30px rgba(0,0,0,0.08)',
-        border: '1px solid #f1f5f9',
+        border: "1px solid var(--border)",
         position: 'relative',
         overflow: 'hidden'
       }}
@@ -4767,14 +4787,14 @@ function StatCard({ icon, value, label, gradient, color }) {
           <div style={{
             fontSize: 'clamp(1.5rem, 3vw, 1.8rem)',
             fontWeight: 800,
-            color: '#1e293b',
+            color: "var(--text-primary)",
             lineHeight: 1
           }}>
             {valueText}
           </div>
           <div style={{
             fontSize: 'clamp(0.75rem, 1.5vw, 0.9rem)',
-            color: '#64748b',
+            color: "var(--text-secondary)",
             marginTop: '4px'
           }}>
             {label}
@@ -4794,7 +4814,7 @@ function InfoItem({ icon, label, value, gradient }) {
         alignItems: 'center',
         gap: 'clamp(0.75rem, 1.5vw, 1rem)',
         padding: 'clamp(0.75rem, 1.5vw, 1rem)',
-        background: '#f8fafc',
+        background: 'var(--background-secondary)',
         borderRadius: '16px',
         transition: 'all 0.3s ease'
       }}
@@ -4816,7 +4836,7 @@ function InfoItem({ icon, label, value, gradient }) {
       <div>
         <div style={{
           fontSize: 'clamp(0.7rem, 1.2vw, 0.85rem)',
-          color: '#64748b',
+          color: "var(--text-secondary)",
           marginBottom: '4px',
           fontWeight: 500
         }}>
@@ -4825,7 +4845,7 @@ function InfoItem({ icon, label, value, gradient }) {
         <div style={{
           fontSize: 'clamp(0.85rem, 1.5vw, 1rem)',
           fontWeight: 700,
-          color: '#1e293b',
+          color: "var(--text-primary)",
           wordBreak: 'break-word'
         }}>
           {value}
@@ -4843,9 +4863,9 @@ function WorkingHoursDayCard({ day, onDelete }) {
       whileHover={{ y: -4 }}
       transition={{ type: 'spring', stiffness: 240 }}
       style={{
-        background: 'white',
+        background: 'var(--card)',
         borderRadius: '24px',
-        border: '1px solid #e2e8f0',
+        border: '1px solid var(--border)',
         boxShadow: '0 8px 24px rgba(15, 23, 42, 0.06)',
         overflow: 'hidden',
         position: 'relative'
@@ -4883,10 +4903,10 @@ function WorkingHoursDayCard({ day, onDelete }) {
               <CalendarDays size={18} />
             </div>
             <div>
-              <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.98rem' }}>
+              <div style={{ fontWeight: 800, color: "var(--text-primary)", fontSize: '0.98rem' }}>
                 {day.label}
               </div>
-              <div style={{ color: '#64748b', fontSize: '0.8rem', marginTop: '0.15rem' }}>
+              <div style={{ color: "var(--text-secondary)", fontSize: '0.8rem', marginTop: '0.15rem' }}>
                 {shifts.length ? `${toPersianNumber(shifts.length)} شیفت` : 'تعطیل'}
               </div>
             </div>
@@ -4895,7 +4915,7 @@ function WorkingHoursDayCard({ day, onDelete }) {
           <span style={{
             padding: '0.35rem 0.65rem',
             borderRadius: '999px',
-            background: shifts.length ? '#ecfeff' : '#f8fafc',
+            background: shifts.length ? 'var(--surface)' : 'var(--background-secondary)',
             color: shifts.length ? '#0e7490' : '#64748b',
             fontSize: '0.76rem',
             fontWeight: 700
@@ -4906,10 +4926,10 @@ function WorkingHoursDayCard({ day, onDelete }) {
 
         {shifts.length === 0 ? (
           <div style={{
-            background: '#f8fafc',
+            background: 'var(--background-secondary)',
             borderRadius: '18px',
             padding: '1rem',
-            color: '#64748b',
+            color: "var(--text-secondary)",
             display: 'flex',
             alignItems: 'center',
             gap: '0.65rem'
@@ -4927,23 +4947,23 @@ function WorkingHoursDayCard({ day, onDelete }) {
                   alignItems: 'center',
                   justifyContent: 'space-between',
                   gap: '0.75rem',
-                  background: '#f8fafc',
+                  background: 'var(--background-secondary)',
                   borderRadius: '16px',
                   padding: '0.8rem 0.9rem',
-                  border: '1px solid #e2e8f0'
+                  border: '1px solid var(--border)'
                 }}
               >
                 <div style={{ minWidth: 0 }}>
                   <div style={{
                     fontSize: '0.8rem',
-                    color: '#64748b',
+                    color: "var(--text-secondary)",
                     marginBottom: '0.25rem'
                   }}>
                     شیفت {toPersianNumber(shift.sort_order !== undefined ? Number(shift.sort_order) + 1 : index + 1)}
                   </div>
                   <div style={{
                     fontWeight: 800,
-                    color: '#0f172a',
+                    color: "var(--text-primary)",
                     fontSize: '0.92rem',
                     wordBreak: 'break-word'
                   }}>
@@ -4956,7 +4976,7 @@ function WorkingHoursDayCard({ day, onDelete }) {
                   onClick={() => onDelete(shift.id)}
                   style={{
                     border: 'none',
-                    background: '#fee2e2',
+                    background: 'var(--danger-surface)',
                     color: '#b91c1c',
                     borderRadius: '999px',
                     padding: '0.5rem 0.75rem',
@@ -4985,7 +5005,7 @@ function FormField({ label, type, value, onChange, placeholder, required }) {
         display: 'block',
         marginBottom: '8px',
         fontSize: 'clamp(0.75rem, 1.5vw, 0.9rem)',
-        color: '#475569',
+        color: "var(--text-secondary)",
         fontWeight: 600
       }}>
         {label}
@@ -5002,8 +5022,8 @@ function FormField({ label, type, value, onChange, placeholder, required }) {
           border: '2px solid #e2e8f0',
           borderRadius: '14px',
           fontSize: 'clamp(0.75rem, 1.5vw, 0.95rem)',
-          color: '#1e293b',
-          backgroundColor: 'white',
+          color: "var(--text-primary)",
+          backgroundColor: 'var(--card)',
           transition: 'all 0.3s ease',
           outline: 'none'
         }}
@@ -5027,7 +5047,7 @@ function PriceField({ label, value, onChange, placeholder, required }) {
         display: 'block',
         marginBottom: '8px',
         fontSize: 'clamp(0.75rem, 1.5vw, 0.9rem)',
-        color: '#475569',
+        color: "var(--text-secondary)",
         fontWeight: 600
       }}>
         {label}
@@ -5047,8 +5067,8 @@ function PriceField({ label, value, onChange, placeholder, required }) {
             border: '2px solid #e2e8f0',
             borderRadius: '14px',
             fontSize: 'clamp(0.75rem, 1.5vw, 0.95rem)',
-            color: '#1e293b',
-            backgroundColor: 'white',
+            color: "var(--text-primary)",
+            backgroundColor: 'var(--card)',
             transition: 'all 0.3s ease',
             outline: 'none',
             textAlign: 'left',
@@ -5069,7 +5089,7 @@ function PriceField({ label, value, onChange, placeholder, required }) {
           right: '14px',
           transform: 'translateY(-50%)',
           fontSize: 'clamp(0.7rem, 1.3vw, 0.85rem)',
-          color: '#94a3b8',
+          color: "var(--text-muted)",
           fontWeight: 600,
           pointerEvents: 'none'
         }}>
@@ -5087,7 +5107,7 @@ function TableHeader({ children }) {
       textAlign: 'right',
       fontSize: 'clamp(0.7rem, 1.2vw, 0.9rem)',
       fontWeight: 700,
-      color: '#475569',
+      color: "var(--text-secondary)",
       whiteSpace: 'nowrap'
     }} className="admin-tab-button">
       {children}
@@ -5096,14 +5116,16 @@ function TableHeader({ children }) {
 }
 
 function ServiceCard({ service, onToggleStatus, onEdit }) {
+  const isActivationBlocked = !service.is_active && Number(service?.price) <= 0;
+
   return (
     <motion.div
       whileHover={{ y: -4 }}
       transition={{ type: 'spring', stiffness: 240 }}
       style={{
-        background: 'white',
+        background: 'var(--card)',
         borderRadius: '24px',
-        border: '1px solid #e2e8f0',
+        border: '1px solid var(--border)',
         boxShadow: '0 8px 24px rgba(15, 23, 42, 0.06)',
         overflow: 'hidden',
         position: 'relative'
@@ -5143,7 +5165,7 @@ function ServiceCard({ service, onToggleStatus, onEdit }) {
             <div style={{ minWidth: 0 }}>
               <div style={{
                 fontWeight: 800,
-                color: '#0f172a',
+                color: "var(--text-primary)",
                 fontSize: '0.98rem',
                 wordBreak: 'break-word'
               }}>
@@ -5153,7 +5175,7 @@ function ServiceCard({ service, onToggleStatus, onEdit }) {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '4px',
-                color: '#64748b',
+                color: "var(--text-secondary)",
                 fontSize: '0.8rem',
                 marginTop: '0.15rem'
               }}>
@@ -5166,6 +5188,8 @@ function ServiceCard({ service, onToggleStatus, onEdit }) {
           <button
             type="button"
             onClick={() => onToggleStatus(service)}
+            aria-disabled={isActivationBlocked}
+            title={isActivationBlocked ? 'برای فعال‌سازی ابتدا قیمت را مشخص کنید' : undefined}
             style={{
               padding: '0.35rem 0.65rem',
               borderRadius: '999px',
@@ -5177,9 +5201,10 @@ function ServiceCard({ service, onToggleStatus, onEdit }) {
               cursor: 'pointer',
               whiteSpace: 'nowrap',
               flexShrink: 0,
-              transition: 'opacity 0.2s'
+              transition: 'opacity 0.2s',
+              opacity: 1
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.8')}
+            onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.9')}
             onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
           >
             {service.is_active ? 'فعال' : 'غیرفعال'}
@@ -5190,14 +5215,14 @@ function ServiceCard({ service, onToggleStatus, onEdit }) {
           display: 'flex',
           alignItems: 'center',
           gap: '6px',
-          background: '#f8fafc',
+          background: 'var(--background-secondary)',
           borderRadius: '16px',
           padding: '0.8rem 0.9rem',
-          border: '1px solid #e2e8f0',
+          border: '1px solid var(--border)',
           marginBottom: '0.85rem'
         }}>
           <DollarSign size={16} color="#667eea" />
-          <span style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.92rem' }}>
+          <span style={{ fontWeight: 800, color: "var(--text-primary)", fontSize: '0.92rem' }}>
             {formatToman(service.price)}
           </span>
         </div>
@@ -5216,7 +5241,7 @@ function ServiceCard({ service, onToggleStatus, onEdit }) {
               padding: '0.6rem',
               borderRadius: '999px',
               border: '2px solid #bfdbfe',
-              background: 'white',
+              background: 'var(--card)',
               color: '#2563eb',
               fontSize: '0.82rem',
               fontWeight: 700,
@@ -5229,7 +5254,7 @@ function ServiceCard({ service, onToggleStatus, onEdit }) {
               e.currentTarget.style.borderColor = '#2563eb';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'white';
+              e.currentTarget.style.background = 'var(--card)';
               e.currentTarget.style.color = '#2563eb';
               e.currentTarget.style.borderColor = '#bfdbfe';
             }}
@@ -5274,10 +5299,10 @@ function ConfirmModal({ open, title, message, onConfirm, onCancel }) {
             onClick={(e) => e.stopPropagation()}
             style={{
               width: 'min(420px, calc(100vw - 1.5rem))',
-              background: 'white',
+              background: 'var(--card)',
               borderRadius: '24px',
               boxShadow: '0 24px 90px rgba(15, 23, 42, 0.35)',
-              border: '1px solid #e2e8f0',
+              border: '1px solid var(--border)',
               overflow: 'hidden',
               textAlign: 'center'
             }}
@@ -5291,7 +5316,7 @@ function ConfirmModal({ open, title, message, onConfirm, onCancel }) {
                 width: '56px',
                 height: '56px',
                 borderRadius: '50%',
-                background: '#fee2e2',
+                background: 'var(--danger-surface)',
                 color: '#dc2626',
                 display: 'flex',
                 alignItems: 'center',
@@ -5301,7 +5326,7 @@ function ConfirmModal({ open, title, message, onConfirm, onCancel }) {
                 <AlertCircle size={28} />
               </div>
               <h3 style={{
-                color: '#0f172a',
+                color: "var(--text-primary)",
                 fontSize: '1.1rem',
                 fontWeight: 800,
                 margin: '0 0 0.6rem'
@@ -5309,7 +5334,7 @@ function ConfirmModal({ open, title, message, onConfirm, onCancel }) {
                 {title}
               </h3>
               <p style={{
-                color: '#64748b',
+                color: "var(--text-secondary)",
                 fontSize: '0.92rem',
                 lineHeight: 1.7,
                 margin: '0 0 1.5rem'
@@ -5325,19 +5350,19 @@ function ConfirmModal({ open, title, message, onConfirm, onCancel }) {
                     padding: '0.75rem',
                     borderRadius: '999px',
                     border: '2px solid #e2e8f0',
-                    background: 'white',
-                    color: '#64748b',
+                    background: 'var(--card)',
+                    color: "var(--text-secondary)",
                     fontSize: '0.9rem',
                     fontWeight: 700,
                     cursor: 'pointer',
                     transition: 'all 0.2s'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.background = '#f8fafc';
+                    e.currentTarget.style.background = 'var(--background-secondary)';
                     e.currentTarget.style.borderColor = '#94a3b8';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'white';
+                    e.currentTarget.style.background = 'var(--card)';
                     e.currentTarget.style.borderColor = '#e2e8f0';
                   }}
                 >
@@ -5403,10 +5428,10 @@ function ErrorModal({ open, title, message, onClose }) {
             onClick={(e) => e.stopPropagation()}
             style={{
               width: 'min(420px, calc(100vw - 1.5rem))',
-              background: 'white',
+              background: 'var(--card)',
               borderRadius: '24px',
               boxShadow: '0 24px 90px rgba(15, 23, 42, 0.35)',
-              border: '1px solid #e2e8f0',
+              border: '1px solid var(--border)',
               overflow: 'hidden',
               textAlign: 'center'
             }}
@@ -5420,7 +5445,7 @@ function ErrorModal({ open, title, message, onClose }) {
                 width: '56px',
                 height: '56px',
                 borderRadius: '50%',
-                background: '#fef3c7',
+                background: 'var(--warning-surface)',
                 color: '#d97706',
                 display: 'flex',
                 alignItems: 'center',
@@ -5430,7 +5455,7 @@ function ErrorModal({ open, title, message, onClose }) {
                 <AlertCircle size={28} />
               </div>
               <h3 style={{
-                color: '#0f172a',
+                color: "var(--text-primary)",
                 fontSize: '1.1rem',
                 fontWeight: 800,
                 margin: '0 0 0.6rem'
@@ -5438,7 +5463,7 @@ function ErrorModal({ open, title, message, onClose }) {
                 {title}
               </h3>
               <p style={{
-                color: '#64748b',
+                color: "var(--text-secondary)",
                 fontSize: '0.92rem',
                 lineHeight: 1.7,
                 margin: '0 0 1.5rem'
@@ -5504,10 +5529,10 @@ function SuccessModal({ open, message, onClose }) {
             onClick={(e) => e.stopPropagation()}
             style={{
               width: 'min(420px, calc(100vw - 1.5rem))',
-              background: 'white',
+              background: 'var(--card)',
               borderRadius: '24px',
               boxShadow: '0 24px 90px rgba(15, 23, 42, 0.35)',
-              border: '1px solid #e2e8f0',
+              border: '1px solid var(--border)',
               overflow: 'hidden',
               textAlign: 'center'
             }}
@@ -5531,7 +5556,7 @@ function SuccessModal({ open, message, onClose }) {
                 <CheckCircle size={28} />
               </div>
               <h3 style={{
-                color: '#0f172a',
+                color: "var(--text-primary)",
                 fontSize: '1.1rem',
                 fontWeight: 800,
                 margin: '0 0 0.6rem'
@@ -5539,7 +5564,7 @@ function SuccessModal({ open, message, onClose }) {
                 موفقیت
               </h3>
               <p style={{
-                color: '#64748b',
+                color: "var(--text-secondary)",
                 fontSize: '0.92rem',
                 lineHeight: 1.7,
                 margin: '0 0 1.5rem'
@@ -5596,7 +5621,7 @@ function BookingRow({ booking }) {
       animate={{ opacity: 1 }}
       style={{
         borderBottom: '1px solid #f1f5f9',
-        background: isHovered ? '#f8fafc' : 'white',
+        background: isHovered ? 'var(--background-secondary)' : 'var(--card)',
         transition: 'background 0.2s'
       }}
       onMouseEnter={() => setIsHovered(true)}
@@ -5606,7 +5631,7 @@ function BookingRow({ booking }) {
         <div style={{
           fontSize: 'clamp(0.75rem, 1.5vw, 0.95rem)',
           fontWeight: 600,
-          color: '#1e293b'
+          color: "var(--text-primary)"
         }}>
           {booking.customer_name}
         </div>
@@ -5614,7 +5639,7 @@ function BookingRow({ booking }) {
       <td style={{ padding: 'clamp(0.5rem, 1.5vw, 1rem)' }}>
         <div style={{
           fontSize: 'clamp(0.7rem, 1.2vw, 0.9rem)',
-          color: '#475569'
+          color: "var(--text-secondary)"
         }}>
           {booking.services && booking.services.length > 0
             ? booking.services.map(s => s.name).join(' + ')
@@ -5624,7 +5649,7 @@ function BookingRow({ booking }) {
       <td style={{ padding: 'clamp(0.5rem, 1.5vw, 1rem)' }}>
         <div style={{
           fontSize: 'clamp(0.7rem, 1.2vw, 0.9rem)',
-          color: '#475569'
+          color: "var(--text-secondary)"
         }}>
           {new Date(booking.start_at).toLocaleString('fa-IR', {
             year: 'numeric',
@@ -5655,7 +5680,7 @@ function BookingRow({ booking }) {
       <td style={{ padding: 'clamp(0.5rem, 1.5vw, 1rem)' }}>
         <div style={{
           fontSize: 'clamp(0.7rem, 1.2vw, 0.9rem)',
-          color: '#475569',
+          color: "var(--text-secondary)",
           direction: 'ltr',
           textAlign: 'right',
           wordBreak: 'break-word'
@@ -5684,7 +5709,7 @@ function WorkingHourRow({ workingHour, onDelete }) {
       animate={{ opacity: 1 }}
       style={{
         borderBottom: '1px solid #f1f5f9',
-        background: isHovered ? '#f8fafc' : 'white',
+        background: isHovered ? 'var(--background-secondary)' : 'var(--card)',
         transition: 'background 0.2s'
       }}
       onMouseEnter={() => setIsHovered(true)}
@@ -5694,7 +5719,7 @@ function WorkingHourRow({ workingHour, onDelete }) {
         <div style={{
           fontSize: 'clamp(0.75rem, 1.5vw, 0.95rem)',
           fontWeight: 600,
-          color: '#1e293b'
+          color: "var(--text-primary)"
         }}>
           {dayName}
         </div>
@@ -5702,7 +5727,7 @@ function WorkingHourRow({ workingHour, onDelete }) {
       <td style={{ padding: 'clamp(0.5rem, 1.5vw, 1rem)' }}>
         <div style={{
           fontSize: 'clamp(0.75rem, 1.5vw, 0.95rem)',
-          color: '#475569',
+          color: "var(--text-secondary)",
           fontWeight: 500
         }}>
           {formatTime(workingHour.start_time)}
@@ -5711,7 +5736,7 @@ function WorkingHourRow({ workingHour, onDelete }) {
       <td style={{ padding: 'clamp(0.5rem, 1.5vw, 1rem)' }}>
         <div style={{
           fontSize: 'clamp(0.75rem, 1.5vw, 0.95rem)',
-          color: '#475569',
+          color: "var(--text-secondary)",
           fontWeight: 500
         }}>
           {formatTime(workingHour.end_time)}
@@ -5729,7 +5754,7 @@ function WorkingHourRow({ workingHour, onDelete }) {
             padding: 'clamp(6px, 1vw, 8px) clamp(10px, 1.5vw, 16px)',
             borderRadius: '30px',
             border: '2px solid #fecaca',
-            background: 'white',
+            background: 'var(--card)',
             color: '#dc2626',
             fontSize: '0.85rem',
             fontWeight: 600,
@@ -5742,7 +5767,7 @@ function WorkingHourRow({ workingHour, onDelete }) {
             e.currentTarget.style.borderColor = '#dc2626';
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.background = 'white';
+            e.currentTarget.style.background = 'var(--card)';
             e.currentTarget.style.color = '#dc2626';
             e.currentTarget.style.borderColor = '#fecaca';
           }}

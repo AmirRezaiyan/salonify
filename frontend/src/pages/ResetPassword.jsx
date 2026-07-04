@@ -104,11 +104,11 @@ export default function ResetPassword() {
   const inputBase = {
     width: '100%',
     padding: '0.75rem 1rem 0.75rem 3rem',
-    border: '1.5px solid #e2e8f0',
+    border: '1.5px solid var(--border)',
     borderRadius: '10px',
     fontSize: '1rem',
-    color: '#1e293b',
-    backgroundColor: '#f8fafc',
+    color: "var(--text-primary)",
+    backgroundColor: 'var(--background-secondary)',
     transition: 'all 0.2s',
     outline: 'none',
     boxSizing: 'border-box',
@@ -117,27 +117,27 @@ export default function ResetPassword() {
 
   const inputError = {
     ...inputBase,
-    borderColor: '#f5576c',
-    backgroundColor: '#fff5f7'
+    borderColor: 'var(--danger)',
+    backgroundColor: 'var(--danger-surface)'
   };
 
   const handleFocus = (e) => {
-    e.target.style.borderColor = '#667eea';
-    e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.15)';
-    e.target.style.backgroundColor = '#ffffff';
+    e.target.style.borderColor = 'var(--primary)';
+    e.target.style.boxShadow = '0 0 0 3px rgba(37,99,235,0.15)';
+    e.target.style.backgroundColor = 'var(--card)';
   };
 
   const handleBlur = (e, hasError) => {
-    e.target.style.borderColor = hasError ? '#f5576c' : '#e2e8f0';
+    e.target.style.borderColor = hasError ? 'var(--danger)' : 'var(--border)';
     e.target.style.boxShadow = 'none';
-    e.target.style.backgroundColor = hasError ? '#fff5f7' : '#f8fafc';
+    e.target.style.backgroundColor = hasError ? 'var(--danger-surface)' : 'var(--background-secondary)';
   };
 
   return (
     <div
       style={{
         minHeight: '100vh',
-        background: 'linear-gradient(to bottom, #f8fafc 0%, #ffffff 100%)',
+        background: 'var(--background)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -158,7 +158,7 @@ export default function ResetPassword() {
           right: '-5%',
           width: '400px',
           height: '400px',
-          background: 'linear-gradient(135deg, rgba(102,126,234,0.15) 0%, rgba(118,75,162,0.1) 100%)',
+          background: 'linear-gradient(135deg, rgba(37,99,235,0.08) 0%, rgba(59,130,246,0.05) 100%)',
           borderRadius: '50%',
           filter: 'blur(60px)'
         }} />
@@ -168,7 +168,7 @@ export default function ResetPassword() {
           left: '-5%',
           width: '350px',
           height: '350px',
-          background: 'linear-gradient(135deg, rgba(118,75,162,0.1) 0%, rgba(102,126,234,0.08) 100%)',
+          background: 'linear-gradient(135deg, rgba(59,130,246,0.05) 0%, rgba(37,99,235,0.04) 100%)',
           borderRadius: '50%',
           filter: 'blur(50px)'
         }} />
@@ -179,19 +179,19 @@ export default function ResetPassword() {
         animate={{ scale: 1, opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: 'easeOut' }}
         style={{
-          background: 'white',
+          background: 'var(--card)',
           borderRadius: '20px',
           padding: 'clamp(1.5rem, 5vw, 2.5rem)',
           width: '100%',
           maxWidth: '440px',
-          border: '1px solid #e2e8f0',
-          boxShadow: '0 20px 60px rgba(102, 126, 234, 0.12)',
+          border: '1px solid var(--border)',
+          boxShadow: '0 20px 60px rgba(37,99,235,0.1)',
           position: 'relative',
           zIndex: 1
         }}
       >
         <div style={{
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
           borderRadius: '14px',
           padding: '2rem 1.5rem',
           textAlign: 'center',
@@ -200,14 +200,14 @@ export default function ResetPassword() {
           <div style={{
             width: '64px',
             height: '64px',
-            backgroundColor: 'rgba(255,255,255,0.2)',
+            backgroundColor: 'var(--surface-glass-strong)',
             borderRadius: '14px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             margin: '0 auto 1rem',
             backdropFilter: 'blur(10px)',
-            border: '1px solid rgba(255,255,255,0.3)'
+            border: '1px solid var(--surface-glass-strong)'
           }}>
             <LockKeyhole size={28} color="white" />
           </div>
@@ -222,7 +222,7 @@ export default function ResetPassword() {
             تعیین رمز عبور جدید
           </h1>
           <p style={{
-            color: 'rgba(255,255,255,0.85)',
+            color: 'var(--text-light)',
             margin: 0,
             fontSize: '0.95rem'
           }}>
@@ -300,7 +300,7 @@ export default function ResetPassword() {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: '#94a3b8'
+                  color: "var(--text-muted)"
                 }}
                 tabIndex={-1}
                 aria-label={showPassword ? 'مخفی کردن رمز عبور' : 'نمایش رمز عبور'}
@@ -347,7 +347,7 @@ export default function ResetPassword() {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: '#94a3b8'
+                  color: "var(--text-muted)"
                 }}
                 tabIndex={-1}
                 aria-label={showConfirmPassword ? 'مخفی کردن تکرار رمز' : 'نمایش تکرار رمز'}
@@ -363,7 +363,7 @@ export default function ResetPassword() {
             loading={loading}
             disabled={!isLinkValid}
             style={{
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
               color: 'white',
               width: '100%',
               padding: '0.9rem',
@@ -393,7 +393,7 @@ export default function ResetPassword() {
           marginTop: '1rem',
           textAlign: 'center',
           fontSize: '0.9rem',
-          color: '#64748b'
+          color: "var(--text-secondary)"
         }}>
           <Link to="/login" style={{ color: '#667eea', fontWeight: 700, textDecoration: 'none' }}>
             بازگشت به صفحه ورود

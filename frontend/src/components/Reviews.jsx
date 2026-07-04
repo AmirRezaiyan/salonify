@@ -2,34 +2,37 @@ import React, { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { api } from '../api/client';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { MessageSquare, Send, ChevronDown, ChevronUp, CheckCircle } from 'lucide-react';
 import { toPersianNumber } from '../utils/formatCurrency';
 
 /* ── tokens ────────────────────────────────────────────────────────────────── */
-const T = {
-  purple: '#7C5CFC',
-  purpleDark: '#5B3DD8',
-  purpleLight: '#EDE9FF',
-  purpleMid: '#C4B5FD',
+const getThemeTokens = (theme) => ({
+  purple: theme === 'dark' ? '#8B5CF6' : '#7C5CFC',
+  purpleDark: theme === 'dark' ? '#A78BFA' : '#5B3DD8',
+  purpleLight: theme === 'dark' ? 'rgba(139,92,246,0.18)' : '#EDE9FF',
+  purpleMid: theme === 'dark' ? 'rgba(192,132,252,0.45)' : '#C4B5FD',
   green: '#22C55E',
-  greenBg: '#DCFCE7',
-  greenText: '#15803D',
+  greenBg: theme === 'dark' ? 'rgba(34,197,94,0.18)' : '#DCFCE7',
+  greenText: theme === 'dark' ? '#86EFAC' : '#15803D',
   amber: '#F59E0B',
-  amberLight: '#FEF3C7',
-  ink: '#0F172A',
-  inkMid: '#475569',
-  inkLight: '#94A3B8',
-  surface: '#FFFFFF',
-  bg: '#F8F7FF',
-  border: '#E9E4FF',
-  borderLight: '#F1F5F9',
+  amberLight: theme === 'dark' ? 'rgba(245,158,11,0.2)' : '#FEF3C7',
+  ink: theme === 'dark' ? '#F8FAFC' : '#0F172A',
+  inkMid: theme === 'dark' ? '#CBD5E1' : '#475569',
+  inkLight: theme === 'dark' ? '#94A3B8' : '#94A3B8',
+  surface: 'var(--card)',
+  bg: 'var(--background)',
+  border: 'var(--border)',
+  borderLight: theme === 'dark' ? 'rgba(148,163,184,0.2)' : '#F1F5F9',
   radius: '16px',
   radiusSm: '10px',
-  shadow: '0 2px 12px rgba(124,92,252,0.08)',
-};
+  shadow: theme === 'dark' ? '0 2px 12px rgba(2,6,23,0.35)' : '0 2px 12px rgba(124,92,252,0.08)',
+});
 
 /* ── StarRating ─────────────────────────────────────────────────────────────── */
 function StarRating({ value, onChange, size = 28, readonly = false }) {
+  const { theme } = useTheme();
+  const T = getThemeTokens(theme);
   const [hovered, setHovered] = useState(0);
 
   return (
@@ -76,6 +79,8 @@ function StarRating({ value, onChange, size = 28, readonly = false }) {
 
 /* ── RatingBar (برای خلاصه امتیازها) ─────────────────────────────────────── */
 function RatingBar({ star, count, total }) {
+  const { theme } = useTheme();
+  const T = getThemeTokens(theme);
   const pct = total > 0 ? Math.round((count / total) * 100) : 0;
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', direction: 'ltr' }}>
@@ -98,6 +103,8 @@ function RatingBar({ star, count, total }) {
 
 /* ── ReviewCard ─────────────────────────────────────────────────────────────── */
 function ReviewCard({ review, isOwner, tenantId, onReplySubmit }) {
+  const { theme } = useTheme();
+  const T = getThemeTokens(theme);
   const [open, setOpen] = useState(false);
   const [replyText, setReplyText] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -264,6 +271,8 @@ function ReviewCard({ review, isOwner, tenantId, onReplySubmit }) {
 
 /* ── ReviewForm ─────────────────────────────────────────────────────────────── */
 function ReviewForm({ onSubmit, loading }) {
+  const { theme } = useTheme();
+  const T = getThemeTokens(theme);
   const [rating, setRating] = useState(0);
   const [text, setText] = useState('');
   const [error, setError] = useState('');
@@ -335,7 +344,7 @@ function ReviewForm({ onSubmit, loading }) {
               exit={{ opacity: 0, height: 0 }}
               style={{
                 color: '#DC2626', fontSize: '0.85rem',
-                padding: '8px 12px', background: '#FEF2F2',
+                padding: '8px 12px', background: 'var(--danger-surface)',
                 borderRadius: T.radiusSm, marginBottom: '0.75rem',
               }}
             >
@@ -371,6 +380,8 @@ function ReviewForm({ onSubmit, loading }) {
 
 /* ── AlreadyReviewed ────────────────────────────────────────────────────────── */
 function AlreadyReviewed() {
+  const { theme } = useTheme();
+  const T = getThemeTokens(theme);
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
@@ -396,6 +407,8 @@ function AlreadyReviewed() {
 
 /* ── RatingSummary ──────────────────────────────────────────────────────────── */
 function RatingSummary({ reviews }) {
+  const { theme } = useTheme();
+  const T = getThemeTokens(theme);
   if (reviews.length === 0) return null;
   const avg = reviews.reduce((s, r) => s + r.rating, 0) / reviews.length;
   const dist = [5, 4, 3, 2, 1].map(s => ({
@@ -445,6 +458,8 @@ function RatingSummary({ reviews }) {
 /* ── Main Reviews Component ─────────────────────────────────────────────────── */
 export default function Reviews({ salonId }) {
   const { isAuthenticated, user } = useAuth();
+  const { theme } = useTheme();
+  const T = getThemeTokens(theme);
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);

@@ -1,10 +1,10 @@
 .card {
-  background: white;
+  background: var(--card);
   border-radius: 12px;
   padding: var(--spacing-lg);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-sm);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 1px solid #E5E7EB;
+  border: 1px solid var(--border);
   display: flex;
   flex-direction: column;
   height: 100%;

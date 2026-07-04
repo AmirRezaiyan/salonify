@@ -27,7 +27,7 @@
 }
 
 .auth-container {
-  background: white;
+  background: var(--card);
   border-radius: var(--radius-lg);
   padding: var(--spacing-2xl);
   box-shadow: var(--shadow-xl);

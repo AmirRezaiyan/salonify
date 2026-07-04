@@ -23,7 +23,7 @@
 /* Primary Button */
 .btn-primary {
   background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-  color: white;
+  color: var(--text-light);
   box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
 }
 
@@ -39,7 +39,7 @@
 
 /* Secondary Button */
 .btn-secondary {
-  background: white;
+  background: var(--card);
   color: var(--primary);
   border: 2px solid var(--primary);
   box-shadow: 0 2px 8px rgba(99, 102, 241, 0.1);
@@ -58,7 +58,7 @@
 /* Success Button */
 .btn-success {
   background: linear-gradient(135deg, var(--success), #059669);
-  color: white;
+  color: var(--text-light);
   box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
 }
 
@@ -70,7 +70,7 @@
 /* Danger Button */
 .btn-danger {
   background: linear-gradient(135deg, var(--danger), #DC2626);
-  color: white;
+  color: var(--text-light);
   box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
 }
 

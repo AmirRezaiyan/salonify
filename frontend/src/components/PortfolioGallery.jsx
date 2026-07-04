@@ -12,9 +12,9 @@ const T = {
   ink: '#0F172A',
   inkMid: '#475569',
   inkLight: '#94A3B8',
-  surface: '#FFFFFF',
-  bg: '#F5F3FF',
-  border: '#E9E4FF',
+  surface: 'var(--card)',
+  bg: 'var(--surface)',
+  border: 'var(--border)',
   radius: '18px',
   radiusSm: '12px',
   shadow: '0 2px 16px rgba(124,92,252,0.09)',
@@ -67,15 +67,15 @@ function Lightbox({ items, index, onClose, onPrev, onNext }) {
         style={{
           position: 'fixed', top: '16px', right: '16px',
           width: '40px', height: '40px', borderRadius: '50%',
-          background: 'rgba(255,255,255,0.12)',
-          border: '1px solid rgba(255,255,255,0.2)',
+          background: 'var(--surface-glass)',
+          border: '1px solid var(--surface-glass)',
           backdropFilter: 'blur(6px)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           cursor: 'pointer', color: '#fff', zIndex: 10,
           transition: 'background 0.15s',
         }}
-        onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.22)'}
-        onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.12)'}
+        onMouseEnter={e => e.currentTarget.style.background = 'var(--surface-glass)'}
+        onMouseLeave={e => e.currentTarget.style.background = 'var(--surface-glass-muted)'}
       >
         <X size={18} />
       </button>
@@ -83,12 +83,12 @@ function Lightbox({ items, index, onClose, onPrev, onNext }) {
       {/* counter */}
       <div style={{
         position: 'fixed', top: '20px', left: '50%', transform: 'translateX(-50%)',
-        background: 'rgba(255,255,255,0.12)',
-        border: '1px solid rgba(255,255,255,0.18)',
+        background: 'var(--surface-glass)',
+        border: '1px solid var(--surface-glass)',
         backdropFilter: 'blur(6px)',
         borderRadius: '999px',
         padding: '4px 14px',
-        color: 'rgba(255,255,255,0.85)',
+        color: 'var(--text-light)',
         fontSize: '0.8rem', fontWeight: 600,
         zIndex: 10,
       }}>
@@ -142,8 +142,8 @@ function Lightbox({ items, index, onClose, onPrev, onNext }) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
             style={{
-              background: 'rgba(255,255,255,0.08)',
-              border: '1px solid rgba(255,255,255,0.14)',
+              background: 'var(--surface-glass-muted)',
+              border: '1px solid var(--surface-glass)',
               backdropFilter: 'blur(8px)',
               borderRadius: T.radiusSm,
               padding: '0.85rem 1.1rem',
@@ -156,7 +156,7 @@ function Lightbox({ items, index, onClose, onPrev, onNext }) {
               </p>
             )}
             {item.description && (
-              <p style={{ margin: 0, fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', lineHeight: 1.6 }}>
+              <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-light)', lineHeight: 1.6 }}>
                 {item.description}
               </p>
             )}
@@ -174,7 +174,7 @@ function Lightbox({ items, index, onClose, onPrev, onNext }) {
                   width: i === index ? '20px' : '8px',
                   height: '8px',
                   borderRadius: '999px',
-                  background: i === index ? T.purple : 'rgba(255,255,255,0.3)',
+                  background: i === index ? T.purple : 'var(--surface-glass)',
                   border: 'none', cursor: 'pointer',
                   transition: 'all 0.25s ease',
                   padding: 0,
@@ -197,8 +197,8 @@ function NavArrow({ side, onClick, children }) {
         [side]: '-16px',
         top: '50%', transform: 'translateY(-50%)',
         width: '44px', height: '44px', borderRadius: '50%',
-        background: 'rgba(255,255,255,0.15)',
-        border: '1px solid rgba(255,255,255,0.22)',
+        background: 'var(--surface-glass-strong)',
+        border: '1px solid var(--surface-glass)',
         backdropFilter: 'blur(6px)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         cursor: 'pointer', color: '#fff',
@@ -206,11 +206,11 @@ function NavArrow({ side, onClick, children }) {
         zIndex: 2,
       }}
       onMouseEnter={e => {
-        e.currentTarget.style.background = 'rgba(255,255,255,0.28)';
+        e.currentTarget.style.background = 'var(--surface-glass)';
         e.currentTarget.style.transform = 'translateY(-50%) scale(1.08)';
       }}
       onMouseLeave={e => {
-        e.currentTarget.style.background = 'rgba(255,255,255,0.15)';
+        e.currentTarget.style.background = 'var(--surface-glass-muted)';
         e.currentTarget.style.transform = 'translateY(-50%) scale(1)';
       }}
     >

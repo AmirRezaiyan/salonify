@@ -10,27 +10,27 @@ import { useAuth } from '../context/AuthContext';
 
 /* ── tokens ─────────────────────────────────────────────────────────────── */
 const T = {
-  purple: '#7C5CFC',
-  purpleDark: '#5B3DD8',
-  purpleLight: '#EDE9FF',
-  purpleMid: '#C4B5FD',
-  green: '#22C55E',
-  greenBg: '#DCFCE7',
-  greenText: '#15803D',
-  red: '#EF4444',
-  redBg: '#FEE2E2',
-  redText: '#991B1B',
-  ink: '#0F172A',
-  inkMid: '#475569',
-  inkLight: '#94A3B8',
-  surface: '#FFFFFF',
-  bg: '#F8F7FF',
-  border: '#E9E4FF',
-  borderLight: '#F1F5F9',
+  purple: 'var(--primary)',
+  purpleDark: 'var(--primary-dark)',
+  purpleLight: 'var(--surface-glass)',
+  purpleMid: 'var(--primary-light)',
+  green: 'var(--success)',
+  greenBg: 'var(--success-surface)',
+  greenText: 'var(--success)',
+  red: 'var(--danger)',
+  redBg: 'var(--danger-surface)',
+  redText: 'var(--danger)',
+  ink: 'var(--text-primary)',
+  inkMid: 'var(--text-secondary)',
+  inkLight: 'var(--text-muted)',
+  surface: 'var(--card)',
+  bg: 'var(--surface)',
+  border: 'var(--border)',
+  borderLight: 'var(--border-muted)',
   radius: '16px',
   radiusSm: '10px',
-  shadow: '0 2px 12px rgba(124,92,252,0.08)',
-  shadowHover: '0 8px 28px rgba(124,92,252,0.16)',
+  shadow: 'var(--shadow-md)',
+  shadowHover: 'var(--shadow-lg)',
 };
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
@@ -72,10 +72,10 @@ function SuccessModal({ open, title, message, onClose }) {
             style={{
               width: 'min(440px, calc(100vw - 1.5rem))',
               maxWidth: '95vw',
-              background: 'white',
+              background: 'var(--card)',
               borderRadius: '24px',
               boxShadow: '0 24px 90px rgba(15, 23, 42, 0.35)',
-              border: '1px solid #e2e8f0',
+              border: '1px solid var(--border)',
               overflow: 'hidden',
               textAlign: 'center',
               direction: 'rtl',
@@ -100,7 +100,7 @@ function SuccessModal({ open, title, message, onClose }) {
                 <CheckCircle size={28} />
               </div>
               <h3 style={{
-                color: '#0f172a',
+                color: "var(--text-primary)",
                 fontSize: '1.15rem',
                 fontWeight: 800,
                 margin: '0 0 0.6rem',
@@ -108,7 +108,7 @@ function SuccessModal({ open, title, message, onClose }) {
                 {title || 'موفقیت'}
               </h3>
               <p style={{
-                color: '#475569',
+                color: "var(--text-secondary)",
                 fontSize: '0.95rem',
                 lineHeight: 1.7,
                 margin: '0 0 1.5rem',
@@ -178,10 +178,10 @@ function ErrorModal({ open, title, message, onClose }) {
             style={{
               width: 'min(440px, calc(100vw - 1.5rem))',
               maxWidth: '95vw',
-              background: 'white',
+              background: 'var(--card)',
               borderRadius: '24px',
               boxShadow: '0 24px 90px rgba(15, 23, 42, 0.35)',
-              border: '1px solid #e2e8f0',
+              border: '1px solid var(--border)',
               overflow: 'hidden',
               textAlign: 'center',
               direction: 'rtl',
@@ -196,7 +196,7 @@ function ErrorModal({ open, title, message, onClose }) {
                 width: '56px',
                 height: '56px',
                 borderRadius: '50%',
-                background: '#fee2e2',
+                background: 'var(--danger-surface)',
                 color: '#dc2626',
                 display: 'flex',
                 alignItems: 'center',
@@ -206,7 +206,7 @@ function ErrorModal({ open, title, message, onClose }) {
                 <AlertCircle size={28} />
               </div>
               <h3 style={{
-                color: '#0f172a',
+                color: "var(--text-primary)",
                 fontSize: '1.15rem',
                 fontWeight: 800,
                 margin: '0 0 0.6rem',
@@ -214,7 +214,7 @@ function ErrorModal({ open, title, message, onClose }) {
                 {title || 'خطا'}
               </h3>
               <p style={{
-                color: '#475569',
+                color: "var(--text-secondary)",
                 fontSize: '0.95rem',
                 lineHeight: 1.7,
                 margin: '0 0 1.5rem',
@@ -231,7 +231,7 @@ function ErrorModal({ open, title, message, onClose }) {
                   padding: '0.75rem',
                   borderRadius: '999px',
                   border: 'none',
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
                   color: 'white',
                   fontSize: '0.95rem',
                   fontWeight: 700,
@@ -332,7 +332,7 @@ function ImageModal({ image, title, onClose }) {
         style={{
           maxWidth: '90vw',
           maxHeight: '90vh',
-          background: 'white',
+          background: 'var(--card)',
           borderRadius: '16px',
           overflow: 'hidden',
           boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
@@ -582,9 +582,9 @@ function UploadZone({ categoryId, onUpload, uploading, itemCount }) {
         style={{
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           width: '100%', boxSizing: 'border-box', padding: '0.75rem 1rem',
-          background: isFull ? '#f1f5f9' : T.purpleLight,
+          background: isFull ? 'var(--card-hover)' : T.purpleLight,
           borderRadius: open ? `${T.radiusSm} ${T.radiusSm} 0 0` : T.radiusSm,
-          border: `1.5px solid ${isFull ? '#e2e8f0' : T.purpleMid}`,
+          border: `1.5px solid ${isFull ? 'var(--border)' : T.purpleMid}`,
           cursor: isFull ? 'not-allowed' : 'pointer',
           color: isFull ? T.inkLight : T.purpleDark,
           fontWeight: 700, fontSize: '0.9rem',

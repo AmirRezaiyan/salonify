@@ -1,27 +1,28 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Menu, X, LogOut, Home, Calendar, Settings,
-  MessageCircle, ChevronDown, Scissors
+  MessageCircle, ChevronDown, Scissors, Moon, Sun
 } from 'lucide-react';
 
 // ─── Tokens ────────────────────────────────────────────────────────────────────
 const C = {
-  brand:    'linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%)',
-  brandSolid: '#7C3AED',
-  accent:   '#7C3AED',
-  accentLow: 'rgba(124,58,237,0.08)',
-  accentMid: 'rgba(124,58,237,0.15)',
-  tg:       '#0088cc',
-  tgLow:    'rgba(0,136,204,0.1)',
-  surface:  'rgba(255,255,255,0.92)',
-  border:   'rgba(124,58,237,0.1)',
-  text:     '#1e1b4b',
-  muted:    '#64748b',
-  danger:   '#ef4444',
-  dangerLow:'rgba(239,68,68,0.08)',
+  brand: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
+  brandSolid: 'var(--primary)',
+  accent: 'var(--primary-hover)',
+  accentLow: 'rgba(59, 130, 246, 0.12)',
+  accentMid: 'rgba(59, 130, 246, 0.2)',
+  tg: 'var(--secondary)',
+  tgLow: 'rgba(96, 165, 250, 0.12)',
+  surface: 'var(--surface)',
+  border: 'var(--border)',
+  text: 'var(--text-primary)',
+  muted: 'var(--text-secondary)',
+  danger: 'var(--danger)',
+  dangerLow: 'rgba(239, 68, 68, 0.08)',
 };
 
 // ─── Helper: Role badge ─────────────────────────────────────────────────────
@@ -101,6 +102,7 @@ function MobileNavItem({ to, icon, children, active, onClick }) {
 // ─── Main Header ────────────────────────────────────────────────────────────
 export default function Header() {
   const { isAuthenticated, user, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -117,6 +119,29 @@ export default function Header() {
   }, []);
 
   useEffect(() => { close(); }, [location.pathname]);
+
+  // Close dropdown when clicking anywhere on the page
+  useEffect(() => {
+    if (!userDropdown) return;
+
+    const handleClickOutside = (e) => {
+      // Check if click is outside the dropdown area
+      const isClickOnDropdown = e.target.closest('[data-user-dropdown]');
+      if (!isClickOnDropdown) {
+        setUserDropdown(false);
+      }
+    };
+
+    // Add slight delay to avoid immediate closing
+    const timer = setTimeout(() => {
+      document.addEventListener('click', handleClickOutside);
+    }, 50);
+
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [userDropdown]);
 
   const handleLogout = () => { logout(); close(); navigate('/login'); };
 
@@ -180,7 +205,7 @@ export default function Header() {
                   WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
                   letterSpacing: '-0.02em', lineHeight: 1.1,
                 }}>سالنیفای</div>
-                <div style={{ fontSize: '0.68rem', color: C.muted, fontWeight: 500, letterSpacing: '0.01em' }}>
+                <div style={{ fontSize: '0.68rem', color: 'var(--text-secondary)', fontWeight: 500, letterSpacing: '0.01em' }}>
                   نوبت‌دهی آنلاین
                 </div>
               </div>
@@ -206,7 +231,21 @@ export default function Header() {
                 </NavItem>
               )}
 
-              {/* Telegram */}
+              <button
+                type="button"
+                onClick={toggleTheme}
+                style={{
+                  display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                  padding: '8px 14px', borderRadius: '12px',
+                  textDecoration: 'none', fontSize: '0.9rem', fontWeight: 600,
+                  color: 'var(--text-primary)', background: 'var(--card-hover)',
+                  border: '1px solid var(--border)', cursor: 'pointer',
+                }}
+                aria-label="تغییر حالت تم"
+              >
+                {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+                {theme === 'dark' ? 'روشن' : 'تاریک'}
+              </button>
               <a
                 href="https://t.me/amir_rezaiyan"
                 target="_blank"
@@ -228,7 +267,7 @@ export default function Header() {
             {/* ── Auth Section Desktop ── */}
             <div className="hdr-desktop" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               {isAuthenticated ? (
-                <div style={{ position: 'relative' }}>
+                <div style={{ position: 'relative' }} data-user-dropdown>
                   {/* User button */}
                   <button
                     className="hdr-user-btn"
@@ -237,8 +276,9 @@ export default function Header() {
                       display: 'flex', alignItems: 'center', gap: '10px',
                       padding: '7px 14px 7px 10px',
                       borderRadius: '12px', border: `1.5px solid ${C.border}`,
-                      background: 'white', cursor: 'pointer',
+                      background: 'var(--card)', cursor: 'pointer',
                       transition: 'all 0.2s',
+                      color: 'var(--text-primary)'
                     }}
                   >
                     {/* Avatar */}
@@ -266,7 +306,13 @@ export default function Header() {
                     {userDropdown && (
                       <>
                         <div
-                          style={{ position: 'fixed', inset: 0, zIndex: 10 }}
+                          style={{ 
+                            position: 'fixed', 
+                            inset: 0, 
+                            zIndex: 10,
+                            backgroundColor: 'transparent',
+                            pointerEvents: 'auto'
+                          }}
                           onClick={() => setUserDropdown(false)}
                         />
                         <motion.div
@@ -277,9 +323,10 @@ export default function Header() {
                           style={{
                             position: 'absolute', top: 'calc(100% + 10px)', left: 0,
                             minWidth: '200px', borderRadius: '16px',
-                            background: 'white', border: `1px solid ${C.border}`,
-                            boxShadow: '0 12px 40px rgba(124,58,237,0.12)',
+                            background: 'var(--card)', border: `1px solid ${C.border}`,
+                            boxShadow: 'var(--shadow-sm)',
                             overflow: 'hidden', zIndex: 20,
+                            pointerEvents: 'auto'
                           }}
                         >
                           {/* User info inside dropdown */}
@@ -336,9 +383,9 @@ export default function Header() {
               onClick={() => setMenuOpen(v => !v)}
               style={{
                 width: '42px', height: '42px', borderRadius: '12px',
-                border: `1.5px solid ${C.border}`, background: C.accentLow,
+                border: `1.5px solid ${C.border}`, background: 'var(--card-hover)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                cursor: 'pointer', color: C.brandSolid,
+                cursor: 'pointer', color: 'var(--text-primary)',
               }}
             >
               <AnimatePresence mode="wait" initial={false}>
@@ -383,8 +430,8 @@ export default function Header() {
               style={{
                 position: 'fixed', top: 0, right: 0, bottom: 0,
                 width: '300px', zIndex: 1000,
-                background: 'white',
-                boxShadow: '-8px 0 48px rgba(124,58,237,0.15)',
+                background: 'var(--surface)',
+                boxShadow: '-8px 0 48px rgba(0,0,0,0.35)',
                 display: 'flex', flexDirection: 'column',
                 overflow: 'hidden',
               }}
@@ -486,6 +533,21 @@ export default function Header() {
 
               {/* Bottom auth buttons */}
               <div style={{ padding: '16px', borderTop: `1px solid ${C.border}` }}>
+                <button
+                  type="button"
+                  onClick={toggleTheme}
+                  style={{
+                    width: '100%', display: 'flex', alignItems: 'center',
+                    justifyContent: 'center', gap: '8px',
+                    padding: '14px', borderRadius: '12px',
+                    background: 'var(--card-hover)', border: `1.5px solid ${C.border}`,
+                    color: 'var(--text-primary)', fontWeight: 700, fontSize: '1rem',
+                    cursor: 'pointer', marginBottom: '12px',
+                  }}
+                >
+                  {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+                  {theme === 'dark' ? 'روشن شدن' : 'حالت تاریک'}
+                </button>
                 {isAuthenticated ? (
                   <button
                     onClick={handleLogout}

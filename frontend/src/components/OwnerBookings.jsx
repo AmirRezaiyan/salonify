@@ -18,19 +18,19 @@ function DialogModal({ isOpen, onClose, type, title, message, icon }) {
   const configs = {
     success_confirm: {
       headerBg: 'linear-gradient(135deg, #059669 0%, #10B981 100%)',
-      iconBg: 'rgba(255,255,255,0.2)',
+      iconBg: 'var(--surface-glass)',
       btnBg: '#059669',
       btnHover: '#047857',
     },
     success_cancel: {
       headerBg: 'linear-gradient(135deg, #D97706 0%, #F59E0B 100%)',
-      iconBg: 'rgba(255,255,255,0.2)',
+      iconBg: 'var(--surface-glass)',
       btnBg: '#D97706',
       btnHover: '#B45309',
     },
     error: {
       headerBg: 'linear-gradient(135deg, #DC2626 0%, #EF4444 100%)',
-      iconBg: 'rgba(255,255,255,0.2)',
+      iconBg: 'var(--surface-glass)',
       btnBg: '#DC2626',
       btnHover: '#B91C1C',
     },
@@ -78,7 +78,7 @@ function DialogModal({ isOpen, onClose, type, title, message, icon }) {
               position: 'relative',
               width: '100%',
               maxWidth: 400,
-              background: '#fff',
+              background: 'var(--card)',
               borderRadius: 24,
               overflow: 'hidden',
               boxShadow: '0 25px 60px rgba(0,0,0,0.25)',
@@ -109,7 +109,7 @@ function DialogModal({ isOpen, onClose, type, title, message, icon }) {
                 style={{
                   position: 'absolute', top: 12, left: 12,
                   width: 30, height: 30, borderRadius: 8,
-                  border: 'none', background: 'rgba(255,255,255,0.2)',
+                  border: 'none', background: 'var(--surface-glass-strong)',
                   color: '#fff', cursor: 'pointer',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                 }}
@@ -121,7 +121,7 @@ function DialogModal({ isOpen, onClose, type, title, message, icon }) {
             {/* بدنه */}
             <div style={{ padding: '1.5rem' }}>
               <p style={{
-                color: '#475569', fontSize: '0.95rem', lineHeight: 1.8,
+                color: "var(--text-secondary)", fontSize: '0.95rem', lineHeight: 1.8,
                 margin: '0 0 1.5rem 0', textAlign: 'center',
               }}>
                 {message}
@@ -129,7 +129,7 @@ function DialogModal({ isOpen, onClose, type, title, message, icon }) {
 
               {/* نوار پیشرفت auto-close */}
               <div style={{
-                height: 3, background: '#F1F5F9', borderRadius: 4,
+                height: 3, background: 'var(--card-hover)', borderRadius: 4,
                 marginBottom: '1.25rem', overflow: 'hidden',
               }}>
                 <motion.div
@@ -167,7 +167,7 @@ function DialogModal({ isOpen, onClose, type, title, message, icon }) {
 // بقیه کامپوننت‌ها (بدون تغییر)
 // ============================================================
 function StatusBadge({ status }) {
-  const s = STATUS_MAP[status] || { label: status || '—', bg: '#F1F5F9', color: '#475569', dot: '#94A3B8' };
+  const s = STATUS_MAP[status] || { label: status || '—', bg: '#F1F5F9', color: "var(--text-secondary)", dot: '#94A3B8' };
   return (
     <span style={{
       display: 'inline-flex', alignItems: 'center', gap: 6,
@@ -193,8 +193,8 @@ function BookingCard({ b, processingId, onConfirm, onCancel }) {
 
   return (
     <div style={{
-      background: '#fff',
-      border: '1px solid #E2E8F0',
+      background: 'var(--card)',
+      border: '1px solid var(--border)',
       borderRadius: 16,
       padding: '1.25rem 1.5rem',
       display: 'flex', flexDirection: 'column', gap: 12,
@@ -214,14 +214,14 @@ function BookingCard({ b, processingId, onConfirm, onCancel }) {
             <User size={18} color="#5B4FCF" />
           </div>
           <div>
-            <div style={{ fontWeight: 700, color: '#1E293B', fontSize: '0.95rem' }}>{customerName}</div>
-            <div style={{ fontSize: '0.78rem', color: '#94A3B8', marginTop: 2 }}>{phone}</div>
+            <div style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '0.95rem' }}>{customerName}</div>
+            <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: 2 }}>{phone}</div>
           </div>
         </div>
         <StatusBadge status={b.status} />
       </div>
 
-      <div style={{ height: 1, background: '#F1F5F9' }} />
+      <div style={{ height: 1, background: 'var(--card-hover)' }} />
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
         <Detail icon={<Scissors size={14} />} label="خدمت" value={serviceName} />
@@ -253,9 +253,9 @@ function BookingCard({ b, processingId, onConfirm, onCancel }) {
 function Detail({ icon, label, value }) {
   return (
     <div style={{ display: 'flex', alignItems: 'flex-start', gap: 7 }}>
-      <span style={{ color: '#94A3B8', marginTop: 2, flexShrink: 0 }}>{icon}</span>
+      <span style={{ color: 'var(--text-muted)', marginTop: 2, flexShrink: 0 }}>{icon}</span>
       <div>
-        <div style={{ fontSize: '0.72rem', color: '#94A3B8', marginBottom: 2 }}>{label}</div>
+        <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: 2 }}>{label}</div>
         <div style={{ fontSize: '0.85rem', fontWeight: 600, color: '#334155' }}>{value}</div>
       </div>
     </div>
@@ -297,7 +297,7 @@ function Pagination({ current, total, onChange }) {
         }}>{toPersianNumber(p)}</button>
       ))}
       <PageBtn onClick={() => onChange(current + 1)} disabled={current === total} icon={<ChevronLeft size={15} />} />
-      <span style={{ fontSize: '0.82rem', color: '#94A3B8', marginRight: 4 }}>
+      <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginRight: 4 }}>
         {toPersianNumber(current)} / {toPersianNumber(total)}
       </span>
     </div>
@@ -307,9 +307,9 @@ function Pagination({ current, total, onChange }) {
 function PageBtn({ onClick, disabled, icon }) {
   return (
     <button onClick={onClick} disabled={disabled} style={{
-      width: 36, height: 36, borderRadius: 10, border: '1px solid #E2E8F0',
-      background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
-      cursor: disabled ? 'not-allowed' : 'pointer', opacity: disabled ? 0.4 : 1, color: '#64748B'
+      width: 36, height: 36, borderRadius: 10, border: '1px solid var(--border)',
+      background: 'var(--card)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+      cursor: disabled ? 'not-allowed' : 'pointer', opacity: disabled ? 0.4 : 1, color: 'var(--text-secondary)'
     }}>{icon}</button>
   );
 }
@@ -442,10 +442,10 @@ export function OwnerBookings({ tenantId }) {
       {bookings.length === 0 ? (
         <div style={{
           textAlign: 'center', padding: '4rem 1rem',
-          color: '#94A3B8', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12
+          color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12
         }}>
           <Clock size={40} strokeWidth={1.5} />
-          <div style={{ fontWeight: 600, fontSize: '1rem', color: '#64748B' }}>هنوز رزروی ثبت نشده</div>
+          <div style={{ fontWeight: 600, fontSize: '1rem', color: 'var(--text-secondary)' }}>هنوز رزروی ثبت نشده</div>
           <div style={{ fontSize: '0.85rem' }}>رزروهای جدید اینجا نمایش داده می‌شوند.</div>
         </div>
       ) : (

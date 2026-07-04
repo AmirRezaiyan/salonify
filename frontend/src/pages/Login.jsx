@@ -175,8 +175,8 @@ export default function Login() {
     border: '1.5px solid #e2e8f0',
     borderRadius: '10px',
     fontSize: '1rem',
-    color: '#1e293b',
-    backgroundColor: '#f8fafc',
+    color: "var(--text-primary)",
+    backgroundColor: 'var(--background-secondary)',
     transition: 'all 0.2s',
     outline: 'none',
     boxSizing: 'border-box',
@@ -192,7 +192,7 @@ export default function Login() {
   const inputLtrError = {
     ...inputLtr,
     borderColor: '#f5576c',
-    backgroundColor: '#fff5f7'
+    backgroundColor: 'rgba(245,87,108,0.06)'
   };
 
   const inputRtl = {
@@ -204,32 +204,31 @@ export default function Login() {
   const inputRtlError = {
     ...inputRtl,
     borderColor: '#f5576c',
-    backgroundColor: '#fff5f7'
+    backgroundColor: 'rgba(245,87,108,0.06)'
   };
 
   const inputError = {
     ...inputBase,
     borderColor: '#f5576c',
-    backgroundColor: '#fff5f7'
+    backgroundColor: 'rgba(245,87,108,0.06)'
   };
 
   const handleFocus = (e) => {
     e.target.style.borderColor = '#667eea';
     e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.15)';
-    e.target.style.backgroundColor = '#ffffff';
   };
 
   const handleBlur = (e, hasError) => {
-    e.target.style.borderColor = hasError ? '#f5576c' : '#e2e8f0';
+    e.target.style.borderColor = hasError ? '#f5576c' : 'var(--border)';
     e.target.style.boxShadow = 'none';
-    e.target.style.backgroundColor = hasError ? '#fff5f7' : '#f8fafc';
+    e.target.style.backgroundColor = hasError ? 'rgba(245,87,108,0.06)' : 'var(--background-secondary)';
   };
 
   return (
     <div
       style={{
         minHeight: '100vh',
-        background: 'linear-gradient(to bottom, #f8fafc 0%, #ffffff 100%)',
+        background: 'linear-gradient(to bottom, var(--background-secondary) 0%, var(--card) 100%)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -276,19 +275,19 @@ export default function Login() {
         animate={{ scale: 1, opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: 'easeOut' }}
         style={{
-          background: 'white',
+          background: 'var(--card)',
           borderRadius: '20px',
           padding: 'clamp(1.5rem, 5vw, 2.5rem)',
           width: '100%',
           maxWidth: '440px',
-          border: '1px solid #e2e8f0',
+          border: '1px solid var(--border)',
           boxShadow: '0 20px 60px rgba(102, 126, 234, 0.12)',
           position: 'relative',
           zIndex: 1
         }}
       >
         <div style={{
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
           borderRadius: '14px',
           padding: '2rem 1.5rem',
           textAlign: 'center',
@@ -301,14 +300,14 @@ export default function Login() {
             style={{
               width: '64px',
               height: '64px',
-              backgroundColor: 'rgba(255,255,255,0.2)',
+              backgroundColor: 'var(--surface-glass-strong)',
               borderRadius: '14px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               margin: '0 auto 1rem',
               backdropFilter: 'blur(10px)',
-              border: '1px solid rgba(255,255,255,0.3)'
+              border: '1px solid var(--surface-glass-strong)'
             }}
           >
             <Scissors size={30} color="white" />
@@ -329,7 +328,7 @@ export default function Login() {
             ورود به حساب
           </motion.h1>
           <p style={{
-            color: 'rgba(255,255,255,0.85)',
+            color: 'var(--text-light)',
             margin: 0,
             fontSize: '0.95rem'
           }}>
@@ -368,7 +367,7 @@ export default function Login() {
               style={{
                 width: '100%',
                 maxWidth: '430px',
-                background: 'white',
+                background: 'var(--card)',
                 borderRadius: '22px',
                 padding: '1.75rem 1.5rem',
                 boxShadow: '0 28px 80px rgba(15, 23, 42, 0.18)',
@@ -380,7 +379,7 @@ export default function Login() {
                   <p style={{ margin: 0, fontSize: '1rem', fontWeight: 700, color: '#111827' }}>
                     لینک بازیابی ارسال شد
                   </p>
-                  <p style={{ margin: '0.85rem 0 0 0', color: '#475569', lineHeight: 1.75 }}>
+                  <p style={{ margin: '0.85rem 0 0 0', color: "var(--text-secondary)", lineHeight: 1.75 }}>
                     اگر این حساب وجود داشته باشد، لینک بازیابی به ایمیل ثبت‌شده ارسال می‌شود.
                   </p>
                 </div>
@@ -390,7 +389,7 @@ export default function Login() {
                   style={{
                     border: 'none',
                     background: 'transparent',
-                    color: '#64748b',
+                    color: "var(--text-secondary)",
                     cursor: 'pointer',
                     fontSize: '1.4rem',
                     lineHeight: 1
@@ -411,7 +410,7 @@ export default function Login() {
                   padding: '0.95rem 1rem',
                   fontSize: '1rem',
                   fontWeight: 700,
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
                   color: 'white',
                   cursor: 'pointer'
                 }}
@@ -509,7 +508,7 @@ export default function Login() {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: '#94a3b8',
+                  color: "var(--text-muted)",
                   transition: 'color 0.2s',
                   borderRadius: '6px'
                 }}
@@ -556,7 +555,7 @@ export default function Login() {
               type="submit"
               loading={loading}
               style={{
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
                 color: 'white',
                 width: '100%',
                 padding: '0.9rem',
@@ -592,7 +591,7 @@ export default function Login() {
           style={{
             textAlign: 'center',
             marginTop: '1.75rem',
-            color: '#64748b',
+            color: "var(--text-secondary)",
             fontSize: '0.95rem'
           }}
         >
@@ -625,7 +624,7 @@ export default function Login() {
         >
           <p style={{
             fontSize: '0.85rem',
-            color: '#94a3b8',
+            color: "var(--text-muted)",
             margin: '0 0 0.3rem 0',
             display: 'flex',
             alignItems: 'center',

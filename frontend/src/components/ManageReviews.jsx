@@ -7,29 +7,29 @@ import { toPersianNumber } from '../utils/formatCurrency';
 
 /* ── tokens (هماهنگ با PortfolioManager) ──────────────────────────────── */
 const T = {
-  purple: '#7C5CFC',
-  purpleDark: '#5B3DD8',
-  purpleLight: '#EDE9FF',
-  purpleMid: '#C4B5FD',
-  amber: '#FBBF24',
-  amberBg: '#FEF3C7',
-  green: '#22C55E',
-  greenBg: '#DCFCE7',
-  greenText: '#15803D',
-  red: '#EF4444',
-  redBg: '#FEE2E2',
-  redText: '#991B1B',
-  ink: '#0F172A',
-  inkMid: '#475569',
-  inkLight: '#94A3B8',
-  surface: '#FFFFFF',
-  bg: '#F8F7FF',
-  border: '#E9E4FF',
-  borderLight: '#F1F5F9',
+  purple: 'var(--primary)',
+  purpleDark: 'var(--primary-dark)',
+  purpleLight: 'var(--surface-glass)',
+  purpleMid: 'var(--primary-light)',
+  amber: 'var(--warning)',
+  amberBg: 'var(--warning-surface)',
+  green: 'var(--success)',
+  greenBg: 'var(--success-surface)',
+  greenText: 'var(--success)',
+  red: 'var(--danger)',
+  redBg: 'var(--danger-surface)',
+  redText: 'var(--danger)',
+  ink: 'var(--text-primary)',
+  inkMid: 'var(--text-secondary)',
+  inkLight: 'var(--text-muted)',
+  surface: 'var(--card)',
+  bg: 'var(--surface)',
+  border: 'var(--border)',
+  borderLight: 'var(--border-muted)',
   radius: '16px',
   radiusSm: '10px',
-  shadow: '0 2px 12px rgba(124,92,252,0.08)',
-  shadowHover: '0 8px 28px rgba(124,92,252,0.16)',
+  shadow: 'var(--shadow-md)',
+  shadowHover: 'var(--shadow-lg)',
 };
 
 const PAGE_SIZE = 8;
@@ -53,7 +53,7 @@ function Toast({ message, type, onClose }) {
         zIndex: 9999, maxWidth: '420px', width: 'calc(100% - 32px)',
         background: T.surface,
         borderRadius: T.radius,
-        border: `1.5px solid ${isError ? '#FECACA' : '#BBF7D0'}`,
+        border: `1.5px solid ${isError ? 'var(--danger)' : 'var(--success)'}`,
         boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
         padding: '0.9rem 1.1rem',
         display: 'flex', alignItems: 'center', gap: '10px',
@@ -187,7 +187,7 @@ function ReplyBox({ review, onCancel, onSend, sending }) {
           >
             انصراف
           </button>
-          <motion.button
+              <motion.button
             whileTap={{ scale: 0.96 }}
             onClick={() => onSend(text)}
             disabled={sending}
@@ -195,8 +195,8 @@ function ReplyBox({ review, onCancel, onSend, sending }) {
               display: 'flex', alignItems: 'center', gap: '6px',
               padding: '8px 16px', borderRadius: T.radiusSm,
               border: 'none',
-              background: sending ? T.purpleMid : `linear-gradient(135deg, ${T.purple}, ${T.purpleDark})`,
-              color: '#fff', fontWeight: 700, fontSize: '0.86rem',
+              	  background: sending ? T.purpleMid : `linear-gradient(135deg, ${T.purple}, ${T.purpleDark})`,
+              	  color: 'var(--text-light)', fontWeight: 700, fontSize: '0.86rem',
               cursor: sending ? 'wait' : 'pointer',
               boxShadow: sending ? 'none' : '0 4px 14px rgba(124,92,252,0.3)',
             }}
@@ -353,11 +353,11 @@ function Pagination({ page, totalPages, onChange }) {
           key={p}
           whileTap={{ scale: 0.92 }}
           onClick={() => onChange(p)}
-          style={{
+            style={{
             minWidth: '34px', height: '34px', borderRadius: '10px',
             border: `1.5px solid ${p === page ? T.purple : T.border}`,
-            background: p === page ? `linear-gradient(135deg, ${T.purple}, ${T.purpleDark})` : T.surface,
-            color: p === page ? '#fff' : T.inkMid,
+              background: p === page ? `linear-gradient(135deg, ${T.purple}, ${T.purpleDark})` : T.surface,
+              color: p === page ? 'var(--text-light)' : T.inkMid,
             fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer',
             padding: '0 8px',
             boxShadow: p === page ? '0 4px 12px rgba(124,92,252,0.3)' : 'none',

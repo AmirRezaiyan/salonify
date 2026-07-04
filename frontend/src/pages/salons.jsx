@@ -48,16 +48,16 @@ const T = {
   violet:    '#7c3aed',
   violetSoft:'#ede9fe',
   violetMid: '#8b5cf6',
-  bg:        '#f5f3ff',
-  white:     '#ffffff',
+  bg:        'var(--surface)',
+  white:     'var(--card)',
   slate9:    '#0f172a',
   slate7:    '#334155',
   slate5:    '#64748b',
   slate3:    '#cbd5e1',
-  slate2:    '#e2e8f0',
-  slate1:    '#f1f5f9',
+  slate2:    'var(--border)',
+  slate1:    'var(--card-hover)',
   gold:      '#f59e0b',
-  goldBg:    '#fffbeb',
+  goldBg:    'var(--warning-surface)',
   pink:      '#ec4899',
   pinkBg:    '#fdf2f8',
   red:       '#ef4444',
@@ -206,7 +206,7 @@ function SalonCard({ salon, navigate }) {
       whileHover={{ y: -5 }}
       transition={{ duration: 0.22 }}
       style={{
-        background: T.white, borderRadius: '22px',
+        background: 'var(--card)', borderRadius: '22px',
         overflow: 'hidden',
         boxShadow: '0 2px 16px rgba(124,58,237,0.07)',
         border: `1px solid ${T.slate2}`,
@@ -228,7 +228,7 @@ function SalonCard({ salon, navigate }) {
         <div style={{
           position: 'absolute', top: '-30px', left: '-30px',
           width: '120px', height: '120px', borderRadius: '50%',
-          background: 'rgba(255,255,255,0.07)',
+          background: 'var(--surface-glass)',
         }} />
 
         {/* Avatar */}
@@ -250,8 +250,8 @@ function SalonCard({ salon, navigate }) {
         ) : (
           <div style={{
             width: '56px', height: '56px', borderRadius: '18px',
-            background: 'rgba(255,255,255,0.2)',
-            border: '2px solid rgba(255,255,255,0.4)',
+            background: 'var(--surface-glass-strong)',
+            border: '2px solid var(--surface-glass)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             position: 'relative', zIndex: 1,
           }}>
@@ -263,7 +263,7 @@ function SalonCard({ salon, navigate }) {
         {salon.gender && (
           <div style={{
             position: 'absolute', top: '12px', right: '12px',
-            background: 'rgba(255,255,255,0.95)',
+            background: 'var(--surface)',
             color: accentColor,
             padding: '4px 10px', borderRadius: '20px',
             fontSize: '0.73rem', fontWeight: 800, zIndex: 2,
@@ -344,7 +344,7 @@ function Chip({ active, icon: Icon, label, onClick, danger }) {
         display: 'inline-flex', alignItems: 'center', gap: '6px',
         padding: '9px 16px', borderRadius: '50px',
         border: `1.5px solid ${danger ? '#fca5a5' : active ? T.violet : T.slate2}`,
-        background: danger ? T.redBg : active ? T.violetSoft : T.white,
+        background: danger ? T.redBg : active ? T.violetSoft : 'var(--card)',
         color: danger ? T.red : active ? T.violet : T.slate7,
         fontSize: '0.86rem', fontWeight: 600,
         cursor: 'pointer', fontFamily: 'inherit',
@@ -471,15 +471,15 @@ export default function Salons() {
             onClick={() => navigate(-1)}
             style={{
               display: 'inline-flex', alignItems: 'center', gap: '6px',
-              background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.28)',
+              background: 'var(--surface-glass-strong)', border: '1px solid var(--surface-glass)',
               borderRadius: '50px', padding: '8px 18px',
               color: '#fff', fontSize: '0.85rem', fontWeight: 600,
               cursor: 'pointer', fontFamily: 'inherit',
               marginBottom: '1.75rem',
               transition: 'background 0.2s',
             }}
-            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.24)'; }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.15)'; }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'var(--surface-glass)'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'var(--surface-glass-muted)'; }}
           >
             <ArrowRight size={15} />
             بازگشت
@@ -516,8 +516,8 @@ export default function Salons() {
               style={{
                 display: 'inline-flex', alignItems: 'center', gap: '7px',
                 padding: '8px 18px', borderRadius: '50px',
-                background: 'rgba(255,255,255,0.14)',
-                border: '1px solid rgba(255,255,255,0.22)',
+                background: 'var(--surface-glass)',
+                border: '1px solid var(--surface-glass)',
                 color: '#fff', fontSize: '0.86rem', fontWeight: 700,
                 marginBottom: '0.75rem',
               }}
@@ -536,8 +536,8 @@ export default function Salons() {
               style={{
                 display: 'inline-flex', alignItems: 'center', gap: '7px',
                 padding: '8px 18px', borderRadius: '50px',
-                background: 'rgba(255,255,255,0.14)',
-                border: '1px solid rgba(255,255,255,0.22)',
+                background: 'var(--surface-glass)',
+                border: '1px solid var(--surface-glass)',
                 color: '#fff', fontSize: '0.86rem', fontWeight: 700,
                 marginBottom: '1.5rem',
               }}
@@ -563,7 +563,7 @@ export default function Salons() {
                 padding: '16px 52px 16px 52px',
                 borderRadius: '50px', border: 'none',
                 fontSize: '0.97rem', fontFamily: 'inherit',
-                background: '#fff',
+                background: 'var(--card)',
                 boxShadow: '0 8px 36px rgba(0,0,0,0.2)',
                 outline: 'none', direction: 'rtl',
                 color: T.slate9,
@@ -613,7 +613,7 @@ export default function Salons() {
               display: 'inline-flex', alignItems: 'center', gap: '6px',
               padding: '9px 14px', borderRadius: '50px',
               border: `1.5px solid #dbeafe`,
-              background: '#eff6ff',
+              background: 'var(--info-surface)',
               color: '#2563eb', fontSize: '0.86rem', fontWeight: 700,
             }}>
               {viewerGender === 'female' ? '♀ زنانه' : '♂ مردانه'}
@@ -704,7 +704,7 @@ export default function Salons() {
             animate={{ opacity: 1, scale: 1 }}
             style={{
               textAlign: 'center', padding: '5rem 2rem',
-              background: T.white, borderRadius: '28px',
+              background: 'var(--card)', borderRadius: '28px',
               border: `2px dashed ${T.slate3}`,
             }}
           >
@@ -755,7 +755,7 @@ export default function Salons() {
               style={{
                 width: '38px', height: '38px', borderRadius: '50%',
                 border: `1.5px solid ${T.slate2}`,
-                background: page === 1 ? T.slate1 : T.white,
+                background: page === 1 ? T.slate1 : 'var(--card)',
                 color: page === 1 ? T.slate3 : T.slate7,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 cursor: page === 1 ? 'default' : 'pointer',
@@ -782,7 +782,7 @@ export default function Salons() {
                     style={{
                       width: '38px', height: '38px', borderRadius: '50%',
                       border: `1.5px solid ${item === page ? T.violet : T.slate2}`,
-                      background: item === page ? T.violet : T.white,
+                      background: item === page ? T.violet : 'var(--card)',
                       color: item === page ? '#fff' : T.slate7,
                       fontSize: '0.88rem', fontWeight: item === page ? 700 : 500,
                       cursor: 'pointer', fontFamily: 'inherit',
@@ -802,7 +802,7 @@ export default function Salons() {
               style={{
                 width: '38px', height: '38px', borderRadius: '50%',
                 border: `1.5px solid ${T.slate2}`,
-                background: page === totalPages ? T.slate1 : T.white,
+                background: page === totalPages ? T.slate1 : 'var(--card)',
                 color: page === totalPages ? T.slate3 : T.slate7,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 cursor: page === totalPages ? 'default' : 'pointer',

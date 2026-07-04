@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import { api } from '../api/client';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { Loading } from '../components/Loading';
 import { Alert } from '../components/Alert';
 import Reviews from '../components/Reviews';
@@ -15,30 +16,30 @@ import {
 import { formatToman, toPersianNumber } from '../utils/formatCurrency';
 
 /* ─── tokens ──────────────────────────────────────────────────────────────── */
-const T = {
-  purple: '#7C5CFC',
-  purpleDark: '#5B3DD8',
-  purpleDeep: '#3D27A8',
-  purpleLight: '#EDE9FF',
-  purpleMid: '#C4B5FD',
+const getThemeTokens = (theme) => ({
+  purple: theme === 'dark' ? '#8B5CF6' : '#7C5CFC',
+  purpleDark: theme === 'dark' ? '#7C3AED' : '#5B3DD8',
+  purpleDeep: theme === 'dark' ? '#4C1D95' : '#3D27A8',
+  purpleLight: theme === 'dark' ? 'rgba(139,92,246,0.18)' : '#EDE9FF',
+  purpleMid: theme === 'dark' ? 'rgba(192,132,252,0.45)' : '#C4B5FD',
   green: '#22C55E',
-  greenBg: '#DCFCE7',
-  greenText: '#15803D',
+  greenBg: theme === 'dark' ? 'rgba(34,197,94,0.18)' : '#DCFCE7',
+  greenText: theme === 'dark' ? '#86EFAC' : '#15803D',
   red: '#EF4444',
-  redBg: '#FEE2E2',
-  redText: '#991B1B',
+  redBg: theme === 'dark' ? 'rgba(239,68,68,0.18)' : '#FEE2E2',
+  redText: theme === 'dark' ? '#FECACA' : '#991B1B',
   amber: '#F59E0B',
-  ink: '#0F172A',
-  inkMid: '#475569',
-  inkLight: '#94A3B8',
-  surface: '#FFFFFF',
-  bg: '#F5F3FF',
-  border: '#E9E4FF',
+  ink: theme === 'dark' ? '#F8FAFC' : '#0F172A',
+  inkMid: theme === 'dark' ? '#CBD5E1' : '#475569',
+  inkLight: theme === 'dark' ? '#94A3B8' : '#94A3B8',
+  surface: 'var(--card)',
+  bg: 'var(--background)',
+  border: 'var(--border)',
   radius: '18px',
   radiusSm: '12px',
-  shadow: '0 2px 16px rgba(124,92,252,0.09)',
-  shadowHover: '0 12px 40px rgba(124,92,252,0.18)',
-};
+  shadow: theme === 'dark' ? '0 2px 16px rgba(2,6,23,0.35)' : '0 2px 16px rgba(124,92,252,0.09)',
+  shadowHover: theme === 'dark' ? '0 12px 40px rgba(2,6,23,0.46)' : '0 12px 40px rgba(124,92,252,0.18)',
+});
 
 /* ─── animation variants ──────────────────────────────────────────────────── */
 const fadeUp = (delay = 0) => ({
@@ -57,7 +58,7 @@ const cardVariant = {
 };
 
 /* ─── SalonBanner ─────────────────────────────────────────────────────────── */
-function SalonBanner({ salon, servicesCount }) {
+function SalonBanner({ salon, servicesCount, T }) {
   return (
     <div style={{
       background: `linear-gradient(135deg, ${T.purple} 0%, ${T.purpleDeep} 100%)`,
@@ -83,7 +84,7 @@ function SalonBanner({ salon, servicesCount }) {
             top: c.top, bottom: c.bottom,
             left: c.left, right: c.right,
             borderRadius: '50%',
-            background: 'rgba(255,255,255,0.06)',
+            background: 'var(--surface-glass)',
             filter: 'blur(40px)',
           }}
         />
@@ -103,11 +104,11 @@ function SalonBanner({ salon, servicesCount }) {
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             style={{
               width: '60px', height: '60px', borderRadius: T.radius,
-              background: 'rgba(255,255,255,0.15)',
+              background: 'var(--surface-glass-strong)',
               backdropFilter: 'blur(10px)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               marginBottom: '1rem',
-              border: '1px solid rgba(255,255,255,0.2)',
+              border: '1px solid var(--surface-glass)',
             }}
           >
             <Scissors size={30} color="#fff" />
@@ -129,7 +130,7 @@ function SalonBanner({ salon, servicesCount }) {
 
           <motion.p
             {...fadeUp(0.25)}
-            style={{ color: 'rgba(255,255,255,0.7)', margin: 0, fontSize: '1rem' }}
+            style={{ color: 'var(--text-light)', margin: 0, fontSize: '1rem' }}
           >
             خدمت مورد نظر را انتخاب و نوبت بگیرید
           </motion.p>
@@ -144,8 +145,8 @@ function SalonBanner({ salon, servicesCount }) {
             <span style={{
               display: 'inline-flex', alignItems: 'center', gap: '5px',
               padding: '6px 14px', borderRadius: '999px',
-              background: 'rgba(255,255,255,0.15)',
-              border: '1px solid rgba(255,255,255,0.25)',
+              background: 'var(--surface-glass-strong)',
+              border: '1px solid var(--surface-glass)',
               color: '#fff', fontSize: '0.82rem', fontWeight: 600,
               backdropFilter: 'blur(6px)',
             }}>
@@ -156,8 +157,8 @@ function SalonBanner({ salon, servicesCount }) {
           <span style={{
             display: 'inline-flex', alignItems: 'center', gap: '5px',
             padding: '6px 14px', borderRadius: '999px',
-            background: 'rgba(255,255,255,0.15)',
-            border: '1px solid rgba(255,255,255,0.25)',
+            background: 'var(--surface-glass-strong)',
+            border: '1px solid var(--surface-glass)',
             color: '#fff', fontSize: '0.82rem', fontWeight: 600,
             backdropFilter: 'blur(6px)',
           }}>
@@ -178,7 +179,7 @@ function SalonBanner({ salon, servicesCount }) {
 }
 
 /* ─── DisabledBanner ──────────────────────────────────────────────────────── */
-function DisabledBanner({ salon }) {
+function DisabledBanner({ salon, T }) {
   if (!salon?.is_currently_disabled) return null;
   return (
     <motion.div
@@ -209,7 +210,7 @@ function DisabledBanner({ salon }) {
 }
 
 /* ─── PriceNote ───────────────────────────────────────────────────────────── */
-function PriceNote() {
+function PriceNote({ T }) {
   return (
     <motion.div
       {...fadeUp(0.1)}
@@ -229,7 +230,7 @@ function PriceNote() {
 }
 
 /* ─── AboutOwner ──────────────────────────────────────────────────────────── */
-function AboutOwner({ salon }) {
+function AboutOwner({ salon, T }) {
   if (!salon?.owner_image && !salon?.owner_description) return null;
 
   let imgPosition = { x: 50, y: 50 };
@@ -258,13 +259,13 @@ function AboutOwner({ salon }) {
       <div style={{
         position: 'absolute', top: '-40px', left: '-40px',
         width: '180px', height: '180px', borderRadius: '50%',
-        background: 'rgba(255,255,255,0.07)', filter: 'blur(30px)',
+        background: 'var(--surface-glass)', filter: 'blur(30px)',
         pointerEvents: 'none',
       }} />
       <div style={{
         position: 'absolute', bottom: '-30px', right: '10%',
         width: '140px', height: '140px', borderRadius: '50%',
-        background: 'rgba(255,255,255,0.05)', filter: 'blur(24px)',
+        background: 'var(--surface-glass)', filter: 'blur(24px)',
         pointerEvents: 'none',
       }} />
 
@@ -280,7 +281,7 @@ function AboutOwner({ salon }) {
             {/* outer glow ring */}
             <div style={{
               width: '100px', height: '100px', borderRadius: '50%',
-              background: 'rgba(255,255,255,0.18)',
+              background: 'var(--surface-glass-strong)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               boxShadow: '0 0 0 4px rgba(255,255,255,0.12), 0 8px 24px rgba(0,0,0,0.18)',
             }}>
@@ -319,12 +320,12 @@ function AboutOwner({ salon }) {
           <div style={{
             display: 'inline-flex', alignItems: 'center', gap: '5px',
             padding: '3px 10px', borderRadius: '999px',
-            background: 'rgba(255,255,255,0.15)',
-            border: '1px solid rgba(255,255,255,0.25)',
+            background: 'var(--surface-glass-strong)',
+            border: '1px solid var(--surface-glass)',
             marginBottom: '0.6rem',
           }}>
             <Scissors size={11} color="rgba(255,255,255,0.85)" />
-            <span style={{ color: 'rgba(255,255,255,0.85)', fontSize: '0.75rem', fontWeight: 600 }}>
+            <span style={{ color: 'var(--text-light)', fontSize: '0.75rem', fontWeight: 600 }}>
               متخصص آرایش
             </span>
           </div>
@@ -353,7 +354,7 @@ function AboutOwner({ salon }) {
 }
 
 /* ─── SalonAddressCard ────────────────────────────────────────────────────── */
-function SalonAddressCard({ salon }) {
+function SalonAddressCard({ salon, T }) {
   const address = salon?.address?.trim();
   if (!address) return null;
 
@@ -403,14 +404,14 @@ function SalonAddressCard({ salon }) {
 }
 
 /* ─── StatCell ────────────────────────────────────────────────────────────── */
-function StatCell({ icon, label, value, highlight }) {
+function StatCell({ icon, label, value, highlight, T }) {
   return (
     <div style={{
-      background: highlight ? T.purpleLight : '#F4F2FF',
+      background: highlight ? T.purpleLight : 'var(--background-secondary)',
       borderRadius: T.radiusSm,
       padding: '0.65rem 0.85rem',
       display: 'flex', flexDirection: 'column', gap: '3px',
-      border: highlight ? `1px solid ${T.purpleMid}` : '1px solid transparent',
+      border: highlight ? `1px solid ${T.purpleMid}` : '1px solid var(--border)',
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: highlight ? T.purple : T.inkLight }}>
         {icon}
@@ -424,11 +425,11 @@ function StatCell({ icon, label, value, highlight }) {
 }
 
 /* ─── BookButton ──────────────────────────────────────────────────────────── */
-function BookButton({ canBook, salonDisabled, onClick }) {
+function BookButton({ canBook, salonDisabled, onClick, T }) {
   if (salonDisabled) return (
     <div style={{
       width: '100%', padding: '10px', borderRadius: T.radiusSm,
-      background: '#F1F5F9', color: T.inkLight,
+      background: 'var(--card-hover)', color: T.inkLight,
       fontSize: '0.88rem', fontWeight: 600,
       display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
       cursor: 'not-allowed',
@@ -469,7 +470,7 @@ function BookButton({ canBook, salonDisabled, onClick }) {
 }
 
 /* ─── ServiceCard ─────────────────────────────────────────────────────────── */
-function ServiceCard({ service, salonDisabled, onBook, index }) {
+function ServiceCard({ service, salonDisabled, onBook, index, T }) {
   const [hovered, setHovered] = useState(false);
   const canBook = service.is_active && service.price > 0 && !salonDisabled && !!onBook;
 
@@ -529,8 +530,8 @@ function ServiceCard({ service, salonDisabled, onBook, index }) {
 
         {/* stats grid */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
-          <StatCell icon={<Clock size={13} />} label="مدت زمان" value={`${toPersianNumber(service.duration_minutes)} دقیقه`} />
-          <StatCell icon={<Sparkles size={13} />} label="قیمت پایه" value={formatToman(service.price)} highlight />
+          <StatCell icon={<Clock size={13} />} label="مدت زمان" value={`${toPersianNumber(service.duration_minutes)} دقیقه`} T={T} />
+          <StatCell icon={<Sparkles size={13} />} label="قیمت پایه" value={formatToman(service.price)} highlight T={T} />
         </div>
 
         {/* book button */}
@@ -539,6 +540,7 @@ function ServiceCard({ service, salonDisabled, onBook, index }) {
             canBook={canBook}
             salonDisabled={salonDisabled}
             onClick={onBook ? () => onBook(service) : undefined}
+            T={T}
           />
         </div>
       </div>
@@ -547,7 +549,7 @@ function ServiceCard({ service, salonDisabled, onBook, index }) {
 }
 
 /* ─── SectionTitle ────────────────────────────────────────────────────────── */
-function SectionTitle({ icon, children }) {
+function SectionTitle({ icon, children, T }) {
   return (
     <motion.div
       initial={{ opacity: 0, x: 16 }}
@@ -578,7 +580,7 @@ function SectionTitle({ icon, children }) {
 }
 
 /* ─── EmptyState ──────────────────────────────────────────────────────────── */
-function EmptyState({ isStaff }) {
+function EmptyState({ isStaff, T }) {
   if (isStaff) {
     // For staff/owners - show a simple message
     return (
@@ -637,7 +639,7 @@ function EmptyState({ isStaff }) {
 }
 
 /* ─── BackButton ──────────────────────────────────────────────────────────── */
-function BackButton({ onClick }) {
+function BackButton({ onClick, T }) {
   return (
     <motion.button
       initial={{ opacity: 0, x: 10 }}
@@ -671,6 +673,8 @@ export default function Services() {
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { theme } = useTheme();
+  const T = getThemeTokens(theme);
 
   const isStaff = user?.role === 'owner' || user?.role === 'staff';
 
@@ -689,7 +693,7 @@ export default function Services() {
         setSalon({ id: salonId, name: salonName });
       }
       const r = await api.getServices(salonId);
-      setServices(r.data.filter(s => s.is_active));
+      setServices((r.data || []).filter((s) => s.is_active && Number(s.price) > 0));
       setError('');
     } catch (err) {
       console.error(err);
@@ -717,7 +721,7 @@ export default function Services() {
       style={{ minHeight: '100vh', background: T.bg }}
     >
       {/* ── Banner ── */}
-      <SalonBanner salon={salon} servicesCount={activeCount} />
+      <SalonBanner salon={salon} servicesCount={activeCount} T={T} />
 
       {/* ── Toolbar ── */}
       <div style={{
@@ -726,7 +730,7 @@ export default function Services() {
         display: 'flex', justifyContent: 'flex-end',
         direction: 'rtl',
       }}>
-        <BackButton onClick={() => navigate('/')} />
+        <BackButton onClick={() => navigate('/')} T={T} />
       </div>
 
       {/* ── Content ── */}
@@ -749,20 +753,20 @@ export default function Services() {
           )}
         </AnimatePresence>
 
-        <DisabledBanner salon={salon} />
-        <PriceNote />
+        <DisabledBanner salon={salon} T={T} />
+        <PriceNote T={T} />
 
-        <AboutOwner salon={salon} />
-        <SalonAddressCard salon={salon} />
+        <AboutOwner salon={salon} T={T} />
+        <SalonAddressCard salon={salon} T={T} />
 
         {/* ── Services ── */}
         <section style={{ marginBottom: '3.5rem' }}>
-          <SectionTitle icon={<Scissors size={18} style={{ color: T.purple }} />}>
+          <SectionTitle icon={<Scissors size={18} style={{ color: T.purple }} />} T={T}>
             خدمات سالن
           </SectionTitle>
 
           {services.length === 0 ? (
-            <EmptyState isStaff={isStaff} />
+            <EmptyState isStaff={isStaff} T={T} />
           ) : (
             <motion.div
               variants={stagger}
@@ -781,6 +785,7 @@ export default function Services() {
                   index={i}
                   salonDisabled={!!salon?.is_currently_disabled}
                   onBook={isStaff ? null : handleBook}
+                  T={T}
                 />
               ))}
             </motion.div>
@@ -795,7 +800,7 @@ export default function Services() {
             viewport={{ once: true, margin: '-60px' }}
             transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
           >
-            <SectionTitle icon={<Star size={18} style={{ color: T.purple }} />}>
+            <SectionTitle icon={<Star size={18} style={{ color: T.purple }} />} T={T}>
               نظرات مشتریان
             </SectionTitle>
 

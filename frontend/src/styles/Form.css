@@ -22,13 +22,13 @@
 .form-input,
 .form-select {
   padding: var(--spacing-md) var(--spacing-lg);
-  border: 2px solid var(--light);
+  border: 2px solid var(--border);
   border-radius: var(--radius-md);
   font-size: var(--font-size-base);
   font-family: inherit;
   transition: var(--transition);
-  background: white;
-  color: var(--dark);
+  background: var(--surface);
+  color: var(--text-primary);
   width: 100%;
 }
 
@@ -81,13 +81,13 @@
 
 .form-select option {
   padding: var(--spacing-md);
-  background: white;
-  color: var(--dark);
+  background: var(--card);
+  color: var(--text-primary);
 }
 
 .form-select option:checked {
   background: linear-gradient(var(--primary), var(--primary));
-  color: white;
+  color: var(--text-light);
 }
 
 /* Responsive Design */

@@ -48,16 +48,16 @@ import { formatToman, toPersianNumber } from '../utils/formatCurrency';
 /* ─────────────────────────── tiny helpers ─────────────────────────── */
 
 const glass = {
-  background: 'rgba(255,255,255,0.12)',
+  background: 'var(--surface-glass)',
   backdropFilter: 'blur(16px)',
-  border: '1px solid rgba(255,255,255,0.22)',
+  border: '1px solid var(--surface-glass)',
 };
 
 const card = {
-  background: '#fff',
+  background: 'var(--card)',
   borderRadius: '20px',
   boxShadow: '0 4px 24px rgba(30,41,59,0.08)',
-  border: '1px solid #f1f5f9',
+  border: "1px solid var(--border)",
   overflow: 'hidden',
 };
 
@@ -136,7 +136,7 @@ function SearchDialog({ open, onClose, searchQuery, setSearchQuery, selectedCity
             transition={{ type: 'spring', stiffness: 380, damping: 28 }}
             style={{
               width: 'min(560px, 94vw)',
-              background: '#fff',
+              background: 'var(--card)',
               borderRadius: '28px',
               boxShadow: '0 32px 80px rgba(15,23,42,0.25)',
               overflow: 'hidden',
@@ -145,7 +145,7 @@ function SearchDialog({ open, onClose, searchQuery, setSearchQuery, selectedCity
           >
             {/* Dialog Header */}
             <div style={{
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
               padding: '1.75rem 1.75rem 1.5rem',
               position: 'relative',
             }}>
@@ -153,16 +153,16 @@ function SearchDialog({ open, onClose, searchQuery, setSearchQuery, selectedCity
                 <button
                   onClick={onClose}
                   style={{
-                    background: 'rgba(255,255,255,0.2)',
+                    background: 'var(--surface-glass-strong)',
                     border: 'none',
                     borderRadius: '50%',
                     width: '36px', height: '36px',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    cursor: 'pointer', color: '#fff',
+                    cursor: 'pointer', color: 'var(--text-light)',
                     transition: 'background 0.2s',
                   }}
-                  onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.35)'}
-                  onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.2)'}
+                  onMouseEnter={e => e.currentTarget.style.background = 'var(--surface-glass-strong)'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'var(--surface-glass-muted)'}
                 >
                   <X size={18} />
                 </button>
@@ -170,16 +170,17 @@ function SearchDialog({ open, onClose, searchQuery, setSearchQuery, selectedCity
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                 <div style={{
                   width: '44px', height: '44px', borderRadius: '14px',
-                  background: 'rgba(255,255,255,0.2)',
+                  background: 'var(--surface-glass-strong)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  color: 'var(--text-light)'
                 }}>
-                  <Search size={22} color="#fff" />
+                  <Search size={22} color="var(--text-light)" />
                 </div>
                 <div>
-                  <h2 style={{ color: '#fff', fontSize: '1.3rem', fontWeight: 700, margin: 0 }}>
+                  <h2 style={{ color: 'var(--text-light)', fontSize: '1.3rem', fontWeight: 700, margin: 0 }}>
                     جستجوی آرایشگاه
                   </h2>
-                  <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.88rem', margin: 0, marginTop: '2px' }}>
+                  <p style={{ color: 'var(--text-light)', fontSize: '0.88rem', margin: 0, marginTop: '2px' }}>
                     نام آرایشگاه را جستجو کنید
                   </p>
                 </div>
@@ -199,22 +200,24 @@ function SearchDialog({ open, onClose, searchQuery, setSearchQuery, selectedCity
                     width: '100%',
                     padding: '14px 48px 14px 16px',
                     borderRadius: '14px',
-                    border: '2px solid #e2e8f0',
+                    border: '2px solid var(--border)',
                     fontSize: '1rem',
                     fontFamily: 'inherit',
                     outline: 'none',
                     transition: 'border-color 0.2s',
                     boxSizing: 'border-box',
                     direction: 'rtl',
+                    backgroundColor: 'var(--surface-muted)',
+                    color: 'var(--text-primary)'
                   }}
-                  onFocus={e => e.target.style.borderColor = '#667eea'}
-                  onBlur={e => e.target.style.borderColor = '#e2e8f0'}
+                  onFocus={e => e.target.style.borderColor = 'var(--primary)'}
+                  onBlur={e => e.target.style.borderColor = 'var(--border)'}
                 />
                 <Search
                   size={20}
                   style={{
                     position: 'absolute', top: '50%', right: '14px',
-                    transform: 'translateY(-50%)', color: '#94a3b8', pointerEvents: 'none',
+                    transform: 'translateY(-50%)', color: "var(--text-muted)", pointerEvents: 'none',
                   }}
                 />
                 {searchQuery && (
@@ -223,10 +226,10 @@ function SearchDialog({ open, onClose, searchQuery, setSearchQuery, selectedCity
                     style={{
                       position: 'absolute', top: '50%', left: '12px',
                       transform: 'translateY(-50%)',
-                      background: '#f1f5f9', border: 'none', borderRadius: '50%',
+                      background: 'var(--card-hover)', border: 'none', borderRadius: '50%',
                       width: '24px', height: '24px',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      cursor: 'pointer', color: '#64748b',
+                      cursor: 'pointer', color: "var(--text-secondary)",
                     }}
                   >
                     <X size={14} />
@@ -235,7 +238,7 @@ function SearchDialog({ open, onClose, searchQuery, setSearchQuery, selectedCity
               </div>
 
               {/* Salons List */}
-              <p style={{ color: '#64748b', fontSize: '0.9rem', marginBottom: '0.75rem', fontWeight: 600 }}>
+              <p style={{ color: "var(--text-secondary)", fontSize: '0.9rem', marginBottom: '0.75rem', fontWeight: 600 }}>
                 {filteredSalons.length === 0
                   ? 'آرایشگاهی یافت نشد'
                   : `${toPersianNumber(filteredSalons.length)} آرایشگاه`}
@@ -244,7 +247,7 @@ function SearchDialog({ open, onClose, searchQuery, setSearchQuery, selectedCity
                 {filteredSalons.length === 0 ? (
                   <div style={{
                     textAlign: 'center', padding: '2rem 1rem',
-                    color: '#94a3b8', fontSize: '0.95rem',
+                    color: "var(--text-muted)", fontSize: '0.95rem',
                   }}>
                     <Search size={40} style={{ marginBottom: '1rem', opacity: 0.3 }} />
                     <p style={{ margin: 0 }}>
@@ -267,9 +270,9 @@ function SearchDialog({ open, onClose, searchQuery, setSearchQuery, selectedCity
                           width: '100%',
                           padding: '12px 14px',
                           borderRadius: '12px',
-                          border: '1.5px solid #e2e8f0',
-                          background: '#f8fafc',
-                          color: '#1e293b',
+                          border: '1.5px solid var(--border)',
+                          background: 'var(--background-secondary)',
+                          color: "var(--text-primary)",
                           fontSize: '0.95rem',
                           fontWeight: 500,
                           cursor: 'pointer',
@@ -281,25 +284,25 @@ function SearchDialog({ open, onClose, searchQuery, setSearchQuery, selectedCity
                           alignItems: 'center',
                         }}
                         onMouseEnter={e => {
-                          e.currentTarget.style.borderColor = '#667eea';
-                          e.currentTarget.style.background = '#eef2ff';
-                          e.currentTarget.style.color = '#667eea';
+                          e.currentTarget.style.borderColor = 'var(--primary)';
+                          e.currentTarget.style.background = 'rgba(37,99,235,0.06)';
+                          e.currentTarget.style.color = 'var(--primary)';
                         }}
                         onMouseLeave={e => {
-                          e.currentTarget.style.borderColor = '#e2e8f0';
-                          e.currentTarget.style.background = '#f8fafc';
-                          e.currentTarget.style.color = '#1e293b';
+                          e.currentTarget.style.borderColor = 'var(--border)';
+                          e.currentTarget.style.background = 'var(--background-secondary)';
+                          e.currentTarget.style.color = 'var(--text-primary)';
                         }}
                       >
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flex: 1 }}>
                           <div
                             style={{
                               width: '40px', height: '40px', borderRadius: '50%',
-                              background: 'linear-gradient(135deg, #667eea, #764ba2)',
+                              background: 'linear-gradient(135deg, var(--primary), var(--primary-hover))',
                               display: 'flex', alignItems: 'center', justifyContent: 'center',
-                              color: '#fff', fontSize: '0.7rem', fontWeight: 700,
+                              color: 'var(--text-light)', fontSize: '0.7rem', fontWeight: 700,
                               overflow: 'hidden',
-                              border: '2px solid #e2e8f0',
+                              border: '2px solid var(--border)',
                               flexShrink: 0,
                             }}
                           >
@@ -318,7 +321,7 @@ function SearchDialog({ open, onClose, searchQuery, setSearchQuery, selectedCity
                           </div>
                           <div style={{ textAlign: 'right', flex: 1 }}>
                             <div style={{ fontWeight: 600 }}>{salon.name}</div>
-                            <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '2px' }}>
+                            <div style={{ fontSize: '0.8rem', color: "var(--text-muted)", marginTop: '2px' }}>
                               {salon.city}
                             </div>
                           </div>
@@ -328,9 +331,9 @@ function SearchDialog({ open, onClose, searchQuery, setSearchQuery, selectedCity
                             display: 'flex', alignItems: 'center', gap: '4px',
                             marginRight: '8px', flexShrink: 0,
                           }}>
-                            <Star size={14} fill="#fbbf24" color="#fbbf24" />
+                            <Star size={14} fill="var(--warning)" color="var(--warning)" />
                             <span style={{
-                              fontWeight: 700, color: '#d97706',
+                              fontWeight: 700, color: 'var(--warning)',
                               fontSize: '0.85rem',
                             }}>
                               {toPersianNumber(salon.average_rating, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
@@ -353,7 +356,7 @@ function SearchDialog({ open, onClose, searchQuery, setSearchQuery, selectedCity
                   padding: '14px',
                   borderRadius: '14px',
                   border: 'none',
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
                   color: '#fff',
                   fontSize: '1rem',
                   fontWeight: 700,
@@ -426,7 +429,7 @@ function CitySelectionDialog({ open, onClose, selectedCity, setSelectedCity, all
             transition={{ type: 'spring', stiffness: 380, damping: 28 }}
             style={{
               width: 'min(560px, 94vw)',
-              background: '#fff',
+              background: 'var(--card)',
               borderRadius: '28px',
               boxShadow: '0 32px 80px rgba(15,23,42,0.25)',
               overflow: 'hidden',
@@ -435,7 +438,7 @@ function CitySelectionDialog({ open, onClose, selectedCity, setSelectedCity, all
           >
             {/* Dialog Header */}
             <div style={{
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
               padding: '1.75rem 1.75rem 1.5rem',
               position: 'relative',
             }}>
@@ -443,7 +446,7 @@ function CitySelectionDialog({ open, onClose, selectedCity, setSelectedCity, all
                 <button
                   onClick={onClose}
                   style={{
-                    background: 'rgba(255,255,255,0.2)',
+                    background: 'var(--surface-glass-strong)',
                     border: 'none',
                     borderRadius: '50%',
                     width: '36px', height: '36px',
@@ -451,8 +454,8 @@ function CitySelectionDialog({ open, onClose, selectedCity, setSelectedCity, all
                     cursor: 'pointer', color: '#fff',
                     transition: 'background 0.2s',
                   }}
-                  onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.35)'}
-                  onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.2)'}
+                  onMouseEnter={e => e.currentTarget.style.background = 'var(--surface-glass-strong)'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'var(--surface-glass-muted)'}
                 >
                   <X size={18} />
                 </button>
@@ -460,7 +463,7 @@ function CitySelectionDialog({ open, onClose, selectedCity, setSelectedCity, all
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                 <div style={{
                   width: '44px', height: '44px', borderRadius: '14px',
-                  background: 'rgba(255,255,255,0.2)',
+                  background: 'var(--surface-glass-strong)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                 }}>
                   <MapPin size={22} color="#fff" />
@@ -469,7 +472,7 @@ function CitySelectionDialog({ open, onClose, selectedCity, setSelectedCity, all
                   <h2 style={{ color: '#fff', fontSize: '1.3rem', fontWeight: 700, margin: 0 }}>
                     انتخاب شهر
                   </h2>
-                  <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.88rem', margin: 0, marginTop: '2px' }}>
+                  <p style={{ color: 'var(--text-light)', fontSize: '0.88rem', margin: 0, marginTop: '2px' }}>
                     شهر مورد نظر خود را انتخاب کنید
                   </p>
                 </div>
@@ -479,7 +482,7 @@ function CitySelectionDialog({ open, onClose, selectedCity, setSelectedCity, all
             {/* Dialog Body */}
             <div style={{ padding: '1.5rem' }}>
               {/* City Grid */}
-              <p style={{ color: '#64748b', fontSize: '0.9rem', marginBottom: '0.75rem', fontWeight: 600 }}>
+              <p style={{ color: "var(--text-secondary)", fontSize: '0.9rem', marginBottom: '0.75rem', fontWeight: 600 }}>
                 انتخاب شهر
               </p>
               <div style={{ maxHeight: '360px', overflowY: 'auto', paddingLeft: '4px' }}>
@@ -493,9 +496,9 @@ function CitySelectionDialog({ open, onClose, selectedCity, setSelectedCity, all
                     style={{
                       padding: '10px 8px',
                       borderRadius: '10px',
-                      border: `2px solid ${selectedCity === '' ? '#667eea' : '#e2e8f0'}`,
-                      background: selectedCity === '' ? 'linear-gradient(135deg, #667eea, #764ba2)' : '#f8fafc',
-                      color: selectedCity === '' ? '#fff' : '#475569',
+                      border: `2px solid ${selectedCity === '' ? 'var(--primary)' : 'var(--border)'}`,
+                      background: selectedCity === '' ? 'linear-gradient(135deg, var(--primary), var(--primary-dark))' : 'var(--background-secondary)',
+                      color: selectedCity === '' ? '#fff' : 'var(--text-secondary)',
                       fontSize: '0.88rem',
                       fontWeight: 600,
                       cursor: 'pointer',
@@ -512,9 +515,9 @@ function CitySelectionDialog({ open, onClose, selectedCity, setSelectedCity, all
                       style={{
                         padding: '10px 8px',
                         borderRadius: '10px',
-                        border: `2px solid ${selectedCity === city ? '#667eea' : '#e2e8f0'}`,
-                        background: selectedCity === city ? 'linear-gradient(135deg, #667eea, #764ba2)' : '#f8fafc',
-                        color: selectedCity === city ? '#fff' : '#475569',
+                        border: `2px solid ${selectedCity === city ? 'var(--primary)' : 'var(--border)'}`,
+                        background: selectedCity === city ? 'linear-gradient(135deg, var(--primary), var(--primary-dark))' : 'var(--background-secondary)',
+                        color: selectedCity === city ? '#fff' : 'var(--text-secondary)',
                         fontSize: '0.88rem',
                         fontWeight: selectedCity === city ? 700 : 500,
                         cursor: 'pointer',
@@ -523,14 +526,14 @@ function CitySelectionDialog({ open, onClose, selectedCity, setSelectedCity, all
                       }}
                       onMouseEnter={e => {
                         if (selectedCity !== city) {
-                          e.currentTarget.style.borderColor = '#a5b4fc';
-                          e.currentTarget.style.background = '#eef2ff';
+                          e.currentTarget.style.borderColor = 'var(--primary-light)';
+                          e.currentTarget.style.background = 'var(--info-surface)';
                         }
                       }}
                       onMouseLeave={e => {
                         if (selectedCity !== city) {
-                          e.currentTarget.style.borderColor = '#e2e8f0';
-                          e.currentTarget.style.background = '#f8fafc';
+                          e.currentTarget.style.borderColor = 'var(--border)';
+                          e.currentTarget.style.background = 'var(--background-secondary)';
                         }
                       }}
                     >
@@ -549,7 +552,7 @@ function CitySelectionDialog({ open, onClose, selectedCity, setSelectedCity, all
                   padding: '14px',
                   borderRadius: '14px',
                   border: 'none',
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
                   color: '#fff',
                   fontSize: '1rem',
                   fontWeight: 700,
@@ -773,12 +776,12 @@ export default function Home() {
             <div style={{
               display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
               width: '96px', height: '96px', borderRadius: '28px',
-              background: 'rgba(255,255,255,0.2)',
+              background: 'var(--surface-glass-strong)',
               backdropFilter: 'blur(10px)',
-              border: '2px solid rgba(255,255,255,0.3)',
+              border: '2px solid var(--surface-glass-strong)',
               boxShadow: '0 12px 40px rgba(0,0,0,0.15)',
             }}>
-              <Scissors size={52} style={{ color: '#fbbf24', filter: 'drop-shadow(0 4px 16px rgba(251,191,36,0.6))' }} />
+              <Scissors size={52} style={{ color: 'var(--warning)', filter: 'drop-shadow(0 4px 16px rgba(251,191,36,0.6))' }} />
             </div>
           </motion.div>
 
@@ -787,7 +790,7 @@ export default function Home() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.7 }}
             style={{
-              color: '#fff',
+              color: 'var(--text-light)',
               fontSize: 'clamp(2.4rem, 6vw, 4.2rem)',
               fontWeight: 900,
               margin: '0 0 1.25rem',
@@ -796,7 +799,7 @@ export default function Home() {
               lineHeight: 1.1,
             }}
           >
-            به <span style={{ color: '#fbbf24' }}>سالنیفای</span> خوش‌آمدید
+            به <span style={{ color: 'var(--warning)' }}>سالنیفای</span> خوش‌آمدید
           </motion.h1>
 
           <motion.p
@@ -820,7 +823,7 @@ export default function Home() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.45, duration: 0.7 }}
             style={{
-              color: 'rgba(255,255,255,0.72)',
+              color: 'var(--text-light)',
               fontSize: 'clamp(0.88rem, 1.8vw, 1rem)',
               maxWidth: '560px',
               margin: '0 auto 2.5rem',
@@ -850,8 +853,8 @@ export default function Home() {
                 padding: '10px 16px',
                 borderRadius: '50px',
                 border: 'none',
-                background: '#fbbf24',
-                color: '#1e293b',
+                background: 'var(--warning)',
+                color: "var(--text-primary)",
                 fontSize: '1.05rem',
                 fontWeight: 800,
                 cursor: 'pointer',
@@ -876,10 +879,10 @@ export default function Home() {
                 justifyContent: 'center',
                 padding: '10px 16px',
                 borderRadius: '50px',
-                border: '2px solid rgba(255,255,255,0.5)',
-                background: 'rgba(255,255,255,0.12)',
+                border: '2px solid var(--surface-glass)',
+                background: 'var(--surface-glass)',
                 backdropFilter: 'blur(8px)',
-                color: '#fff',
+                color: 'var(--text-light)',
                 fontSize: '1.05rem',
                 fontWeight: 700,
                 cursor: 'pointer',
@@ -887,8 +890,8 @@ export default function Home() {
                 transition: 'all 0.25s',
                 textAlign: 'center',
               }}
-              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.22)'; }}
-              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.12)'; }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'var(--surface-glass)'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'var(--surface-glass-muted)'; }}
             >
               <span style={{ display: 'block', lineHeight: 1, marginBottom: 4 }}>ورود به حساب</span>
             </button>
@@ -911,10 +914,10 @@ export default function Home() {
             ].map((b, i) => (
               <div key={i} style={{
                 display: 'flex', alignItems: 'center', gap: '8px',
-                color: 'rgba(255,255,255,0.85)', fontSize: '0.88rem',
-                background: 'rgba(255,255,255,0.1)',
+                color: 'var(--text-light)', fontSize: '0.88rem',
+                background: 'var(--surface-glass)',
                 padding: '10px 14px', borderRadius: '50px',
-                border: '1px solid rgba(255,255,255,0.2)',
+                border: '1px solid var(--surface-glass)',
                 width: 211,
                 justifyContent: 'center',
                 boxSizing: 'border-box',
@@ -952,28 +955,28 @@ export default function Home() {
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.1, type: 'spring', stiffness: 200 }}
-            style={{
+              style={{
               display: 'inline-flex',
               alignItems: 'center',
               gap: '8px',
-              background: 'rgba(255, 255, 255, 0.15)',
+              background: 'var(--surface-glass-strong)',
               backdropFilter: 'blur(12px)',
-              border: '1px solid rgba(255, 255, 255, 0.25)',
+              border: '1px solid var(--border)',
               padding: '8px 18px',
               borderRadius: '50px',
-              color: '#fbbf24',
+              color: 'var(--warning)',
               fontSize: '0.88rem',
               fontWeight: 700,
               boxShadow: '0 4px 20px rgba(0,0,0,0.06)',
               marginBottom: '1.5rem'
             }}
           >
-            <Sparkles size={16} fill="#fbbf24" style={{ filter: 'drop-shadow(0 2px 8px rgba(251,191,36,0.5))' }} />
+            <Sparkles size={16} fill="var(--warning)" style={{ filter: 'drop-shadow(0 2px 8px rgba(251,191,36,0.5))' }} />
             <span>پنل حرفه‌ای مدیریت سالن</span>
           </motion.div>
 
           <h1 style={{
-            color: '#fff',
+            color: 'var(--text-primary)',
             fontSize: 'clamp(2.2rem, 5vw, 3.5rem)',
             fontWeight: 900,
             margin: '0 0 0.75rem',
@@ -981,11 +984,11 @@ export default function Home() {
             letterSpacing: '-0.02em',
             lineHeight: 1.2
           }}>
-            مدیریت سالن <span style={{ color: '#fbbf24' }}>{salonName || 'شما'}</span>
+            مدیریت سالن <span style={{ color: 'var(--warning)' }}>{salonName || 'شما'}</span>
           </h1>
 
           <p style={{
-            color: 'rgba(255,255,255,0.9)',
+            color: 'var(--text-secondary)',
             fontSize: 'clamp(1rem, 2.2vw, 1.25rem)',
             maxWidth: '600px',
             margin: '0 auto 2.5rem',
@@ -1014,13 +1017,13 @@ export default function Home() {
           transition={{ type: 'spring', stiffness: 300, damping: 22 }}
           style={{ marginBottom: '1.5rem' }}
         >
-          <div style={{
+            <div style={{
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
             width: '90px', height: '90px', borderRadius: '26px',
-            background: 'rgba(255,255,255,0.18)',
-            border: '2px solid rgba(255,255,255,0.28)',
+            background: 'var(--surface-glass-strong)',
+            border: '2px solid var(--surface-glass)',
           }}>
-            <Heart size={44} style={{ color: '#fbbf24', filter: 'drop-shadow(0 4px 12px rgba(251,191,36,0.5))' }} />
+            <Heart size={44} style={{ color: 'var(--warning)', filter: 'drop-shadow(0 4px 12px rgba(251,191,36,0.5))' }} />
           </div>
         </motion.div>
 
@@ -1031,15 +1034,15 @@ export default function Home() {
           transition={{ delay: 0.2 }}
           style={{
             display: 'inline-flex', alignItems: 'center', gap: '10px',
-            background: 'rgba(255,255,255,0.15)',
-            border: '1px solid rgba(255,255,255,0.28)',
+            background: 'var(--surface-glass-strong)',
+            border: '1px solid var(--surface-glass)',
             borderRadius: '50px',
             padding: '10px 24px',
             marginBottom: '1.5rem',
           }}
         >
           <div style={{ textAlign: 'right' }}>
-            <div style={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.78rem' }}>خوش اومدی</div>
+            <div style={{ color: 'var(--text-light)', fontSize: '0.78rem' }}>خوش اومدی</div>
             <div style={{ color: '#fff', fontSize: '1rem', fontWeight: 700 }}>
               {user?.full_name || user?.name || 'مشتری گرامی'}
             </div>
@@ -1128,7 +1131,7 @@ export default function Home() {
   const ratingValue = getDisplayRating();
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f8fafc', direction: 'rtl' }}>
+    <div style={{ minHeight: '100vh', background: 'var(--home-page-surface)', direction: 'rtl' }}>
 
       {/* Search Dialog */}
       <SearchDialog
@@ -1159,7 +1162,7 @@ export default function Home() {
       {/* ─── HERO ─── */}
       <div style={{
         position: 'relative',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        background: 'linear-gradient(135deg, var(--home-hero-start) 0%, var(--home-hero-end) 45%, var(--home-hero-fade) 100%)',
         padding: 'clamp(4rem, 10vw, 6rem) 1.5rem clamp(3.5rem, 12vw, 5rem)',
         overflow: 'hidden',
       }}>
@@ -1184,7 +1187,7 @@ export default function Home() {
         {/* Subtle grid pattern */}
         <div style={{
           position: 'absolute', inset: 0,
-          backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.06) 1px, transparent 1px)',
+          backgroundImage: 'radial-gradient(circle, var(--surface-glass-muted) 1px, transparent 1px)',
           backgroundSize: '36px 36px',
           pointerEvents: 'none',
         }} />
@@ -1195,23 +1198,23 @@ export default function Home() {
 
         {/* Wave bottom */}
         <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, overflow: 'hidden', lineHeight: 0 }}>
-          <svg viewBox="0 0 1440 60" preserveAspectRatio="none" style={{ display: 'block', width: '100%', height: '60px' }}>
-            <path d="M0,40 C360,70 1080,10 1440,40 L1440,60 L0,60 Z" fill="#f8fafc" />
+          <svg viewBox="0 0 1440 90" preserveAspectRatio="none" style={{ display: 'block', width: '100%', height: '90px' }}>
+            <path d="M0,64 C180,92 360,20 540,32 C720,44 900,86 1080,72 C1260,58 1360,24 1440,18 L1440,90 L0,90 Z" fill="var(--home-page-surface)" />
           </svg>
         </div>
       </div>
 
       {/* ─── MAIN CONTENT ─── */}
-      <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '3rem 1.5rem 5rem' }}>
+      <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '2.5rem 1.5rem 5rem', position: 'relative', zIndex: 1 }}>
 
         {error && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             style={{
-              background: '#fef2f2', border: '1.5px solid #fca5a5',
+              background: 'var(--danger-surface)', border: '1.5px solid var(--danger)',
               borderRadius: '14px', padding: '1rem 1.25rem',
-              color: '#dc2626', marginBottom: '2rem',
+              color: 'var(--danger)', marginBottom: '2rem',
               display: 'flex', alignItems: 'center', gap: '10px',
             }}
           >
@@ -1231,16 +1234,16 @@ export default function Home() {
           <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
             <div style={{
               display: 'inline-flex', alignItems: 'center', gap: '8px',
-              background: isCustomer ? '#fdf2f8' : '#eef2ff', borderRadius: '50px',
+              background: 'var(--surface)', borderRadius: '50px',
               padding: '8px 20px', marginBottom: '1.25rem',
             }}>
-              <Award size={18} style={{ color: isCustomer ? '#ec4899' : '#667eea' }} />
-              <span style={{ color: isCustomer ? '#ec4899' : '#667eea', fontSize: '0.9rem', fontWeight: 700 }}>
+              <Award size={18} style={{ color: isCustomer ? 'var(--accent)' : 'var(--primary)' }} />
+              <span style={{ color: isCustomer ? 'var(--accent)' : 'var(--primary)', fontSize: '0.9rem', fontWeight: 700 }}>
                 {isCustomer ? 'چرا سالنیفای؟' : 'چرا سالنیفای؟'}
               </span>
             </div>
             <h2 style={{
-              color: '#1e293b',
+              color: "var(--text-primary)",
               fontSize: 'clamp(1.7rem, 4vw, 2.4rem)',
               fontWeight: 800,
               margin: '0 0 0.75rem',
@@ -1248,7 +1251,7 @@ export default function Home() {
             }}>
               {isCustomer ?'چند کلیک تا رزرو نوبت' : 'تجربه‌ای متفاوت در نوبت‌دهی'}
             </h2>
-            <p style={{ color: '#64748b', fontSize: '1.05rem', maxWidth: '500px', margin: '0 auto' }}>
+            <p style={{ color: "var(--text-secondary)", fontSize: '1.05rem', maxWidth: '500px', margin: '0 auto' }}>
               {isCustomer ? 'بدون تماس تلفنی، بدون انتظار — فقط رزرو کن و برو' : 'همه چیز را در یک پلتفرم مدیریت کنید'}
             </p>
           </div>
@@ -1263,58 +1266,58 @@ export default function Home() {
                 icon: <Search size={36} />,
                 title: 'آرایشگاه مناسب خودت رو پیدا کن',
                 desc: 'از بین آرایشگاه‌های ثبت‌شده در شهرت جستجو کن، امتیاز و نظرات رو ببین و انتخاب کن',
-                gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                bg: '#f5f3ff',
+                gradient: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
+                bg: 'var(--surface)',
               },
               {
                 icon: <CalendarCheck size={36} />,
                 title: 'نوبتت رو آنلاین بگیر',
                 desc: 'خدمت دلخواه، قیمت و زمان مناسب رو انتخاب کن — نوبت در چند ثانیه ثبت میشه',
-                gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-                bg: '#fff1f5',
+                gradient: 'linear-gradient(135deg, var(--accent) 0%, var(--primary-hover) 100%)',
+                bg: 'var(--surface)',
               },
               {
                 icon: <Clock size={36} />,
                 title: 'بدون انتظار، سر وقت برو',
                 desc: 'وقتی نوبتت ثبته، دیگه لازم نیست زود بری و منتظر بمونی — سر ساعت برو آرایشگاه',
-                gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-                bg: '#f0f9ff',
+                gradient: 'linear-gradient(135deg, var(--primary-light) 0%, var(--secondary) 100%)',
+                bg: 'var(--info-surface)',
               },
               {
                 icon: <Star size={36} />,
                 title: 'بهترین‌ها رو انتخاب کن',
                 desc: 'امتیاز و نظرات مشتریان قبلی کمکت می‌کنه بهترین آرایشگاه رو با اطمینان انتخاب کنی',
-                gradient: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-                bg: '#fffbeb',
+                gradient: 'linear-gradient(135deg, var(--warning) 0%, var(--warning) 100%)',
+                bg: 'var(--warning-surface)',
               },
             ] : [
               {
                 icon: <Calendar size={36} />,
                 title: 'مدیریت هوشمند نوبت‌ها',
                 desc: 'کنترل کامل رزروها و برنامه‌ریزی دقیق کاری در هر ساعت از شبانه‌روز',
-                gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                bg: '#f5f3ff',
+                gradient: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
+                bg: 'var(--surface)',
               },
               {
                 icon: <Scissors size={36} />,
                 title: 'دیده شدن در برترین‌ها',
                 desc: 'نمایش حرفه‌ای سالن شما در کنار بهترین‌های شهر، جهت جذب مشتریان جدید و معتبر',
-                gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-                bg: '#fff1f5',
+                gradient: 'linear-gradient(135deg, var(--accent) 0%, var(--primary-hover) 100%)',
+                bg: 'var(--surface)',
               },
               {
                 icon: <Clock size={36} />,
                 title: 'بهینه‌سازی زمان و درآمد',
                 desc: 'کاهش کنسلی‌ها و مدیریت دقیق زمان‌بندی برای افزایش بهره‌وری و درآمد سالن',
-                gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-                bg: '#f0f9ff',
+                gradient: 'linear-gradient(135deg, var(--primary-light) 0%, var(--secondary) 100%)',
+                bg: 'var(--info-surface)',
               },
               {
                 icon: <Users size={36} />,
                 title: 'پنل مدیریت حرفه‌ای',
                 desc: 'ابزارهای گزارش‌گیری و تیم پشتیبانی اختصاصی برای مدیریت ساده و سریع کسب‌وکارتان',
-                gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
-                bg: '#f0fdf4',
+                gradient: 'linear-gradient(135deg, var(--success) 0%, var(--success) 100%)',
+                bg: 'var(--success-surface)',
               },
             ]).map((feature, index) => (
               <motion.div
@@ -1325,12 +1328,12 @@ export default function Home() {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 whileHover={{ y: -8 }}
                 style={{
-                  background: '#fff',
+                  background: 'var(--card)',
                   borderRadius: '20px',
                   padding: '2rem 1.75rem',
                   textAlign: 'right',
                   boxShadow: '0 4px 20px rgba(0,0,0,0.06)',
-                  border: '1px solid #f1f5f9',
+                  border: "1px solid var(--border)",
                   position: 'relative',
                   overflow: 'hidden',
                   transition: 'all 0.3s ease',
@@ -1355,10 +1358,10 @@ export default function Home() {
                     {feature.icon}
                   </div>
                 </div>
-                <h3 style={{ color: '#1e293b', fontSize: '1.2rem', fontWeight: 700, marginBottom: '0.6rem', margin: '0 0 0.6rem' }}>
+                <h3 style={{ color: "var(--text-primary)", fontSize: '1.2rem', fontWeight: 700, marginBottom: '0.6rem', margin: '0 0 0.6rem' }}>
                   {feature.title}
                 </h3>
-                <p style={{ color: '#64748b', lineHeight: 1.75, fontSize: '0.95rem', margin: 0 }}>
+                <p style={{ color: "var(--text-secondary)", lineHeight: 1.75, fontSize: '0.95rem', margin: 0 }}>
                   {feature.desc}
                 </p>
               </motion.div>
@@ -1378,14 +1381,14 @@ export default function Home() {
             <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
               <div style={{
                 display: 'inline-flex', alignItems: 'center', gap: '8px',
-                background: '#eef2ff', borderRadius: '50px',
+                background: 'var(--surface)', borderRadius: '50px',
                 padding: '8px 20px', marginBottom: '1.25rem',
               }}>
-                <ListChecks size={18} style={{ color: '#667eea' }} />
-                <span style={{ color: '#667eea', fontSize: '0.9rem', fontWeight: 700 }}>چطور کار می‌کند؟</span>
+                <ListChecks size={18} style={{ color: 'var(--primary)' }} />
+                <span style={{ color: 'var(--primary)', fontSize: '0.9rem', fontWeight: 700 }}>چطور کار می‌کند؟</span>
               </div>
               <h2 style={{
-                color: '#1e293b',
+                color: "var(--text-primary)",
                 fontSize: 'clamp(1.7rem, 4vw, 2.4rem)',
                 fontWeight: 800,
                 margin: '0 0 0.75rem',
@@ -1393,7 +1396,7 @@ export default function Home() {
               }}>
                 در سه قدم نوبت بگیرید
               </h2>
-              <p style={{ color: '#64748b', fontSize: '1.05rem', maxWidth: '520px', margin: '0 auto' }}>
+              <p style={{ color: "var(--text-secondary)", fontSize: '1.05rem', maxWidth: '520px', margin: '0 auto' }}>
                 از جستجو تا رزرو، تنها چند کلیک فاصله دارید
               </p>
             </div>
@@ -1409,19 +1412,19 @@ export default function Home() {
                   icon: <Search size={30} />,
                   title: 'آرایشگاه را پیدا کنید',
                   desc: 'با جستجو بر اساس نام یا شهر، آرایشگاه مورد نظرتان را در پلتفرم پیدا کنید',
-                  gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  gradient: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
                 },
                 {
                   icon: <ListChecks size={30} />,
                   title: 'خدمت را انتخاب کنید',
                   desc: 'لیست خدمات، قیمت و مدت‌زمان هر کدام را ببینید و خدمت مدنظرتان را انتخاب کنید',
-                  gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                  gradient: 'linear-gradient(135deg, var(--accent) 0%, var(--primary-hover) 100%)',
                 },
                 {
                   icon: <CalendarCheck size={30} />,
                   title: 'نوبت بگیرید',
                   desc: 'زمان مناسب خودتان را انتخاب کنید و نوبت‌تان ثبت می‌شود؛ همین‌قدر ساده',
-                  gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+                  gradient: 'linear-gradient(135deg, var(--primary-light) 0%, var(--secondary) 100%)',
                 },
               ].map((step, index) => (
                 <motion.div
@@ -1443,7 +1446,7 @@ export default function Home() {
                       width: '88px', height: '88px', borderRadius: '24px',
                       background: step.gradient,
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      color: '#fff',
+                      color: 'var(--text-light)',
                       boxShadow: '0 10px 28px rgba(102,126,234,0.25)',
                       margin: '0 auto',
                     }}>
@@ -1453,19 +1456,19 @@ export default function Home() {
                       position: 'absolute', bottom: '-8px', right: '50%',
                       transform: 'translateX(40px)',
                       width: '32px', height: '32px', borderRadius: '50%',
-                      background: '#1e293b', color: '#fff',
+                      background: 'var(--card-hover)', color: 'var(--text-light)',
                       fontWeight: 900, fontSize: '0.95rem',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      border: '3px solid #fff',
+                      border: '3px solid var(--text-light)',
                       boxShadow: '0 4px 10px rgba(0,0,0,0.2)',
                     }}>
                       {index + 1}
                     </div>
                   </motion.div>
-                  <h3 style={{ color: '#1e293b', fontSize: '1.15rem', fontWeight: 700, margin: '0 0 0.6rem' }}>
+                  <h3 style={{ color: "var(--text-primary)", fontSize: '1.15rem', fontWeight: 700, margin: '0 0 0.6rem' }}>
                     {step.title}
                   </h3>
-                  <p style={{ color: '#64748b', lineHeight: 1.75, fontSize: '0.93rem', margin: '0 auto', maxWidth: '260px' }}>
+                  <p style={{ color: "var(--text-secondary)", lineHeight: 1.75, fontSize: '0.93rem', margin: '0 auto', maxWidth: '260px' }}>
                     {step.desc}
                   </p>
                 </motion.div>
@@ -1486,14 +1489,14 @@ export default function Home() {
             <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
               <div style={{
                 display: 'inline-flex', alignItems: 'center', gap: '8px',
-                background: '#fff1f5', borderRadius: '50px',
+                background: 'var(--surface)', borderRadius: '50px',
                 padding: '8px 20px', marginBottom: '1.25rem',
               }}>
-                <Users size={18} style={{ color: '#f5576c' }} />
-                <span style={{ color: '#f5576c', fontSize: '0.9rem', fontWeight: 700 }}>برای چه کسانی مناسب است؟</span>
+                <Users size={18} style={{ color: 'var(--accent)' }} />
+                <span style={{ color: 'var(--accent)', fontSize: '0.9rem', fontWeight: 700 }}>برای چه کسانی مناسب است؟</span>
               </div>
               <h2 style={{
-                color: '#1e293b',
+                color: "var(--text-primary)",
                 fontSize: 'clamp(1.7rem, 4vw, 2.4rem)',
                 fontWeight: 800,
                 margin: '0 0 0.75rem',
@@ -1515,21 +1518,21 @@ export default function Home() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.6 }}
                 style={{
-                  background: '#fff', borderRadius: '24px',
-                  padding: '2.25rem', border: '1px solid #f1f5f9',
+                  background: 'var(--card)', borderRadius: '24px',
+                  padding: '2.25rem', border: "1px solid var(--border)",
                   boxShadow: '0 4px 24px rgba(30,41,59,0.07)',
                 }}
               >
                 <div style={{
                   width: '64px', height: '64px', borderRadius: '18px',
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   color: '#fff', marginBottom: '1.5rem',
                   boxShadow: '0 8px 20px rgba(102,126,234,0.3)',
                 }}>
                   <UserCircle2 size={32} />
                 </div>
-                <h3 style={{ color: '#1e293b', fontSize: '1.3rem', fontWeight: 800, margin: '0 0 1.1rem' }}>
+                <h3 style={{ color: "var(--text-primary)", fontSize: '1.3rem', fontWeight: 800, margin: '0 0 1.1rem' }}>
                   مشتری‌ها
                 </h3>
                 <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
@@ -1539,8 +1542,8 @@ export default function Home() {
                     { icon: <CalendarCheck size={18} />, text: 'رزرو و مدیریت نوبت‌ها از طریق حساب کاربری شخصی' },
                   ].map((item, i) => (
                     <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
-                      <span style={{ color: '#667eea', flexShrink: 0, marginTop: '2px' }}>{item.icon}</span>
-                      <span style={{ color: '#475569', fontSize: '0.95rem', lineHeight: 1.7 }}>{item.text}</span>
+                      <span style={{ color: 'var(--primary)', flexShrink: 0, marginTop: '2px' }}>{item.icon}</span>
+                      <span style={{ color: "var(--text-secondary)", fontSize: '0.95rem', lineHeight: 1.7 }}>{item.text}</span>
                     </li>
                   ))}
                 </ul>
@@ -1549,7 +1552,7 @@ export default function Home() {
                   style={{
                     width: '100%', marginTop: '1.75rem', padding: '13px',
                     borderRadius: '14px', border: 'none',
-                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
                     color: '#fff', fontSize: '0.95rem', fontWeight: 700,
                     cursor: 'pointer', fontFamily: 'inherit',
                     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
@@ -1571,21 +1574,21 @@ export default function Home() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.6 }}
                 style={{
-                  background: '#fff', borderRadius: '24px',
-                  padding: '2.25rem', border: '1px solid #f1f5f9',
+                  background: 'var(--card)', borderRadius: '24px',
+                  padding: '2.25rem', border: "1px solid var(--border)",
                   boxShadow: '0 4px 24px rgba(30,41,59,0.07)',
                 }}
               >
-                <div style={{
-                  width: '64px', height: '64px', borderRadius: '18px',
-                  background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  color: '#fff', marginBottom: '1.5rem',
-                  boxShadow: '0 8px 20px rgba(245,87,108,0.3)',
-                }}>
+                  <div style={{
+                    width: '64px', height: '64px', borderRadius: '18px',
+                    background: 'linear-gradient(135deg, var(--accent) 0%, var(--primary-hover) 100%)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    color: 'var(--text-light)', marginBottom: '1.5rem',
+                    boxShadow: '0 8px 20px rgba(245,87,108,0.3)',
+                  }}>
                   <Store size={32} />
                 </div>
-                <h3 style={{ color: '#1e293b', fontSize: '1.3rem', fontWeight: 800, margin: '0 0 1.1rem' }}>
+                <h3 style={{ color: "var(--text-primary)", fontSize: '1.3rem', fontWeight: 800, margin: '0 0 1.1rem' }}>
                   صاحبان سالن
                 </h3>
                 <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
@@ -1595,8 +1598,8 @@ export default function Home() {
                     { icon: <Users size={18} />, text: 'معرفی سالن به مشتریان جدید از طریق پلتفرم' },
                   ].map((item, i) => (
                     <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
-                      <span style={{ color: '#f5576c', flexShrink: 0, marginTop: '2px' }}>{item.icon}</span>
-                      <span style={{ color: '#475569', fontSize: '0.95rem', lineHeight: 1.7 }}>{item.text}</span>
+                      <span style={{ color: 'var(--accent)', flexShrink: 0, marginTop: '2px' }}>{item.icon}</span>
+                      <span style={{ color: "var(--text-secondary)", fontSize: '0.95rem', lineHeight: 1.7 }}>{item.text}</span>
                     </li>
                   ))}
                 </ul>
@@ -1605,8 +1608,8 @@ export default function Home() {
                   style={{
                     width: '100%', marginTop: '1.75rem', padding: '13px',
                     borderRadius: '14px', border: 'none',
-                    background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-                    color: '#fff', fontSize: '0.95rem', fontWeight: 700,
+                    background: 'linear-gradient(135deg, var(--accent) 0%, var(--primary-hover) 100%)',
+                    color: 'var(--text-light)', fontSize: '0.95rem', fontWeight: 700,
                     cursor: 'pointer', fontFamily: 'inherit',
                     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
                     boxShadow: '0 6px 18px rgba(245, 104, 108, 0.25)',
@@ -1637,20 +1640,20 @@ export default function Home() {
             <div style={{
               display: 'flex', justifyContent: 'space-between', alignItems: 'center',
               marginBottom: '2.5rem', flexWrap: 'wrap', gap: '1.25rem',
-              borderBottom: '1px solid #e2e8f0',
+              borderBottom: 'none',
               paddingBottom: '1.5rem'
             }}>
               <div style={{ textAlign: 'right' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
-                  <Activity size={24} style={{ color: '#667eea' }} />
+                  <Activity size={24} style={{ color: 'var(--primary)' }} />
                   <h2 style={{
-                    color: '#1e293b', fontSize: 'clamp(1.5rem, 4.5vw, 2.1rem)',
+                    color: "var(--text-primary)", fontSize: 'clamp(1.5rem, 4.5vw, 2.1rem)',
                     fontWeight: 850, margin: 0,
                   }}>
                     میز مانیتورینگ و وضعیت سالن
                   </h2>
                 </div>
-                <p style={{ color: '#64748b', fontSize: '0.95rem', margin: 0 }}>
+                <p style={{ color: "var(--text-secondary)", fontSize: '0.95rem', margin: 0 }}>
                   ابزارهای حیاتی کاربری و تحلیل آماری زنده بر اساس وضعیت واقعی سیستم شما.
                 </p>
               </div>
@@ -1668,41 +1671,41 @@ export default function Home() {
                 style={{
                   ...card,
                   borderRadius: '24px',
-                  border: '1px solid #e2e8f0',
+                  border: '1px solid var(--border)',
                   padding: '2rem 1.75rem',
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'space-between',
-                  background: 'linear-gradient(to bottom, #ffffff, #fdfdfd)',
+                  background: 'linear-gradient(to bottom, var(--card), var(--surface))',
                   boxShadow: '0 10px 30px rgba(99, 102, 241, 0.05)',
                   position: 'relative'
                 }}
               >
                 <div style={{
                   position: 'absolute', top: 0, left: 0, right: 0, height: '4px',
-                  background: 'linear-gradient(90deg, #667eea, #764ba2)', borderRadius: '24px 24px 0 0'
+                  background: 'linear-gradient(90deg, var(--primary), var(--primary-hover))', borderRadius: '24px 24px 0 0'
                 }} />
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.25rem' }}>
                     <div style={{
                       width: '42px', height: '42px', borderRadius: '12px',
-                      background: '#eef2ff', color: '#4f46e5',
+                      background: 'var(--surface)', color: 'var(--primary)',
                       display: 'flex', alignItems: 'center', justifyContent: 'center'
                     }}>
                       <Copy size={20} />
                     </div>
-                    <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: '#1e293b' }}>
+                    <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: "var(--text-primary)" }}>
                       لینک اختصاصی نوبت‌دهی
                     </h3>
                   </div>
-                  <p style={{ color: '#64748b', fontSize: '0.88rem', lineHeight: 1.7, margin: '0 0 1.5rem' }}>
+                  <p style={{ color: "var(--text-secondary)", fontSize: '0.88rem', lineHeight: 1.7, margin: '0 0 1.5rem' }}>
                     این لینک اختصاصی سالن شماست. آن را کپی کرده و در بیو اینستاگرام، پیامک‌ها یا کانال‌های ارتباطی خود قرار دهید تا مشتریان مستقیماً نوبت بگیرند.
                   </p>
                   
                   {/* Visual copy input field */}
                   <div style={{
-                    background: '#f8fafc',
-                    border: '1.5px solid #e2e8f0',
+                    background: 'var(--background-secondary)',
+                    border: '1.5px solid var(--border)',
                     borderRadius: '14px',
                     padding: '10px 14px',
                     display: 'flex',
@@ -1713,7 +1716,7 @@ export default function Home() {
                     direction: 'ltr'
                   }}>
                     <span style={{
-                      color: '#475569',
+                      color: "var(--text-secondary)",
                       fontSize: '0.82rem',
                       fontWeight: 650,
                       overflow: 'hidden',
@@ -1733,8 +1736,8 @@ export default function Home() {
                     padding: '12px',
                     borderRadius: '12px',
                     border: 'none',
-                    background: copied ? '#10b981' : '#4f46e5',
-                    color: '#fff',
+                    background: copied ? 'var(--success)' : 'var(--primary)',
+                    color: 'var(--text-light)',
                     fontWeight: 700,
                     fontSize: '0.95rem',
                     cursor: 'pointer',
@@ -1766,62 +1769,62 @@ export default function Home() {
                 style={{
                   ...card,
                   borderRadius: '24px',
-                  border: '1px solid #e2e8f0',
+                  border: '1px solid var(--border)',
                   padding: '2rem 1.75rem',
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'space-between',
-                  background: 'linear-gradient(to bottom, #ffffff, #fdfdfd)',
+                  background: 'linear-gradient(to bottom, var(--card), var(--surface))',
                   boxShadow: '0 10px 30px rgba(245, 158, 11, 0.05)',
                   position: 'relative'
                 }}
               >
                 <div style={{
                   position: 'absolute', top: 0, left: 0, right: 0, height: '4px',
-                  background: 'linear-gradient(90deg, #f59e0b, #d97706)', borderRadius: '24px 24px 0 0'
+                  background: 'linear-gradient(90deg, var(--warning), var(--warning))', borderRadius: '24px 24px 0 0'
                 }} />
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.25rem' }}>
                     <div style={{
                       width: '42px', height: '42px', borderRadius: '12px',
-                      background: '#fffbeb', color: '#d97706',
+                      background: 'var(--warning-surface)', color: 'var(--warning)',
                       display: 'flex', alignItems: 'center', justifyContent: 'center'
                     }}>
                       <Scissors size={20} />
                     </div>
-                    <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: '#1e293b' }}>
+                    <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: "var(--text-primary)" }}>
                       وضعیت خدمات و قیمت‌ها
                     </h3>
                   </div>
-                  <p style={{ color: '#64748b', fontSize: '0.88rem', lineHeight: 1.7, margin: '0 0 1.5rem' }}>
+                  <p style={{ color: "var(--text-secondary)", fontSize: '0.88rem', lineHeight: 1.7, margin: '0 0 1.5rem' }}>
                     خلاصه‌ای از خدمات فعال شما در سامانه نوبت‌دهی سالنیفای به همراه برآورد ارزش و میانگین قیمت واقعی تراکنش‌های سالن شما.
                   </p>
 
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ color: '#64748b', fontSize: '0.9rem' }}>خدمات فعال برای مشتریان:</span>
-                      <span style={{ color: '#10b981', fontWeight: 800, fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <span style={{ color: "var(--text-secondary)", fontSize: '0.9rem' }}>خدمات فعال برای مشتریان:</span>
+                      <span style={{ color: 'var(--success)', fontWeight: 800, fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
                         {activeServicesCount} خدمت
-                        <span style={{ width: '8px', height: '8px', background: '#10b981', borderRadius: '50%' }} />
+                        <span style={{ width: '8px', height: '8px', background: 'var(--success)', borderRadius: '50%' }} />
                       </span>
                     </div>
                     {inactiveServicesCount > 0 && (
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ color: '#64748b', fontSize: '0.9rem' }}>خدمات غیرفعال موقت:</span>
-                        <span style={{ color: '#ef4444', fontWeight: 700, fontSize: '0.95rem' }}>
+                        <span style={{ color: "var(--text-secondary)", fontSize: '0.9rem' }}>خدمات غیرفعال موقت:</span>
+                        <span style={{ color: 'var(--danger)', fontWeight: 700, fontSize: '0.95rem' }}>
                           {inactiveServicesCount} خدمت
                         </span>
                       </div>
                     )}
                     <div style={{
-                      borderTop: '1px dashed #e2e8f0',
+                      borderTop: '1px dashed var(--border)',
                       paddingTop: '0.8rem',
                       display: 'flex',
                       justifyContent: 'space-between',
                       alignItems: 'center'
                     }}>
-                      <span style={{ color: '#64748b', fontSize: '0.9rem', fontWeight: 600 }}>میانگین ارزش خدمات سالن:</span>
-                      <span style={{ color: '#4f46e5', fontWeight: 900, fontSize: '1.1rem' }}>
+                      <span style={{ color: "var(--text-secondary)", fontSize: '0.9rem', fontWeight: 600 }}>میانگین ارزش خدمات سالن:</span>
+                      <span style={{ color: 'var(--primary)', fontWeight: 900, fontSize: '1.1rem' }}>
                         {averagePrice > 0 ? formatToman(averagePrice) : 'هنوز محاسبه نشده'}
                       </span>
                     </div>
@@ -1829,14 +1832,14 @@ export default function Home() {
                 </div>
 
                 <div style={{
-                  background: '#f8fafc',
+                  background: 'var(--background-secondary)',
                   padding: '10px 14px',
                   borderRadius: '12px',
                   fontSize: '0.8rem',
-                  color: '#64748b',
+                  color: "var(--text-secondary)",
                   textAlign: 'center',
                   fontWeight: 550,
-                  border: '1px solid #f1f5f9'
+                  border: "1px solid var(--border)"
                 }}>
                   تعداد کل خدمات تعریف شده: {toPersianNumber(services.length)} مورد
                 </div>
@@ -1848,61 +1851,61 @@ export default function Home() {
                 style={{
                   ...card,
                   borderRadius: '24px',
-                  border: '1px solid #e2e8f0',
+                  border: '1px solid var(--border)',
                   padding: '2rem 1.75rem',
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'space-between',
-                  background: 'linear-gradient(to bottom, #ffffff, #fdfdfd)',
+                  background: 'linear-gradient(to bottom, var(--card), var(--surface))',
                   boxShadow: '0 10px 30px rgba(16, 185, 129, 0.05)',
                   position: 'relative'
                 }}
               >
-                <div style={{
-                  position: 'absolute', top: 0, left: 0, right: 0, height: '4px',
-                  background: 'linear-gradient(90deg, #10b981, #059669)', borderRadius: '24px 24px 0 0'
+                  <div style={{
+                    position: 'absolute', top: 0, left: 0, right: 0, height: '4px',
+                    background: 'linear-gradient(90deg, var(--success), var(--success))', borderRadius: '24px 24px 0 0'
                 }} />
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.25rem' }}>
                     <div style={{
                       width: '42px', height: '42px', borderRadius: '12px',
-                      background: '#ecfdf5', color: '#10b981',
+                      background: 'var(--success-surface)', color: 'var(--success)',
                       display: 'flex', alignItems: 'center', justifyContent: 'center'
                     }}>
                       <Store size={20} />
                     </div>
-                    <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: '#1e293b' }}>
+                    <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: "var(--text-primary)" }}>
                       شناسنامه دیجیتال سالن
                     </h3>
                   </div>
-                  <p style={{ color: '#64748b', fontSize: '0.88rem', lineHeight: 1.7, margin: '0 0 1.5rem' }}>
+                  <p style={{ color: "var(--text-secondary)", fontSize: '0.88rem', lineHeight: 1.7, margin: '0 0 1.5rem' }}>
                     خلاصه‌ای از ساختار و مشخصاتی که مشتریان شما در پروفایل نوبت‌دهی خود مشاهده می‌کنند. اطلاعات تکمیلی در تب تنظیمات قابل ویرایش است.
                   </p>
 
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ color: '#64748b', fontSize: '0.9rem' }}>شهر فعالیت ثبت‌شده:</span>
-                      <span style={{ color: '#1e293b', fontWeight: 700, fontSize: '0.95rem' }}>
+                      <span style={{ color: "var(--text-secondary)", fontSize: '0.9rem' }}>شهر فعالیت ثبت‌شده:</span>
+                      <span style={{ color: "var(--text-primary)", fontWeight: 700, fontSize: '0.95rem' }}>
                         {tenant?.city || user?.salon?.city || 'بدون شهر ثبت شده'}
                       </span>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ color: '#64748b', fontSize: '0.9rem' }}>تخصص جنسیتی سالن:</span>
+                      <span style={{ color: "var(--text-secondary)", fontSize: '0.9rem' }}>تخصص جنسیتی سالن:</span>
                       <span style={{ 
                         padding: '4px 10px', 
                         borderRadius: '20px', 
                         fontSize: '0.8rem', 
                         fontWeight: 800,
-                        background: isMale ? '#eef2ff' : '#fff1f5',
-                        color: isMale ? '#4f46e5' : '#f5576c'
+                        background: isMale ? 'var(--info-surface)' : 'var(--warning-surface)',
+                        color: isMale ? 'var(--primary)' : 'var(--accent)'
                       }}>
                         {isMale ? '♂ تخصصی آقایان' : '♀ تخصصی بانوان'}
                       </span>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ color: '#64748b', fontSize: '0.9rem' }}>میانگین امتیاز مشتریان:</span>
-                      <span style={{ color: '#fbbf24', fontWeight: 800, fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        <Star size={16} fill="#fbbf24" color="#fbbf24" />
+                      <span style={{ color: "var(--text-secondary)", fontSize: '0.9rem' }}>میانگین امتیاز مشتریان:</span>
+                      <span style={{ color: 'var(--warning)', fontWeight: 800, fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <Star size={16} fill="var(--warning)" color="var(--warning)" />
                         {ratingValue !== null ? toPersianNumber(ratingValue, { minimumFractionDigits: 1, maximumFractionDigits: 1 }) : 'بدون امتیاز'}
                       </span>
                     </div>
@@ -1910,14 +1913,14 @@ export default function Home() {
                 </div>
 
                 <div style={{
-                  background: '#f8fafc',
+                  background: 'var(--background-secondary)',
                   padding: '10px 14px',
                   borderRadius: '12px',
                   fontSize: '0.8rem',
-                  color: '#64748b',
+                  color: "var(--text-secondary)",
                   textAlign: 'center',
                   fontWeight: 550,
-                  border: '1px solid #f1f5f9'
+                  border: "1px solid var(--border)"
                 }}>
                   تلفن تماس: {tenant?.phone || user?.salon?.phone || 'ثبت نشده'}
                 </div>
@@ -1954,8 +1957,8 @@ export default function Home() {
             const isMaleSalon = normalizeGender(salon.gender) === 'male';
             const rating = parseFloat(salon.average_rating) || 0;
             const gradient = isMaleSalon
-              ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-              : 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)';
+              ? 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)'
+              : 'linear-gradient(135deg, var(--accent) 0%, var(--primary-hover) 100%)';
 
             let ownerPos = { x: 50, y: 50 };
             try {
@@ -1966,10 +1969,10 @@ export default function Home() {
               }
             } catch {}
 
-            const rankColors = ['#f59e0b', '#94a3b8', '#cd7c3b', '#6366f1', '#10b981'];
-            const rankBg = ['#fffbeb', '#f8fafc', '#fff7ed', '#eef2ff', '#f0fdf4'];
-            const rankColor = rankColors[rank] || '#94a3b8';
-            const rankBgColor = rankBg[rank] || '#f8fafc';
+            const rankColors = ['var(--warning)', 'var(--border-muted)', 'var(--warning)', 'var(--primary)', 'var(--success)'];
+            const rankBg = ['var(--warning-surface)', 'var(--light)', 'var(--warning-surface)', 'var(--background-secondary)', 'var(--success-surface)'];
+            const rankColor = rankColors[rank] || 'var(--border-muted)';
+            const rankBgColor = rankBg[rank] || 'var(--light)';
 
             // let ownerPos = { x: 50, y: 50 };
             // try {
@@ -1990,11 +1993,11 @@ export default function Home() {
                   navigate('/services');
                 }}
                 style={{
-                  background: '#fff',
+                  background: 'var(--card)',
                   borderRadius: '24px',
                   overflow: 'hidden',
                   boxShadow: '0 4px 24px rgba(30,41,59,0.08)',
-                  border: '1px solid #f1f5f9',
+                  border: "1px solid var(--border)",
                   minWidth: '240px',
                   maxWidth: '270px',
                   flex: '0 0 auto',
@@ -2030,14 +2033,14 @@ export default function Home() {
                   {/* dot pattern */}
                   <div style={{
                     position: 'absolute', inset: 0,
-                    backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.09) 1px, transparent 1px)',
+                    backgroundImage: 'radial-gradient(circle, var(--surface-glass-muted) 1px, transparent 1px)',
                     backgroundSize: '20px 20px',
                   }} />
                   {/* large blurred circle for depth */}
                   <div style={{
                     position: 'absolute', bottom: '-30px', right: '-20px',
                     width: '120px', height: '120px', borderRadius: '50%',
-                    background: 'rgba(255,255,255,0.08)',
+                    background: 'var(--surface-glass-muted)',
                     filter: 'blur(20px)', pointerEvents: 'none',
                   }} />
 
@@ -2049,7 +2052,7 @@ export default function Home() {
                     border: '4px solid #fff',
                     overflow: 'hidden',
                     boxShadow: '0 4px 18px rgba(0,0,0,0.15)',
-                    background: 'rgba(255,255,255,0.22)',
+                    background: 'var(--surface-glass-strong)',
                     flexShrink: 0,
                   }}>
                     {salon.owner_image ? (
@@ -2075,8 +2078,8 @@ export default function Home() {
                   {salon.gender && (
                     <span style={{
                       position: 'absolute', top: '12px', right: '12px',
-                      background: 'rgba(255,255,255,0.95)',
-                      color: isMaleSalon ? '#667eea' : '#f5576c',
+                      background: 'var(--surface)',
+                      color: isMaleSalon ? 'var(--primary)' : 'var(--accent)',
                       padding: '3px 10px', borderRadius: '50px',
                       fontSize: '0.72rem', fontWeight: 800,
                       boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
@@ -2090,15 +2093,15 @@ export default function Home() {
                 {/* Card body */}
                 <div style={{ padding: '2rem 1.25rem 1.35rem', flex: 1, display: 'flex', flexDirection: 'column', gap: '0.55rem', textAlign: 'center' }}>
                   <h3 style={{
-                    color: '#1e293b', fontSize: '1.02rem', fontWeight: 800,
+                    color: "var(--text-primary)", fontSize: '1.02rem', fontWeight: 800,
                     margin: 0, lineHeight: 1.3,
                   }}>
                     {salon.name}
                   </h3>
 
                   {salon.city && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#64748b', fontSize: '0.8rem', justifyContent: 'center' }}>
-                      <MapPin size={12} style={{ color: '#667eea', flexShrink: 0 }} />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: "var(--text-secondary)", fontSize: '0.8rem', justifyContent: 'center' }}>
+                      <MapPin size={12} style={{ color: 'var(--primary)', flexShrink: 0 }} />
                       {salon.city}
                     </div>
                   )}
@@ -2115,22 +2118,22 @@ export default function Home() {
                             <Star
                               key={s}
                               size={13}
-                              fill={s <= Math.round(rating) ? '#fbbf24' : '#e2e8f0'}
-                              color={s <= Math.round(rating) ? '#fbbf24' : '#e2e8f0'}
+                              fill={s <= Math.round(rating) ? 'var(--warning)' : 'var(--border)'}
+                              color={s <= Math.round(rating) ? 'var(--warning)' : 'var(--border)'}
                             />
                           ))}
                         </div>
-                        <span style={{ fontWeight: 800, color: '#d97706', fontSize: '0.88rem' }}>
+                        <span style={{ fontWeight: 800, color: 'var(--warning)', fontSize: '0.88rem' }}>
                           {rating.toFixed(1)}
                         </span>
                         {salon.review_count > 0 && (
-                          <span style={{ color: '#94a3b8', fontSize: '0.76rem' }}>
+                          <span style={{ color: "var(--text-muted)", fontSize: '0.76rem' }}>
                             ({toPersianNumber(salon.review_count)} نظر)
                           </span>
                         )}
                       </>
                     ) : (
-                      <span style={{ color: '#cbd5e1', fontSize: '0.78rem' }}>بدون امتیاز</span>
+                      <span style={{ color: 'var(--border-muted)', fontSize: '0.78rem' }}>بدون امتیاز</span>
                     )}
                   </div>
 
@@ -2175,14 +2178,14 @@ export default function Home() {
               >
                 <div style={{
                   textAlign: 'center', padding: '5rem 2rem',
-                  background: 'linear-gradient(135deg, #f8fafc, #e2e8f0)',
-                  borderRadius: '28px', border: '2px dashed #cbd5e1',
+                  background: 'linear-gradient(135deg, var(--background-secondary), var(--border))',
+                  borderRadius: '28px', border: '2px dashed var(--border-muted)',
                 }}>
-                  <Scissors size={56} style={{ color: '#c7d2fe', marginBottom: '1.25rem' }} />
-                  <h3 style={{ color: '#475569', fontSize: '1.4rem', margin: '0 0 0.5rem', fontWeight: 700 }}>
+                  <Scissors size={56} style={{ color: 'var(--primary-light)', marginBottom: '1.25rem' }} />
+                  <h3 style={{ color: "var(--text-secondary)", fontSize: '1.4rem', margin: '0 0 0.5rem', fontWeight: 700 }}>
                     هنوز آرایشگاهی ثبت نشده
                   </h3>
-                  <p style={{ color: '#94a3b8', margin: 0, fontSize: '0.95rem' }}>
+                  <p style={{ color: "var(--text-muted)", margin: 0, fontSize: '0.95rem' }}>
                     به زودی آرایشگاه‌های جدید اضافه می‌شوند
                   </p>
                 </div>
@@ -2208,16 +2211,16 @@ export default function Home() {
               >
                 <div style={{
                   display: 'inline-flex', alignItems: 'center', gap: '8px',
-                  background: 'linear-gradient(135deg, #fffbeb, #fef3c7)',
-                  border: '1px solid #fde68a',
+                  background: 'var(--warning-surface)',
+                  border: '1px solid var(--warning)',
                   borderRadius: '50px',
                   padding: '7px 18px', marginBottom: '1rem',
                 }}>
-                  <Award size={15} style={{ color: '#d97706' }} />
-                  <span style={{ color: '#92400e', fontSize: '0.85rem', fontWeight: 700 }}>برترین آرایشگاه‌ها</span>
+                  <Award size={15} style={{ color: 'var(--warning)' }} />
+                  <span style={{ color: 'var(--warning)', fontSize: '0.85rem', fontWeight: 700 }}>برترین آرایشگاه‌ها</span>
                 </div>
                 <h2 style={{
-                  color: '#1e293b',
+                  color: "var(--text-primary)",
                   fontSize: 'clamp(1.5rem, 4vw, 2rem)',
                   fontWeight: 900, margin: '0 0 0.5rem',
                   letterSpacing: '-0.02em',
@@ -2226,7 +2229,7 @@ export default function Home() {
                     ? `بهترین آرایشگاه‌های ${viewerGenderLabel} بر اساس امتیاز`
                     : 'بهترین آرایشگاه‌ها بر اساس امتیاز'}
                 </h2>
-                <p style={{ color: '#94a3b8', fontSize: '0.9rem', margin: 0 }}>
+                <p style={{ color: "var(--text-muted)", fontSize: '0.9rem', margin: 0 }}>
                   ۵ آرایشگاه برتر که مشتریان بیشترین رضایت را داشته‌اند
                 </p>
               </motion.div>
@@ -2272,7 +2275,7 @@ export default function Home() {
                 transition={{ duration: 0.6, delay: 0.3 }}
                 style={{
                   marginTop: '1rem',
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
                   borderRadius: '24px',
                   padding: '2.5rem 2rem',
                   textAlign: 'center',
@@ -2281,17 +2284,17 @@ export default function Home() {
               >
                 <div style={{
                   position: 'absolute', inset: 0,
-                  backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.06) 1px, transparent 1px)',
+                  backgroundImage: 'radial-gradient(circle, var(--surface-glass-muted) 1px, transparent 1px)',
                   backgroundSize: '28px 28px', pointerEvents: 'none',
                 }} />
                 <div style={{ position: 'relative', zIndex: 1 }}>
                   <div style={{
                     display: 'inline-flex', alignItems: 'center', gap: '8px',
-                    background: 'rgba(255,255,255,0.15)', borderRadius: '50px',
+                    background: 'var(--surface-glass-strong)', borderRadius: '50px',
                     padding: '6px 16px', marginBottom: '1rem',
                   }}>
-                    <Scissors size={14} color="#fbbf24" />
-                    <span style={{ color: '#fbbf24', fontSize: '0.82rem', fontWeight: 700 }}>
+                    <Scissors size={14} color="var(--warning)" />
+                    <span style={{ color: 'var(--warning)', fontSize: '0.82rem', fontWeight: 700 }}>
                       {salons.length > 0 ? `${toPersianNumber(salons.length)}+ آرایشگاه در پلتفرم` : 'آرایشگاه‌های بیشتر'}
                     </span>
                   </div>
@@ -2312,8 +2315,8 @@ export default function Home() {
                     style={{
                       display: 'inline-flex', alignItems: 'center', gap: '10px',
                       padding: '14px 36px', borderRadius: '50px', border: 'none',
-                      background: '#fff',
-                      color: '#667eea', fontSize: '1rem', fontWeight: 800,
+                      background: 'var(--card)',
+                      color: 'var(--primary)', fontSize: '1rem', fontWeight: 800,
                       cursor: 'pointer', fontFamily: 'inherit',
                       boxShadow: '0 8px 28px rgba(0,0,0,0.18)',
                       transition: 'all 0.25s',
@@ -2338,7 +2341,7 @@ export default function Home() {
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
           style={{
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
             borderRadius: '32px',
             padding: '4rem 2.5rem',
             position: 'relative',
@@ -2348,13 +2351,13 @@ export default function Home() {
           <div style={{
             position: 'absolute', top: '-20%', right: '-8%',
             width: '450px', height: '450px',
-            background: 'rgba(255,255,255,0.08)', borderRadius: '50%',
+            background: 'var(--surface-glass-muted)', borderRadius: '50%',
             filter: 'blur(80px)', pointerEvents: 'none',
           }} />
           <div style={{
             position: 'absolute', bottom: '-25%', left: '-8%',
             width: '380px', height: '380px',
-            background: 'rgba(255,255,255,0.06)', borderRadius: '50%',
+            background: 'var(--surface-glass)', borderRadius: '50%',
             filter: 'blur(70px)', pointerEvents: 'none',
           }} />
 
@@ -2366,7 +2369,7 @@ export default function Home() {
                 viewport={{ once: true }}
                 transition={{ type: 'spring', duration: 0.8 }}
               >
-                <TrendingUp size={52} style={{ color: '#fbbf24', marginBottom: '1rem' }} />
+                <TrendingUp size={52} style={{ color: 'var(--warning)', marginBottom: '1rem' }} />
               </motion.div>
               <h2 style={{
                 color: '#fff', fontSize: 'clamp(1.7rem, 4vw, 2.5rem)',
@@ -2415,15 +2418,15 @@ export default function Home() {
                   whileHover={{ scale: 1.05 }}
                   style={{
                     textAlign: 'center',
-                    background: 'rgba(255,255,255,0.14)',
+                    background: 'var(--surface-glass)',
                     backdropFilter: 'blur(12px)',
                     borderRadius: '20px',
                     padding: '2rem 1.25rem',
-                    border: '1px solid rgba(255,255,255,0.2)',
+                    border: '1px solid var(--surface-glass)',
                     transition: 'all 0.3s ease',
                   }}
                 >
-                  <div style={{ color: '#fbbf24', marginBottom: '1rem', display: 'flex', justifyContent: 'center' }}>
+                  <div style={{ color: 'var(--warning)', marginBottom: '1rem', display: 'flex', justifyContent: 'center' }}>
                     {stat.icon}
                   </div>
                   <div style={{
@@ -2434,7 +2437,7 @@ export default function Home() {
                   }}>
                     {stat.value}
                   </div>
-                  <div style={{ color: 'rgba(255,255,255,0.85)', fontSize: '0.98rem', fontWeight: 500 }}>
+                  <div style={{ color: 'var(--text-light)', fontSize: '0.98rem', fontWeight: 500 }}>
                     {stat.label}
                   </div>
                 </motion.div>

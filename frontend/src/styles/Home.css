@@ -1,7 +1,7 @@
 
 .home-page {
   min-height: 100vh;
-  background: #f8fafc;
+  background: var(--background-secondary);
   direction: rtl;
 }
 
@@ -75,12 +75,12 @@
   background: rgba(255, 255, 255, 0.18);
   backdrop-filter: blur(10px);
   border: 2px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-lg);
   margin-bottom: 2rem;
 }
 
 .hero-title {
-  color: #fff;
+  color: var(--text-light);
   font-size: clamp(2.4rem, 6vw, 4.2rem);
   font-weight: 900;
   margin: 0 0 1.25rem;
@@ -112,13 +112,13 @@
   padding: 15px 44px;
   border-radius: 50px;
   border: none;
-  background: #fbbf24;
-  color: #1e293b;
+  background: var(--warning);
+  color: var(--dark);
   font-size: 1.05rem;
   font-weight: 800;
   cursor: pointer;
   font-family: inherit;
-  box-shadow: 0 8px 28px rgba(251, 191, 36, 0.45);
+  box-shadow: var(--shadow-md);
   transition: all 0.25s;
 }
 
@@ -133,7 +133,7 @@
   border: 2px solid rgba(255, 255, 255, 0.5);
   background: rgba(255, 255, 255, 0.12);
   backdrop-filter: blur(8px);
-  color: #fff;
+  color: var(--text-light);
   font-size: 1.05rem;
   font-weight: 700;
   cursor: pointer;
@@ -188,7 +188,7 @@
 }
 
 .section-title {
-  color: #1e293b;
+  color: var(--text-primary);
   font-size: clamp(1.7rem, 4vw, 2.4rem);
   font-weight: 800;
   margin: 0 0 0.75rem;
@@ -196,7 +196,7 @@
 }
 
 .section-subtitle {
-  color: #64748b;
+  color: var(--text-secondary);
   font-size: 1.05rem;
   max-width: 500px;
   margin: 0 auto;
@@ -210,11 +210,11 @@
 }
 
 .feature-card {
-  background: #fff;
+  background: var(--card);
   border-radius: 20px;
   padding: 2rem 1.75rem;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border);
   position: relative;
   overflow: hidden;
   transition: box-shadow 0.3s, transform 0.3s;
@@ -249,19 +249,19 @@
   width: 52px;
   height: 52px;
   border-radius: 14px;
-  color: #fff;
+  color: var(--text-light);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
 }
 
 .feature-title {
-  color: #1e293b;
+  color: var(--text-primary);
   font-size: 1.2rem;
   font-weight: 700;
   margin: 0 0 0.6rem;
 }
 
 .feature-desc {
-  color: #64748b;
+  color: var(--text-secondary);
   line-height: 1.75;
   font-size: 0.95rem;
   margin: 0;
@@ -269,11 +269,11 @@
 
 /* ─── How it works ─── */
 .how-it-works {
-  background: #fff;
+  background: var(--card);
   border-radius: 32px;
   padding: 3.5rem 2.5rem;
   box-shadow: 0 4px 24px rgba(30, 41, 59, 0.07);
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border);
   margin-bottom: 5rem;
 }
 
@@ -318,7 +318,7 @@
   height: 38px;
   border-radius: 50%;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: #fff;
+  color: var(--text-light);
   font-weight: 900;
   font-size: 1.1rem;
   display: flex;
@@ -336,11 +336,11 @@
 }
 
 .salon-card {
-  background: #fff;
+  background: var(--card);
   border-radius: 22px;
   overflow: hidden;
   box-shadow: 0 4px 24px rgba(30, 41, 59, 0.08);
-  border: 1px solid #f1f5f9;
+  border: 1px solid var(--border);
   transition: all 0.4s ease;
   cursor: pointer;
 }
@@ -412,7 +412,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #F8FAFC;
+  background: var(--background-secondary);
 }
 
 .salon-owner-img img {
@@ -422,7 +422,7 @@
 }
 
 .salon-name {
-  color: #1e293b;
+  color: var(--text-primary);
   font-size: 1.25rem;
   font-weight: 800;
   margin: 0 0 0.5rem 0;
@@ -432,14 +432,14 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  background: #fffbeb;
+  background: var(--warning-surface);
   padding: 5px 12px;
   border-radius: 20px;
   width: fit-content;
 }
 
 .salon-info-box {
-  background: #f8fafc;
+  background: var(--background-secondary);
   border-radius: 12px;
   padding: 0.9rem 1rem;
   margin-bottom: 1.25rem;
@@ -449,7 +449,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #475569;
+  color: var(--text-secondary);
   font-size: 0.9rem;
 }
 
@@ -458,7 +458,7 @@
   padding: 13px;
   border-radius: 14px;
   border: none;
-  color: #fff;
+  color: var(--text-light);
   font-size: 0.97rem;
   font-weight: 700;
   cursor: pointer;
@@ -515,7 +515,7 @@
 .stat-value {
   font-size: clamp(2rem, 5vw, 3rem);
   font-weight: 900;
-  color: #fff;
+  color: var(--text-light);
   margin-bottom: 0.4rem;
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
@@ -534,11 +534,11 @@
 }
 
 .service-card {
-  background: #fff;
+  background: var(--card);
   border-radius: 20px;
   padding: 1.75rem;
   box-shadow: 0 4px 24px rgba(30, 41, 59, 0.08);
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border);
   position: relative;
   overflow: hidden;
   transition: all 0.3s;
@@ -559,7 +559,7 @@
 }
 
 .service-name {
-  color: #1e293b;
+  color: var(--text-primary);
   font-size: 1.15rem;
   font-weight: 700;
   flex: 1;
@@ -574,7 +574,7 @@
 }
 
 .service-info-box {
-  background: #f8fafc;
+  background: var(--background-secondary);
   border-radius: 12px;
   padding: 1rem;
 }
@@ -608,7 +608,7 @@
   padding: 13px 18px;
   border-radius: 14px;
   border: 2px solid #fca5a5;
-  background: #fff1f2;
+  background: var(--danger-surface);
   color: #dc2626;
   font-size: 0.88rem;
   font-weight: 700;
@@ -627,7 +627,7 @@
 
 /* ─── Error banner ─── */
 .error-banner {
-  background: #fef2f2;
+  background: var(--danger-surface);
   border: 1.5px solid #fca5a5;
   border-radius: 14px;
   padding: 1rem 1.25rem;

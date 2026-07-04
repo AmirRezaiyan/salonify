@@ -55,10 +55,10 @@ function BookingDialog({ dialog, onClose }) {
       titleColor: '#d97706',
     },
     info: {
-      icon: <Info size={52} color="#667eea" />,
-      headerBg: 'linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%)',
-      headerBorder: '#c4b5fd',
-      btnBg: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      icon: <Info size={52} color="var(--primary)" />,
+      headerBg: 'linear-gradient(135deg, var(--surface-accent-strong) 0%, var(--surface-accent) 100%)',
+      headerBorder: 'var(--surface-accent-border)',
+      btnBg: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
       btnHover: '#5a67d8',
       titleColor: '#5a29c4',
     },
@@ -93,7 +93,7 @@ function BookingDialog({ dialog, onClose }) {
           transition={{ type: 'spring', stiffness: 300, damping: 28 }}
           onClick={(e) => e.stopPropagation()}
           style={{
-            background: 'white',
+            background: 'var(--card)',
             borderRadius: '20px',
             maxWidth: '420px',
             width: '100%',
@@ -127,7 +127,7 @@ function BookingDialog({ dialog, onClose }) {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: '#64748b',
+                color: "var(--text-secondary)",
               }}
             >
               <X size={18} />
@@ -154,7 +154,7 @@ function BookingDialog({ dialog, onClose }) {
           <div style={{ padding: '20px 24px 24px' }}>
             <p style={{
               margin: '0 0 20px',
-              color: '#475569',
+              color: "var(--text-secondary)",
               fontSize: '0.95rem',
               lineHeight: 1.7,
               textAlign: 'center',
@@ -169,17 +169,17 @@ function BookingDialog({ dialog, onClose }) {
                   style={{
                     flex: 1,
                     padding: '11px 16px',
-                    border: '2px solid #e2e8f0',
+                    border: '2px solid var(--border)',
                     borderRadius: '12px',
-                    background: 'white',
-                    color: '#64748b',
+                    background: 'var(--card)',
+                    color: "var(--text-secondary)",
                     fontWeight: 600,
                     fontSize: '0.95rem',
                     cursor: 'pointer',
                     transition: 'all 0.2s',
                   }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.borderColor = '#94a3b8'; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.background = 'white'; e.currentTarget.style.borderColor = '#e2e8f0'; }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--background-secondary)'; e.currentTarget.style.borderColor = '#94a3b8'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--card)'; e.currentTarget.style.borderColor = 'var(--border)'; }}
                 >
                   {dialog.secondaryBtn.label}
                 </button>
@@ -423,11 +423,11 @@ function JalaliCalendarPicker({ dateOptions, selectedDate, onDateChange, bookedD
 
   return (
     <div style={{
-      background: '#fff',
+      background: 'var(--card)',
       borderRadius: '14px',
-      border: '1.5px solid #e2e8f0',
+      border: '1.5px solid var(--border)',
       padding: 'clamp(10px, 2vw, 14px)',
-      boxShadow: '0 4px 20px rgba(102,126,234,0.10)',
+      boxShadow: '0 4px 20px rgba(37,99,235,0.12)',
       userSelect: 'none',
       maxWidth: 'clamp(280px, 90vw, 340px)',
       margin: '0 auto'
@@ -438,17 +438,17 @@ function JalaliCalendarPicker({ dateOptions, selectedDate, onDateChange, bookedD
           type="button" // ✅ جلوگیری از submit فرم
           onClick={goToNextMonth}
           style={{
-            background:'#f1f5f9', border:'none', borderRadius:'10px',
+            background:'var(--card-hover)', border:'none', borderRadius:'10px',
             width:'clamp(30px, 8vw, 36px)', height:'clamp(30px, 8vw, 36px)', cursor:'pointer', fontSize:'clamp(16px, 4vw, 20px)',
-            display:'flex', alignItems:'center', justifyContent:'center', color:'#667eea', fontWeight:700
+            display:'flex', alignItems:'center', justifyContent:'center', color:'var(--primary)', fontWeight:700
           }}
         >‹</button>
 
         <div style={{ textAlign:'center' }}>
-          <div style={{ fontWeight:800, fontSize:'clamp(0.85rem, 2vw, 0.95rem)', color:'#1e293b' }}>
+          <div style={{ fontWeight:800, fontSize:'clamp(0.85rem, 2vw, 0.95rem)', color: "var(--text-primary)" }}>
             {jalaliMonthNames[currentJM-1]}
           </div>
-          <div style={{ fontSize:'clamp(0.7rem, 1.5vw, 0.82rem)', color:'#64748b', marginTop:'2px', direction:'ltr' }}>
+          <div style={{ fontSize:'clamp(0.7rem, 1.5vw, 0.82rem)', color: "var(--text-secondary)", marginTop:'2px', direction:'ltr' }}>
             {currentJY}
           </div>
         </div>
@@ -458,12 +458,12 @@ function JalaliCalendarPicker({ dateOptions, selectedDate, onDateChange, bookedD
           onClick={goToPrevMonth}
           disabled={isPrevDisabled}
           style={{
-            background: isPrevDisabled ? '#f8fafc' : '#f1f5f9',
+            background: isPrevDisabled ? 'var(--background-secondary)' : 'var(--card-hover)',
             border:'none', borderRadius:'10px',
             width:'clamp(30px, 8vw, 36px)', height:'clamp(30px, 8vw, 36px)',
             cursor: isPrevDisabled ? 'not-allowed' : 'pointer',
             fontSize:'clamp(16px, 4vw, 20px)', display:'flex', alignItems:'center', justifyContent:'center',
-            color: isPrevDisabled ? '#cbd5e1' : '#667eea', fontWeight:700
+            color: isPrevDisabled ? 'var(--text-muted)' : 'var(--primary)', fontWeight:700
           }}
         >›</button>
       </div>
@@ -473,7 +473,7 @@ function JalaliCalendarPicker({ dateOptions, selectedDate, onDateChange, bookedD
         {dayLabels.map((lbl, i) => (
           <div key={i} style={{
             textAlign:'center', fontWeight:700, fontSize:'clamp(0.65rem, 1.5vw, 0.78rem)',
-            color: i === 6 ? '#f5576c' : '#64748b', // جمعه قرمز
+            color: i === 6 ? 'var(--danger)' : 'var(--text-secondary)', // جمعه قرمز
             padding:'4px 0'
           }}>{lbl}</div>
         ))}
@@ -489,24 +489,24 @@ function JalaliCalendarPicker({ dateOptions, selectedDate, onDateChange, bookedD
           const isFriday = (idx % 7) === 6; // ستون آخر = جمعه
 
           let bg = 'transparent';
-          let color = isPast ? '#cbd5e1' : isAvailable ? '#1e293b' : '#94a3b8';
+          let color = isPast ? 'var(--text-muted)' : isAvailable ? 'var(--text-primary)' : 'var(--text-muted)';
           let border = 'none';
           let fontWeight = isToday ? 700 : 500;
 
           if (isSelected) {
-            bg = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-            color = '#fff';
+            bg = 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)';
+            color = 'var(--text-light)';
             fontWeight = 800;
             border = 'none';
           } else if (isFull) {
             // روز کامل - نوبت‌های آن روز تمام شده است
-            bg = '#fecaca';
-            color = '#dc2626';
+            bg = 'var(--danger-surface)';
+            color = 'var(--danger)';
             fontWeight = 600;
           } else if (isToday && !isPast && isAvailable) {
-            border = '2px solid #667eea';
-            bg = '#f0f4ff';
-            color = '#667eea';
+            border = '2px solid var(--primary)';
+            bg = 'var(--surface-accent)';
+            color = 'var(--primary)';
           } else if (canClick) {
             bg = 'transparent';
           } else if (!isAvailable && !isPast) {
@@ -514,7 +514,7 @@ function JalaliCalendarPicker({ dateOptions, selectedDate, onDateChange, bookedD
             color = '#cbd5e1';
           }
 
-          if (isFriday && !isSelected && !isFull) color = isPast || !isAvailable ? '#f5a0a8' : '#f5576c';
+          if (isFriday && !isSelected && !isFull) color = isPast || !isAvailable ? 'var(--danger)' : 'var(--danger)';
 
           return (
             <button
@@ -531,7 +531,7 @@ function JalaliCalendarPicker({ dateOptions, selectedDate, onDateChange, bookedD
                 width:'100%',
                 aspectRatio:'1',
                 borderRadius:'10px',
-                border: border || (isToday && !isSelected ? '2px solid #667eea' : 'none'),
+                border: border || (isToday && !isSelected ? '2px solid var(--primary)' : 'none'),
                 background: bg,
                 color,
                 cursor: canClick ? 'pointer' : 'not-allowed',
@@ -544,7 +544,7 @@ function JalaliCalendarPicker({ dateOptions, selectedDate, onDateChange, bookedD
               }}
               onMouseEnter={(e) => {
                 if (canClick && !isSelected) {
-                  e.currentTarget.style.background = '#eef2ff';
+                  e.currentTarget.style.background = 'var(--surface-accent)';
                   e.currentTarget.style.transform = 'scale(1.08)';
                 }
               }}
@@ -562,7 +562,7 @@ function JalaliCalendarPicker({ dateOptions, selectedDate, onDateChange, bookedD
                   position:'absolute', bottom:'3px', left:'50%',
                   transform:'translateX(-50%)',
                   width:'4px', height:'4px', borderRadius:'50%',
-                  background:'#667eea', display:'block'
+                  background:'var(--primary)', display:'block'
                 }} />
               )}
             </button>
@@ -574,14 +574,14 @@ function JalaliCalendarPicker({ dateOptions, selectedDate, onDateChange, bookedD
       <div style={{
         marginTop:'10px', paddingTop:'10px', borderTop:'1px solid #f1f5f9',
         display:'flex', gap:'16px', justifyContent:'center',
-        fontSize:'clamp(0.65rem, 1.5vw, 0.78rem)', color:'#64748b', flexWrap:'wrap'
+        fontSize:'clamp(0.65rem, 1.5vw, 0.78rem)', color: "var(--text-secondary)", flexWrap:'wrap'
       }}>
         <span style={{ display:'flex', alignItems:'center', gap:'5px' }}>
-          <span style={{ display:'inline-block', width:'14px', height:'14px', borderRadius:'50%', background:'linear-gradient(135deg,#667eea,#764ba2)' }} />
+          <span style={{ display:'inline-block', width:'14px', height:'14px', borderRadius:'50%', background:'linear-gradient(135deg,var(--primary),var(--primary-hover))' }} />
           انتخاب‌شده
         </span>
         <span style={{ display:'flex', alignItems:'center', gap:'5px' }}>
-          <span style={{ display:'inline-block', width:'14px', height:'14px', borderRadius:'4px', border:'2px solid #667eea', background:'#f0f4ff' }} />
+          <span style={{ display:'inline-block', width:'14px', height:'14px', borderRadius:'4px', border: '2px solid var(--primary)', background:'var(--surface-accent)' }} />
           امروز
         </span>
         <span style={{ display:'flex', alignItems:'center', gap:'5px' }}>
@@ -589,7 +589,7 @@ function JalaliCalendarPicker({ dateOptions, selectedDate, onDateChange, bookedD
           کامل
         </span>
         <span style={{ display:'flex', alignItems:'center', gap:'5px' }}>
-          <span style={{ display:'inline-block', width:'14px', height:'14px', borderRadius:'4px', background:'#f1f5f9', opacity:0.5 }} />
+          <span style={{ display:'inline-block', width:'14px', height:'14px', borderRadius:'4px', background:'var(--card-hover)', opacity:0.5 }} />
           تعطیل
         </span>
       </div>
@@ -1267,7 +1267,7 @@ export default function Booking() {
         transition={{ duration: 0.3 }}
         style={{
           minHeight: '100vh',
-          background: 'linear-gradient(to bottom, #f8fafc 0%, #ffffff 100%)',
+          background: 'var(--background)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -1279,16 +1279,16 @@ export default function Booking() {
           textAlign: 'center',
           padding: '3rem'
         }}>
-          <Scissors size={48} color="#f5576c" style={{ margin: '0 auto 1rem' }} />
-          <h2 style={{ color: '#1e293b', marginBottom: '1rem' }}>سالن هنوز ساعات کاری تعریف نکرده است</h2>
-          <p style={{ color: '#64748b', marginBottom: '2rem' }}>
+          <Scissors size={48} color="var(--danger)" style={{ margin: '0 auto 1rem' }} />
+          <h2 style={{ color: "var(--text-primary)", marginBottom: '1rem' }}>سالن هنوز ساعات کاری تعریف نکرده است</h2>
+          <p style={{ color: "var(--text-secondary)", marginBottom: '2rem' }}>
             مالک سالن هنوز ساعات کاری را تعریف نکرده است. لطفاً بعداً دوباره تلاش کنید.
           </p>
           <button
             onClick={() => navigate('/services')}
             style={{
               padding: '0.8rem 1.5rem',
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
               color: 'white',
               border: 'none',
               borderRadius: '10px',
@@ -1311,7 +1311,7 @@ export default function Booking() {
       transition={{ duration: 0.3 }}
       style={{
         minHeight: '100vh',
-        background: 'linear-gradient(to bottom, #f8fafc 0%, #ffffff 100%)',
+        background: 'var(--background)',
         direction: 'rtl'
       }}
     >
@@ -1322,7 +1322,7 @@ export default function Booking() {
         transition={{ duration: 0.6 }}
         style={{
           position: 'relative',
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
           padding: '2.5rem 1.5rem',
           overflow: 'hidden'
         }}
@@ -1333,7 +1333,7 @@ export default function Booking() {
           right: '-5%',
           width: '300px',
           height: '300px',
-          background: 'rgba(255, 255, 255, 0.1)',
+          background: 'var(--surface-glass)',
           borderRadius: '50%',
           filter: 'blur(60px)'
         }} />
@@ -1343,7 +1343,7 @@ export default function Booking() {
           left: '-5%',
           width: '250px',
           height: '250px',
-          background: 'rgba(255, 255, 255, 0.08)',
+          background: 'var(--surface-glass-muted)',
           borderRadius: '50%',
           filter: 'blur(50px)'
         }} />
@@ -1490,11 +1490,11 @@ export default function Booking() {
             transition={{ duration: 0.5, delay: 0.2 }}
           >
             <Card style={{
-              background: 'white',
+              background: 'var(--card)',
               borderRadius: '24px',
               padding: '2rem',
               boxShadow: '0 8px 30px rgba(0,0,0,0.08)',
-              border: '1px solid #f1f5f9',
+              border: "1px solid var(--border)",
               position: 'relative',
               overflow: 'hidden'
             }}>
@@ -1504,7 +1504,7 @@ export default function Booking() {
                 left: 0,
                 right: 0,
                 height: '4px',
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+                background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)'
               }} />
 
               <form onSubmit={handleSubmit}>
@@ -1515,7 +1515,7 @@ export default function Booking() {
                     marginBottom: '0.75rem',
                     fontSize: '0.95rem',
                     fontWeight: 700,
-                    color: '#1e293b'
+                    color: "var(--text-primary)"
                   }}>
                     سرویس‌ها (قابلیت انتخاب چندتایی)
                   </label>
@@ -1532,8 +1532,8 @@ export default function Booking() {
                           alignItems: 'center',
                           gap: '0.5rem',
                           padding: '0.75rem',
-                          background: formData.service_ids.includes(String(s.id)) ? '#ede9fe' : '#f8fafc',
-                          border: formData.service_ids.includes(String(s.id)) ? '2px solid #667eea' : '2px solid #e2e8f0',
+                          background: formData.service_ids.includes(String(s.id)) ? 'var(--surface-accent-strong)' : 'var(--surface-subtle)',
+                          border: formData.service_ids.includes(String(s.id)) ? '2px solid var(--primary)' : '2px solid var(--border)',
                           borderRadius: '12px',
                           cursor: 'pointer',
                           transition: 'all 0.2s'
@@ -1550,8 +1550,8 @@ export default function Booking() {
                           width: '20px',
                           height: '20px',
                           borderRadius: '6px',
-                          background: formData.service_ids.includes(String(s.id)) ? '#667eea' : 'white',
-                          border: formData.service_ids.includes(String(s.id)) ? '2px solid #667eea' : '2px solid #cbd5e1',
+                          background: formData.service_ids.includes(String(s.id)) ? 'var(--primary)' : 'var(--card)',
+                          border: formData.service_ids.includes(String(s.id)) ? '2px solid var(--primary)' : '2px solid var(--border-muted)',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center'
@@ -1560,9 +1560,9 @@ export default function Booking() {
                             <CheckCircle size={14} color="white" />
                           )}
                         </div>
-                        <div style={{ flex: 1, fontSize: '0.9rem', color: '#1e293b' }}>
+                        <div style={{ flex: 1, fontSize: '0.9rem', color: "var(--text-primary)" }}>
                           <span style={{ fontWeight: 600 }}>{s.name}</span>
-                          <span style={{ color: '#64748b', marginRight: '0.5rem' }}>
+                          <span style={{ color: "var(--text-secondary)", marginRight: '0.5rem' }}>
                             {formatNumberForToman(s.price)} تومان
                           </span>
                         </div>
@@ -1579,22 +1579,22 @@ export default function Booking() {
                     marginBottom: '0.5rem',
                     fontSize: '0.95rem',
                     fontWeight: 700,
-                    color: '#1e293b'
+                    color: "var(--text-primary)"
                   }}>
                     تاریخ
                   </label>
                   
                   {dateOptions.length === 0 && workingHours.length === 0 && (
                     <div style={{
-                      background: '#fef2f2',
-                      border: '2px solid #fca5a5',
+                      background: 'var(--danger-surface)',
+                      border: '2px solid var(--danger-border)',
                       borderRadius: '12px',
                       padding: '16px',
                       textAlign: 'center'
                     }}>
                       <div style={{
                         fontSize: '0.9rem',
-                        color: '#991b1b',
+                        color: 'var(--danger-text)',
                         fontWeight: 600
                       }}>
                         ⚠️ متأسفانه سالن ساعات کاری تعریف نشده دارد. لطفا بعداً دوباره سعی کنید.
@@ -1604,15 +1604,15 @@ export default function Booking() {
 
                   {dateOptions.length === 0 && workingHours.length > 0 && (
                     <div style={{
-                      background: '#fef2f2',
-                      border: '2px solid #fca5a5',
+                      background: 'var(--danger-surface)',
+                      border: '2px solid var(--danger-border)',
                       borderRadius: '12px',
                       padding: '16px',
                       textAlign: 'center'
                     }}>
                       <div style={{
                         fontSize: '0.9rem',
-                        color: '#991b1b',
+                        color: 'var(--danger-text)',
                         fontWeight: 600
                       }}>
                         ⚠️ متأسفانه در 60 روز آینده روز بازی برای رزرو وجود ندارد.
@@ -1648,7 +1648,7 @@ export default function Booking() {
                     marginBottom: '0.5rem',
                     fontSize: '0.95rem',
                     fontWeight: 700,
-                    color: '#1e293b'
+                    color: "var(--text-primary)"
                   }}>
                     ساعت
                   </label>
@@ -1656,15 +1656,15 @@ export default function Booking() {
                   {/* نمایش ساعات کاری روز انتخاب‌شده */}
                   {formData.date && getSelectedDateInfo() && (
                     <div style={{
-                      background: '#f0fdf4',
-                      border: '1px solid #86efac',
+                      background: 'var(--success-surface)',
+                      border: '1px solid var(--success-border)',
                       borderRadius: '12px',
                       padding: '12px',
                       marginBottom: '12px'
                     }}>
                       <div style={{
                         fontSize: '0.85rem',
-                        color: '#15803d',
+                        color: 'var(--success-text)',
                         marginBottom: '6px',
                         fontWeight: 600
                       }}>
@@ -1696,15 +1696,15 @@ export default function Booking() {
 
                   {salonClosed && formData.date && (
                     <div style={{
-                      background: '#fef2f2',
-                      border: '2px solid #fca5a5',
+                      background: 'var(--danger-surface)',
+                      border: '2px solid var(--danger-border)',
                       borderRadius: '12px',
                       padding: '12px',
                       marginBottom: '12px'
                     }}>
                       <div style={{
                         fontSize: '0.9rem',
-                        color: '#991b1b',
+                        color: 'var(--danger-text)',
                         fontWeight: 600
                       }}>
                         ⚠️ سالن در این روز باز نیست. لطفا روز دیگری را انتخاب کنید.
@@ -1714,15 +1714,15 @@ export default function Booking() {
 
                   {formData.date && !salonClosed && availableTimes.length === 0 && (
                     <div style={{
-                      background: '#fef2f2',
-                      border: '2px solid #fca5a5',
+                      background: 'var(--danger-surface)',
+                      border: '2px solid var(--danger-border)',
                       borderRadius: '12px',
                       padding: '12px',
                       marginBottom: '12px'
                     }}>
                       <div style={{
                         fontSize: '0.9rem',
-                        color: '#991b1b',
+                        color: 'var(--danger-text)',
                         fontWeight: 600
                       }}>
                         ⚠️ متأسفانه تمام نوبت‌های این روز رزرو شده است. لطفا روز دیگری را انتخاب کنید.
@@ -1732,15 +1732,15 @@ export default function Booking() {
 
                   {!formData.date && (
                     <div style={{
-                      background: '#f0f9ff',
-                      border: '1px solid #93c5fd',
+                      background: 'var(--info-surface)',
+                      border: '1px solid var(--info-border)',
                       borderRadius: '12px',
                       padding: '12px',
                       marginBottom: '12px'
                     }}>
                       <div style={{
                         fontSize: '0.9rem',
-                        color: '#1e40af',
+                        color: 'var(--info-text)',
                         fontWeight: 600
                       }}>
                         💡 لطفا ابتدا تاریخ رزرو را انتخاب کنید
@@ -1756,11 +1756,11 @@ export default function Booking() {
                     style={{
                       width: '100%',
                       padding: 'clamp(10px, 3vw, 12px) clamp(12px, 4vw, 16px)',
-                      border: formData.time ? '2px solid #667eea' : '2px solid #e2e8f0',
+                      border: formData.time ? '2px solid var(--primary)' : '2px solid var(--border)',
                       borderRadius: '14px',
                       fontSize: 'clamp(14px, 2vw, 16px)',
-                      color: formData.time ? '#667eea' : '#64748b',
-                      backgroundColor: formData.time ? '#ede9fe' : 'white',
+                      color: formData.time ? 'var(--primary)' : 'var(--text-secondary)',
+                      backgroundColor: formData.time ? 'var(--surface-accent-strong)' : 'var(--card)',
                       fontWeight: formData.time ? 600 : 500,
                       cursor: salonClosed || availableTimes.length === 0 || !formData.date ? 'not-allowed' : 'pointer',
                       opacity: salonClosed || availableTimes.length === 0 || !formData.date ? 0.6 : 1,
@@ -1772,12 +1772,12 @@ export default function Booking() {
                     }}
                     onFocus={(e) => {
                       if (!salonClosed && availableTimes.length > 0 && formData.date) {
-                        e.currentTarget.style.borderColor = '#667eea';
-                        e.currentTarget.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.15)';
+                        e.currentTarget.style.borderColor = 'var(--primary)';
+                        e.currentTarget.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.15)';
                       }
                     }}
                     onBlur={(e) => {
-                      e.currentTarget.style.borderColor = formData.time ? '#667eea' : '#e2e8f0';
+                      e.currentTarget.style.borderColor = formData.time ? 'var(--primary)' : 'var(--border)';
                       e.currentTarget.style.boxShadow = 'none';
                     }}
                   >
@@ -1802,7 +1802,7 @@ export default function Booking() {
                       width: '100%',
                       padding: '14px',
                       borderRadius: '50px',
-                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                      background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
                       color: 'white',
                       border: 'none',
                       fontSize: '1rem',
@@ -1831,11 +1831,11 @@ export default function Booking() {
               transition={{ duration: 0.5, delay: 0.3 }}
             >
               <Card style={{
-                background: 'white',
+                background: 'var(--card)',
                 borderRadius: '24px',
                 padding: '2rem',
                 boxShadow: '0 8px 30px rgba(0,0,0,0.08)',
-                border: '1px solid #f1f5f9',
+                border: "1px solid var(--border)",
                 overflow: 'hidden',
                 position: 'sticky',
                 top: '100px'
@@ -1846,7 +1846,7 @@ export default function Booking() {
                   left: 0,
                   right: 0,
                   height: '4px',
-                  background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'
+                  background: 'linear-gradient(135deg, var(--primary) 0%, var(--danger) 100%)'
                 }} />
 
                 <div style={{
@@ -1859,7 +1859,7 @@ export default function Booking() {
                     width: '48px',
                     height: '48px',
                     borderRadius: '14px',
-                    background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                    background: 'linear-gradient(135deg, var(--primary) 0%, var(--danger) 100%)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -1869,7 +1869,7 @@ export default function Booking() {
                     <Sparkles size={24} />
                   </div>
                   <h2 style={{
-                    color: '#1e293b',
+                    color: "var(--text-primary)",
                     fontSize: '1.3rem',
                     fontWeight: 700,
                     margin: 0
@@ -1879,14 +1879,14 @@ export default function Booking() {
                 </div>
 
                 <div style={{
-                  background: '#f8fafc',
+                  background: 'var(--background-secondary)',
                   borderRadius: '16px',
                   padding: '1.25rem',
                   marginBottom: '1.5rem'
                 }}>
                   <div style={{ marginBottom: '1rem' }}>
-                    <div style={{ fontSize: '0.85rem', color: '#64748b' }}>سرویس‌ها</div>
-                    <div style={{ fontWeight: 700, color: '#1e293b', fontSize: '1.1rem' }}>
+                    <div style={{ fontSize: '0.85rem', color: "var(--text-secondary)" }}>سرویس‌ها</div>
+                    <div style={{ fontWeight: 700, color: "var(--text-primary)", fontSize: '1.1rem' }}>
                       {Array.isArray(selectedService)
                         ? selectedService.map(s => s.name).join(' + ')
                         : selectedService.name}
@@ -1899,10 +1899,10 @@ export default function Booking() {
                     marginBottom: '0.75rem'
                   }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <Clock size={18} style={{ color: '#667eea' }} />
-                      <span style={{ color: '#64748b' }}>مدت زمان</span>
+                      <Clock size={18} style={{ color: 'var(--primary)' }} />
+                      <span style={{ color: "var(--text-secondary)" }}>مدت زمان</span>
                     </div>
-                    <span style={{ fontWeight: 600, color: '#1e293b' }}>
+                    <span style={{ fontWeight: 600, color: "var(--text-primary)" }}>
                       {Array.isArray(selectedService)
                         ? toPersianNumber(selectedService.reduce((acc, s) => acc + (Number(s.duration_minutes) || 0), 0))
                         : toPersianNumber(Number(selectedService.duration_minutes) || 0)} دقیقه
@@ -1914,10 +1914,10 @@ export default function Booking() {
                     justifyContent: 'space-between'
                   }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <DollarSign size={18} style={{ color: '#f093fb' }} />
-                      <span style={{ color: '#64748b' }}>قیمت</span>
+                      <DollarSign size={18} style={{ color: 'var(--accent)' }} />
+                      <span style={{ color: "var(--text-secondary)" }}>قیمت</span>
                     </div>
-                    <span style={{ fontWeight: 700, color: '#667eea', fontSize: '1.2rem' }}>
+                    <span style={{ fontWeight: 700, color: 'var(--primary)', fontSize: '1.2rem' }}>
                       {Array.isArray(selectedService)
                         ? formatToman(selectedService.reduce((acc, s) => {
                             const price = Number(s.price) || 0;
@@ -1930,8 +1930,8 @@ export default function Booking() {
 
                 {formData.time && (
                   <div style={{
-                    background: 'linear-gradient(135deg, #f0f4ff 0%, #ede9fe 100%)',
-                    border: '1.5px solid #c7d2fe',
+                    background: 'linear-gradient(135deg, var(--surface-accent) 0%, var(--surface-accent-strong) 100%)',
+                    border: '1.5px solid var(--surface-accent-border)',
                     borderRadius: '16px',
                     padding: '1rem 1.25rem',
                     marginBottom: '1.5rem',
@@ -1943,7 +1943,7 @@ export default function Booking() {
                       width: '40px',
                       height: '40px',
                       borderRadius: '10px',
-                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                      background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -1955,7 +1955,7 @@ export default function Booking() {
                       <div style={{
                         fontSize: '1.05rem',
                         fontWeight: 800,
-                        color: '#3730a3',
+                        color: 'var(--surface-accent-text)',
                         lineHeight: 1.3
                       }}>
                         {(() => {
@@ -1967,7 +1967,7 @@ export default function Booking() {
                       </div>
                       <div style={{
                         fontSize: '0.88rem',
-                        color: '#6366f1',
+                        color: 'var(--primary)',
                         fontWeight: 600,
                         marginTop: '2px'
                       }}>
@@ -1978,14 +1978,14 @@ export default function Booking() {
                 )}
 
                 <div style={{
-                  borderTop: '1px solid #e2e8f0',
+                  borderTop: '1px solid var(--border)',
                   paddingTop: '1.5rem'
                 }}>
                   <div style={{
                     display: 'flex',
                     alignItems: 'center',
                     gap: '8px',
-                    color: '#3b82f6'
+                    color: 'var(--primary)'
                   }}>
                     <Info size={18} />
                     <span style={{ fontSize: '0.95rem' }}>تأیید نوبت از طریق پیامک برای شما ارسال می‌شود</span>
@@ -1995,7 +1995,7 @@ export default function Booking() {
                 {/* ساعات کاری سالن */}
                 {workingHours.length > 0 && (
                   <div style={{
-                    borderTop: '1px solid #e2e8f0',
+                    borderTop: '1px solid var(--border)',
                     marginTop: '1.5rem',
                     paddingTop: '1.5rem'
                   }}>
@@ -2005,10 +2005,10 @@ export default function Booking() {
                       gap: '8px',
                       marginBottom: '1rem'
                     }}>
-                      <Clock size={18} style={{ color: '#667eea' }} />
+                      <Clock size={18} style={{ color: 'var(--primary)' }} />
                       <h3 style={{
                         margin: 0,
-                        color: '#1e293b',
+                        color: "var(--text-primary)",
                         fontSize: '1rem',
                         fontWeight: 700
                       }}>
@@ -2030,7 +2030,7 @@ export default function Booking() {
                         
                         return Object.entries(daysByWeek).sort((a, b) => parseInt(a[0]) - parseInt(b[0])).map(([dayOfWeek, hours]) => (
                           <div key={dayOfWeek} style={{
-                            background: '#f8fafc',
+                            background: 'var(--background-secondary)',
                             padding: '10px 12px',
                             borderRadius: '8px',
                             display: 'flex',
@@ -2039,7 +2039,7 @@ export default function Booking() {
                           }}>
                             <span style={{
                               fontSize: '0.9rem',
-                              color: '#1e293b',
+                              color: "var(--text-primary)",
                               fontWeight: 600
                             }}>
                               {getDayName(parseInt(dayOfWeek))}
@@ -2053,8 +2053,8 @@ export default function Booking() {
                               {hours.map((h, idx) => (
                                 <span key={idx} style={{
                                   fontSize: '0.85rem',
-                                  color: '#64748b',
-                                  background: 'white',
+                                  color: "var(--text-secondary)",
+                                  background: 'var(--card)',
                                   padding: '4px 8px',
                                   borderRadius: '6px'
                                 }}>
@@ -2082,11 +2082,11 @@ export default function Booking() {
             style={{ marginTop: '2rem' }}
           >
             <Card style={{
-              background: 'white',
+              background: 'var(--card)',
               borderRadius: '24px',
               padding: '2rem',
               boxShadow: '0 8px 30px rgba(0,0,0,0.08)',
-              border: '1px solid #f1f5f9',
+              border: "1px solid var(--border)",
               overflow: 'hidden'
             }}>
               <div style={{
@@ -2095,7 +2095,7 @@ export default function Booking() {
                 left: 0,
                 right: 0,
                 height: '4px',
-                background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'
+                background: 'linear-gradient(135deg, var(--primary) 0%, var(--danger) 100%)'
               }} />
 
               <div style={{
@@ -2108,17 +2108,17 @@ export default function Booking() {
                   width: '48px',
                   height: '48px',
                   borderRadius: '14px',
-                  background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                  background: 'linear-gradient(135deg, var(--primary) 0%, var(--danger) 100%)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   color: 'white',
-                  boxShadow: '0 6px 16px rgba(240, 147, 251, 0.3)'
+                  boxShadow: '0 6px 16px rgba(37, 99, 235, 0.3)'
                 }}>
                   <Sparkles size={24} />
                 </div>
                 <h2 style={{
-                  color: '#1e293b',
+                  color: "var(--text-primary)",
                   fontSize: '1.3rem',
                   fontWeight: 700,
                   margin: 0
@@ -2128,14 +2128,14 @@ export default function Booking() {
               </div>
 
               <div style={{
-                background: '#f8fafc',
+                background: 'var(--background-secondary)',
                 borderRadius: '16px',
                 padding: '1.25rem',
                 marginBottom: '1.5rem'
               }}>
                 <div style={{ marginBottom: '1rem' }}>
-                  <div style={{ fontSize: '0.85rem', color: '#64748b' }}>سرویس‌ها</div>
-                  <div style={{ fontWeight: 700, color: '#1e293b', fontSize: '1.1rem' }}>
+                  <div style={{ fontSize: '0.85rem', color: "var(--text-secondary)" }}>سرویس‌ها</div>
+                  <div style={{ fontWeight: 700, color: "var(--text-primary)", fontSize: '1.1rem' }}>
                     {Array.isArray(selectedService)
                       ? selectedService.map(s => s.name).join(' + ')
                       : selectedService.name}
@@ -2148,10 +2148,10 @@ export default function Booking() {
                   marginBottom: '0.75rem'
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <Clock size={18} style={{ color: '#667eea' }} />
-                    <span style={{ color: '#64748b' }}>مدت زمان</span>
+                    <Clock size={18} style={{ color: 'var(--primary)' }} />
+                    <span style={{ color: "var(--text-secondary)" }}>مدت زمان</span>
                   </div>
-                  <span style={{ fontWeight: 600, color: '#1e293b' }}>
+                  <span style={{ fontWeight: 600, color: "var(--text-primary)" }}>
                     {Array.isArray(selectedService)
                       ? toPersianNumber(selectedService.reduce((acc, s) => acc + (Number(s.duration_minutes) || 0), 0))
                       : toPersianNumber(Number(selectedService.duration_minutes) || 0)} دقیقه
@@ -2163,10 +2163,10 @@ export default function Booking() {
                   justifyContent: 'space-between'
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <DollarSign size={18} style={{ color: '#f093fb' }} />
-                    <span style={{ color: '#64748b' }}>قیمت</span>
+                    <DollarSign size={18} style={{ color: 'var(--accent)' }} />
+                    <span style={{ color: "var(--text-secondary)" }}>قیمت</span>
                   </div>
-                  <span style={{ fontWeight: 700, color: '#667eea', fontSize: '1.2rem' }}>
+                  <span style={{ fontWeight: 700, color: 'var(--primary)', fontSize: '1.2rem' }}>
                     {Array.isArray(selectedService)
                       ? formatToman(selectedService.reduce((acc, s) => {
                           const price = Number(s.price) || 0;
@@ -2179,8 +2179,8 @@ export default function Booking() {
 
               {formData.time && (
                   <div style={{
-                    background: 'linear-gradient(135deg, #f0f4ff 0%, #ede9fe 100%)',
-                    border: '1.5px solid #c7d2fe',
+                    background: 'linear-gradient(135deg, var(--surface-accent) 0%, var(--surface-accent-strong) 100%)',
+                    border: '1.5px solid var(--surface-accent-border)',
                     borderRadius: '16px',
                     padding: '1rem 1.25rem',
                     marginBottom: '1.5rem',
@@ -2192,7 +2192,7 @@ export default function Booking() {
                       width: '40px',
                       height: '40px',
                       borderRadius: '10px',
-                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                      background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -2204,7 +2204,7 @@ export default function Booking() {
                       <div style={{
                         fontSize: '1.05rem',
                         fontWeight: 800,
-                        color: '#3730a3',
+                        color: 'var(--surface-accent-text)',
                         lineHeight: 1.3
                       }}>
                         {(() => {
@@ -2216,7 +2216,7 @@ export default function Booking() {
                       </div>
                       <div style={{
                         fontSize: '0.88rem',
-                        color: '#6366f1',
+                        color: 'var(--primary)',
                         fontWeight: 600,
                         marginTop: '2px'
                       }}>
@@ -2257,7 +2257,7 @@ export default function Booking() {
                 style={{
                   width: windowWidth < 768 ? '100%' : '90%',
                   maxWidth: windowWidth < 768 ? '100%' : '500px',
-                  background: 'white',
+                  background: 'var(--card)',
                   borderRadius: windowWidth < 768 ? '24px 24px 0 0' : '24px',
                   padding: '24px 16px 32px',
                   maxHeight: windowWidth < 768 ? '80vh' : '75vh',
@@ -2271,14 +2271,14 @@ export default function Booking() {
                   alignItems: 'center',
                   marginBottom: '20px'
                 }}>
-                  <h2 style={{ margin: 0, color: '#1e293b', fontSize: '1.3rem', fontWeight: 700 }}>
+                  <h2 style={{ margin: 0, color: "var(--text-primary)", fontSize: '1.3rem', fontWeight: 700 }}>
                     انتخاب ساعت
                   </h2>
                   <button
                     type="button"
                     onClick={() => setShowTimeModal(false)}
                     style={{
-                      background: '#f1f5f9',
+                      background: 'var(--card-hover)',
                       border: 'none',
                       borderRadius: '50%',
                       width: '36px',
@@ -2288,16 +2288,16 @@ export default function Booking() {
                       alignItems: 'center',
                       justifyContent: 'center',
                       fontSize: '20px',
-                      color: '#64748b',
+                      color: "var(--text-secondary)",
                       transition: 'all 0.2s'
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.background = '#e2e8f0';
-                      e.currentTarget.style.color = '#1e293b';
+                      e.currentTarget.style.background = 'var(--border)';
+                      e.currentTarget.style.color = 'var(--text-primary)';
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.background = '#f1f5f9';
-                      e.currentTarget.style.color = '#64748b';
+                      e.currentTarget.style.background = 'var(--card-hover)';
+                      e.currentTarget.style.color = 'var(--text-secondary)';
                     }}
                   >
                     ✕
@@ -2307,14 +2307,14 @@ export default function Booking() {
                 {/* تاریخ انتخاب‌شده */}
                 {formData.date && getSelectedDateInfo() && (
                   <div style={{
-                    background: 'linear-gradient(135deg, #f0f4ff 0%, #ede9fe 100%)',
+                    background: 'linear-gradient(135deg, var(--surface), var(--card-hover))',
                     borderRadius: '12px',
                     padding: '12px',
                     marginBottom: '20px',
                     textAlign: 'center',
-                    border: '1px solid #e9d5ff'
+                    border: '1px solid var(--border)'
                   }}>
-                    <div style={{ fontSize: '0.9rem', color: '#667eea', fontWeight: 600 }}>
+                    <div style={{ fontSize: '0.9rem', color: 'var(--primary)', fontWeight: 600 }}>
                       📅 {getSelectedDateInfo().label}
                     </div>
                   </div>
@@ -2355,9 +2355,9 @@ export default function Booking() {
                         style={{
                           padding: '14px 12px',
                           borderRadius: '12px',
-                          border: isSelected ? '2px solid #667eea' : (isBooked ? '2px solid #fecaca' : '2px solid #e2e8f0'),
-                          background: isSelected ? '#ede9fe' : (isBooked ? '#fef2f2' : 'white'),
-                          color: isSelected ? '#667eea' : (isBooked ? '#dc2626' : '#1e293b'),
+                          border: isSelected ? '2px solid var(--primary)' : (isBooked ? '2px solid var(--danger-border)' : '2px solid var(--border)'),
+                          background: isSelected ? 'var(--info-surface)' : (isBooked ? 'var(--danger-surface)' : 'var(--card)'),
+                          color: isSelected ? 'var(--primary)' : (isBooked ? 'var(--danger)' : 'var(--text-primary)'),
                           fontWeight: isSelected ? 700 : (isBooked ? 600 : 600),
                           fontSize: '0.95rem',
                           cursor: isBooked ? 'not-allowed' : 'pointer',
@@ -2370,15 +2370,15 @@ export default function Booking() {
                         }}
                         onMouseEnter={(e) => {
                           if (!isBooked && !isSelected) {
-                            e.currentTarget.style.borderColor = '#667eea';
-                            e.currentTarget.style.background = '#f0f4ff';
+                            e.currentTarget.style.borderColor = 'var(--primary)';
+                            e.currentTarget.style.background = 'var(--surface-accent)';
                             e.currentTarget.style.transform = 'scale(1.05)';
                           }
                         }}
                         onMouseLeave={(e) => {
                           if (!isBooked && !isSelected) {
-                            e.currentTarget.style.borderColor = '#e2e8f0';
-                            e.currentTarget.style.background = 'white';
+                            e.currentTarget.style.borderColor = 'var(--border)';
+                            e.currentTarget.style.background = 'var(--card)';
                             e.currentTarget.style.transform = 'scale(1)';
                           }
                         }}
@@ -2408,8 +2408,8 @@ export default function Booking() {
                   <div style={{
                     textAlign: 'center',
                     padding: '20px',
-                    color: '#991b1b',
-                    background: '#fef2f2',
+                    color: 'var(--danger-text)',
+                    background: 'var(--danger-surface)',
                     borderRadius: '12px',
                     marginBottom: '20px'
                   }}>
@@ -2424,22 +2424,22 @@ export default function Booking() {
                   style={{
                     width: '100%',
                     padding: '12px 16px',
-                    background: 'white',
-                    border: '2px solid #e2e8f0',
+                    background: 'var(--card)',
+                    border: '2px solid var(--border)',
                     borderRadius: '50px',
                     fontSize: '0.95rem',
                     fontWeight: 600,
-                    color: '#667eea',
+                    color: 'var(--primary)',
                     cursor: 'pointer',
                     transition: 'all 0.2s'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = '#667eea';
-                    e.currentTarget.style.background = '#f0f4ff';
+                    e.currentTarget.style.borderColor = 'var(--primary)';
+                    e.currentTarget.style.background = 'var(--info-surface)';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = '#e2e8f0';
-                    e.currentTarget.style.background = 'white';
+                    e.currentTarget.style.borderColor = 'var(--border)';
+                    e.currentTarget.style.background = 'var(--card)';
                   }}
                 >
                   بستن
