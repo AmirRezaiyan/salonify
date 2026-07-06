@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion as Motion, AnimatePresence } from 'framer-motion';
 import {
   Menu, X, LogOut, Home, Calendar, Settings,
   MessageCircle, ChevronDown, Scissors, Moon, Sun
@@ -28,7 +28,7 @@ const C = {
 // ─── Helper: Role badge ─────────────────────────────────────────────────────
 function roleMeta(role) {
   if (role === 'owner') return { label: 'مالک', color: '#f59e0b' };
-  if (role === 'staff') return { label: 'کارمند', color: '#3b82f6' };
+  if (role === 'staff') return { label: 'کارمند', color: 'var(--secondary)' };
   return { label: 'مشتری', color: '#10b981' };
 }
 
@@ -55,7 +55,7 @@ function NavItem({ to, icon, children, active }) {
       onMouseLeave={e => { if (!active) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = C.muted; } }}
     >
       {active && (
-        <motion.span
+        <Motion.span
           layoutId="nav-pill"
           style={{
             position: 'absolute',
@@ -99,6 +99,35 @@ function MobileNavItem({ to, icon, children, active, onClick }) {
   );
 }
 
+function ThemeToggle({ theme, onClick, mobile = false }) {
+  const isDark = theme === 'dark';
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label="تغییر حالت تم"
+      aria-pressed={isDark}
+      className={`hdr-theme-toggle${mobile ? ' hdr-theme-toggle--mobile' : ''}`}
+    >
+      <span className="hdr-theme-toggle__track">
+        <span className="hdr-theme-toggle__icon hdr-theme-toggle__icon--sun">
+          <Sun size={14} />
+        </span>
+        <Motion.span
+          layout
+          className="hdr-theme-toggle__thumb"
+          animate={{ x: isDark ? (mobile ? 56 : 54) : 0 }}
+          transition={{ type: 'spring', stiffness: 320, damping: 26 }}
+        />
+        <span className="hdr-theme-toggle__icon hdr-theme-toggle__icon--moon">
+          <Moon size={14} />
+        </span>
+      </span>
+      <span className="hdr-theme-toggle__label">{isDark ? 'روشن' : 'تاریک'}</span>
+    </button>
+  );
+}
+
 // ─── Main Header ────────────────────────────────────────────────────────────
 export default function Header() {
   const { isAuthenticated, user, logout } = useAuth();
@@ -118,7 +147,16 @@ export default function Header() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  useEffect(() => { close(); }, [location.pathname]);
+  useEffect(() => {
+    const closeOnRouteChange = () => {
+      window.requestAnimationFrame(() => {
+        setMenuOpen(false);
+        setUserDropdown(false);
+      });
+    };
+
+    closeOnRouteChange();
+  }, [location.pathname]);
 
   // Close dropdown when clicking anywhere on the page
   useEffect(() => {
@@ -156,9 +194,111 @@ export default function Header() {
         .hdr-user-btn:hover .hdr-chevron { transform: rotate(180deg); }
         .hdr-chevron { transition: transform 0.25s; }
         .hdr-tg-btn:hover { background: ${C.tg} !important; color: white !important; }
+
+        .hdr-theme-toggle {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          padding: 0.45rem 0.8rem;
+          min-width: 128px;
+          height: 44px;
+          border-radius: 9999px;
+          border: 1px solid var(--border);
+          background: var(--card-hover);
+          color: var(--text-primary);
+          cursor: pointer;
+          transition: background 0.25s ease, border-color 0.25s ease, transform 0.2s ease, color 0.25s ease;
+          position: relative;
+          line-height: 1;
+        }
+
+        .hdr-theme-toggle:hover {
+          background: var(--surface);
+        }
+
+        .hdr-theme-toggle:focus-visible {
+          outline: 3px solid var(--primary);
+          outline-offset: 3px;
+        }
+
+        .hdr-theme-toggle__track {
+          position: relative;
+          display: inline-flex;
+          align-items: center;
+          justify-content: space-between;
+          width: 96px;
+          min-width: 96px;
+          height: 44px;
+          padding: 0 8px;
+          border-radius: 9999px;
+          background: var(--surface);
+          border: 1px solid var(--border);
+          color: var(--text-secondary);
+          flex-shrink: 0;
+        }
+
+        .hdr-theme-toggle__icon {
+          z-index: 1;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 20px;
+          height: 20px;
+          color: inherit;
+          transition: opacity 0.2s ease;
+        }
+
+        .hdr-theme-toggle__thumb {
+          position: absolute;
+          top: 4px;
+          left: 2px;
+          width: 38px;
+          height: 38px;
+          border-radius: 9999px;
+          background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
+          box-shadow: 0 10px 24px rgba(37, 99, 235, 0.24);
+          pointer-events: none;
+          z-index: 0;
+        }
+
+        .hdr-theme-toggle__label {
+          font-size: 0.9rem;
+          font-weight: 700;
+          white-space: nowrap;
+        }
+
+        .hdr-theme-toggle--mobile {
+          width: 100%;
+          justify-content: center;
+          gap: 12px;
+          padding: 12px 14px;
+          margin-top: 10px;
+          background: var(--card-hover);
+          border: 1px solid var(--border);
+          min-height: 52px;
+        }
+
+        .hdr-theme-toggle--mobile .hdr-theme-toggle__track {
+          width: 104px;
+          min-width: 104px;
+          height: 48px;
+          padding: 0 8px;
+        }
+
+        .hdr-theme-toggle--mobile .hdr-theme-toggle__thumb {
+          width: 38px;
+          height: 38px;
+          top: 5px;
+          left: 2px;
+        }
+
+        .hdr-theme-toggle--mobile .hdr-theme-toggle__label {
+          font-size: 0.95rem;
+        }
       `}</style>
 
-      <motion.header
+      <Motion.header
         initial={{ y: -64, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ type: 'spring', stiffness: 260, damping: 22 }}
@@ -177,15 +317,15 @@ export default function Header() {
         {/* Top accent stripe */}
         <div style={{ height: '3px', background: C.brand }} />
 
-        <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 1.5rem' }}>
+        <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 clamp(1rem, 3vw, 1.5rem)' }}>
           <div style={{
             display: 'flex', alignItems: 'center',
-            justifyContent: 'space-between', height: '68px',
+            justifyContent: 'space-between', minHeight: '72px', padding: '0.5rem 0',
           }}>
 
             {/* ── Logo ── */}
             <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
-              <motion.div
+              <Motion.div
                 whileHover={{ rotate: -8, scale: 1.08 }}
                 transition={{ type: 'spring', stiffness: 300 }}
                 style={{
@@ -197,7 +337,7 @@ export default function Header() {
                 }}
               >
                 <Scissors size={20} strokeWidth={2.2} />
-              </motion.div>
+              </Motion.div>
               <div>
                 <div style={{
                   fontSize: '1.25rem', fontWeight: 800,
@@ -231,21 +371,7 @@ export default function Header() {
                 </NavItem>
               )}
 
-              <button
-                type="button"
-                onClick={toggleTheme}
-                style={{
-                  display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                  padding: '8px 14px', borderRadius: '12px',
-                  textDecoration: 'none', fontSize: '0.9rem', fontWeight: 600,
-                  color: 'var(--text-primary)', background: 'var(--card-hover)',
-                  border: '1px solid var(--border)', cursor: 'pointer',
-                }}
-                aria-label="تغییر حالت تم"
-              >
-                {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
-                {theme === 'dark' ? 'روشن' : 'تاریک'}
-              </button>
+              <ThemeToggle theme={theme} onClick={toggleTheme} />
               <a
                 href="https://t.me/amir_rezaiyan"
                 target="_blank"
@@ -315,7 +441,7 @@ export default function Header() {
                           }}
                           onClick={() => setUserDropdown(false)}
                         />
-                        <motion.div
+                        <Motion.div
                           initial={{ opacity: 0, y: -8, scale: 0.96 }}
                           animate={{ opacity: 1, y: 0, scale: 1 }}
                           exit={{ opacity: 0, y: -8, scale: 0.96 }}
@@ -349,7 +475,7 @@ export default function Header() {
                             <LogOut size={17} />
                             خروج از حساب
                           </button>
-                        </motion.div>
+                        </Motion.div>
                       </>
                     )}
                   </AnimatePresence>
@@ -389,7 +515,7 @@ export default function Header() {
               }}
             >
               <AnimatePresence mode="wait" initial={false}>
-                <motion.span
+                <Motion.span
                   key={menuOpen ? 'x' : 'm'}
                   initial={{ rotate: -90, opacity: 0 }}
                   animate={{ rotate: 0, opacity: 1 }}
@@ -397,19 +523,19 @@ export default function Header() {
                   transition={{ duration: 0.15 }}
                 >
                   {menuOpen ? <X size={20} /> : <Menu size={20} />}
-                </motion.span>
+                </Motion.span>
               </AnimatePresence>
             </button>
           </div>
         </div>
-      </motion.header>
+      </Motion.header>
 
       {/* ── Mobile Drawer ─────────────────────────────────────────────────────── */}
       <AnimatePresence>
         {menuOpen && (
           <>
             {/* Backdrop */}
-            <motion.div
+            <Motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -422,18 +548,19 @@ export default function Header() {
             />
 
             {/* Drawer */}
-            <motion.div
-              initial={{ x: '100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '100%' }}
-              transition={{ type: 'spring', stiffness: 320, damping: 30 }}
+            <Motion.div
+              initial={{ x: '100%', opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: '100%', opacity: 0 }}
+              transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
               style={{
                 position: 'fixed', top: 0, right: 0, bottom: 0,
-                width: '300px', zIndex: 1000,
+                width: 'min(320px, 100vw)', zIndex: 1000,
                 background: 'var(--surface)',
                 boxShadow: '-8px 0 48px rgba(0,0,0,0.35)',
                 display: 'flex', flexDirection: 'column',
                 overflow: 'hidden',
+                willChange: 'transform, opacity',
               }}
             >
               {/* Drawer header */}
@@ -529,25 +656,13 @@ export default function Header() {
                   <MessageCircle size={18} />
                   پشتیبانی تلگرام
                 </a>
+                <div style={{ display: 'flex', justifyContent: 'center', paddingTop: '4px' }}>
+                  <ThemeToggle theme={theme} onClick={toggleTheme} mobile />
+                </div>
               </div>
 
               {/* Bottom auth buttons */}
               <div style={{ padding: '16px', borderTop: `1px solid ${C.border}` }}>
-                <button
-                  type="button"
-                  onClick={toggleTheme}
-                  style={{
-                    width: '100%', display: 'flex', alignItems: 'center',
-                    justifyContent: 'center', gap: '8px',
-                    padding: '14px', borderRadius: '12px',
-                    background: 'var(--card-hover)', border: `1.5px solid ${C.border}`,
-                    color: 'var(--text-primary)', fontWeight: 700, fontSize: '1rem',
-                    cursor: 'pointer', marginBottom: '12px',
-                  }}
-                >
-                  {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
-                  {theme === 'dark' ? 'روشن شدن' : 'حالت تاریک'}
-                </button>
                 {isAuthenticated ? (
                   <button
                     onClick={handleLogout}
@@ -594,7 +709,7 @@ export default function Header() {
                   </div>
                 )}
               </div>
-            </motion.div>
+            </Motion.div>
           </>
         )}
       </AnimatePresence>

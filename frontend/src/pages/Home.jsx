@@ -964,23 +964,23 @@ export default function Home() {
               border: '1px solid var(--border)',
               padding: '8px 18px',
               borderRadius: '50px',
-              color: 'var(--warning)',
+              color: 'var(--text-primary)',
               fontSize: '0.88rem',
               fontWeight: 700,
               boxShadow: '0 4px 20px rgba(0,0,0,0.06)',
               marginBottom: '1.5rem'
             }}
           >
-            <Sparkles size={16} fill="var(--warning)" style={{ filter: 'drop-shadow(0 2px 8px rgba(251,191,36,0.5))' }} />
+            <Sparkles size={16} fill="var(--primary)" style={{ filter: 'drop-shadow(0 2px 8px rgba(37,99,235,0.45))' }} />
             <span>پنل حرفه‌ای مدیریت سالن</span>
           </motion.div>
 
           <h1 style={{
-            color: 'var(--text-primary)',
+            color: 'var(--text-light)',
             fontSize: 'clamp(2.2rem, 5vw, 3.5rem)',
             fontWeight: 900,
             margin: '0 0 0.75rem',
-            textShadow: '0 4px 24px rgba(0,0,0,0.2)',
+            textShadow: '0 4px 24px rgba(0,0,0,0.18)',
             letterSpacing: '-0.02em',
             lineHeight: 1.2
           }}>
@@ -988,7 +988,8 @@ export default function Home() {
           </h1>
 
           <p style={{
-            color: 'var(--text-secondary)',
+            color: 'var(--text-light)',
+            opacity: 0.92,
             fontSize: 'clamp(1rem, 2.2vw, 1.25rem)',
             maxWidth: '600px',
             margin: '0 auto 2.5rem',
@@ -1163,7 +1164,7 @@ export default function Home() {
       <div style={{
         position: 'relative',
         background: 'linear-gradient(135deg, var(--home-hero-start) 0%, var(--home-hero-end) 45%, var(--home-hero-fade) 100%)',
-        padding: 'clamp(4rem, 10vw, 6rem) 1.5rem clamp(3.5rem, 12vw, 5rem)',
+        padding: 'clamp(4rem, 10vw, 6rem) 1.5rem clamp(5.5rem, 14vw, 7.5rem)',
         overflow: 'hidden',
       }}>
         {/* Blob decorations */}
@@ -1196,10 +1197,9 @@ export default function Home() {
           {renderHero()}
         </div>
 
-        {/* Wave bottom */}
-        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, overflow: 'hidden', lineHeight: 0 }}>
-          <svg viewBox="0 0 1440 90" preserveAspectRatio="none" style={{ display: 'block', width: '100%', height: '90px' }}>
-            <path d="M0,64 C180,92 360,20 540,32 C720,44 900,86 1080,72 C1260,58 1360,24 1440,18 L1440,90 L0,90 Z" fill="var(--home-page-surface)" />
+        <div style={{ position: 'absolute', left: 0, right: 0, bottom: '-1px', height: '96px', pointerEvents: 'none', overflow: 'hidden' }}>
+          <svg viewBox="0 0 1440 120" preserveAspectRatio="none" style={{ display: 'block', width: '100%', height: '100%' }}>
+            <path d="M0,72 C180,20 350,10 520,36 C690,62 840,104 1020,92 C1180,80 1320,34 1440,18 L1440,120 L0,120 Z" fill="var(--background-secondary)" />
           </svg>
         </div>
       </div>
@@ -1273,21 +1273,21 @@ export default function Home() {
                 icon: <CalendarCheck size={36} />,
                 title: 'نوبتت رو آنلاین بگیر',
                 desc: 'خدمت دلخواه، قیمت و زمان مناسب رو انتخاب کن — نوبت در چند ثانیه ثبت میشه',
-                gradient: 'linear-gradient(135deg, var(--accent) 0%, var(--primary-hover) 100%)',
-                bg: 'var(--surface)',
+                gradient: 'linear-gradient(135deg, #14B8A6 0%, #22C55E 100%)',
+                bg: 'var(--success-surface)',
               },
               {
                 icon: <Clock size={36} />,
                 title: 'بدون انتظار، سر وقت برو',
                 desc: 'وقتی نوبتت ثبته، دیگه لازم نیست زود بری و منتظر بمونی — سر ساعت برو آرایشگاه',
-                gradient: 'linear-gradient(135deg, var(--primary-light) 0%, var(--secondary) 100%)',
+                gradient: 'linear-gradient(135deg, #8B5CF6 0%, #A855F7 100%)',
                 bg: 'var(--info-surface)',
               },
               {
                 icon: <Star size={36} />,
                 title: 'بهترین‌ها رو انتخاب کن',
                 desc: 'امتیاز و نظرات مشتریان قبلی کمکت می‌کنه بهترین آرایشگاه رو با اطمینان انتخاب کنی',
-                gradient: 'linear-gradient(135deg, var(--warning) 0%, var(--warning) 100%)',
+                gradient: 'linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%)',
                 bg: 'var(--warning-surface)',
               },
             ] : [
@@ -1302,22 +1302,22 @@ export default function Home() {
                 icon: <Scissors size={36} />,
                 title: 'دیده شدن در برترین‌ها',
                 desc: 'نمایش حرفه‌ای سالن شما در کنار بهترین‌های شهر، جهت جذب مشتریان جدید و معتبر',
-                gradient: 'linear-gradient(135deg, var(--accent) 0%, var(--primary-hover) 100%)',
+                gradient: 'linear-gradient(135deg, #8B5CF6 0%, #A855F7 100%)',
                 bg: 'var(--surface)',
               },
               {
                 icon: <Clock size={36} />,
                 title: 'بهینه‌سازی زمان و درآمد',
                 desc: 'کاهش کنسلی‌ها و مدیریت دقیق زمان‌بندی برای افزایش بهره‌وری و درآمد سالن',
-                gradient: 'linear-gradient(135deg, var(--primary-light) 0%, var(--secondary) 100%)',
-                bg: 'var(--info-surface)',
+                gradient: 'linear-gradient(135deg, #14B8A6 0%, #22C55E 100%)',
+                bg: 'var(--success-surface)',
               },
               {
                 icon: <Users size={36} />,
                 title: 'پنل مدیریت حرفه‌ای',
                 desc: 'ابزارهای گزارش‌گیری و تیم پشتیبانی اختصاصی برای مدیریت ساده و سریع کسب‌وکارتان',
-                gradient: 'linear-gradient(135deg, var(--success) 0%, var(--success) 100%)',
-                bg: 'var(--success-surface)',
+                gradient: 'linear-gradient(135deg, #06B6D4 0%, #0EA5E9 100%)',
+                bg: 'var(--info-surface)',
               },
             ]).map((feature, index) => (
               <motion.div
@@ -1404,27 +1404,29 @@ export default function Home() {
             <div style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-              gap: '2rem',
-              position: 'relative',
+              gap: '1.25rem',
             }}>
               {[
                 {
-                  icon: <Search size={30} />,
+                  icon: <Search size={28} />,
                   title: 'آرایشگاه را پیدا کنید',
                   desc: 'با جستجو بر اساس نام یا شهر، آرایشگاه مورد نظرتان را در پلتفرم پیدا کنید',
                   gradient: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
+                  bg: 'var(--surface)',
                 },
                 {
-                  icon: <ListChecks size={30} />,
+                  icon: <ListChecks size={28} />,
                   title: 'خدمت را انتخاب کنید',
                   desc: 'لیست خدمات، قیمت و مدت‌زمان هر کدام را ببینید و خدمت مدنظرتان را انتخاب کنید',
-                  gradient: 'linear-gradient(135deg, var(--accent) 0%, var(--primary-hover) 100%)',
+                  gradient: 'linear-gradient(135deg, #8B5CF6 0%, #A855F7 100%)',
+                  bg: 'var(--surface)',
                 },
                 {
-                  icon: <CalendarCheck size={30} />,
+                  icon: <CalendarCheck size={28} />,
                   title: 'نوبت بگیرید',
                   desc: 'زمان مناسب خودتان را انتخاب کنید و نوبت‌تان ثبت می‌شود؛ همین‌قدر ساده',
-                  gradient: 'linear-gradient(135deg, var(--primary-light) 0%, var(--secondary) 100%)',
+                  gradient: 'linear-gradient(135deg, #14B8A6 0%, #22C55E 100%)',
+                  bg: 'var(--success-surface)',
                 },
               ].map((step, index) => (
                 <motion.div
@@ -1432,43 +1434,43 @@ export default function Home() {
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: index * 0.15 }}
-                  style={{ textAlign: 'center', position: 'relative' }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  whileHover={{ y: -6 }}
+                  style={{
+                    background: 'var(--card)',
+                    borderRadius: '24px',
+                    padding: '1.75rem',
+                    textAlign: 'right',
+                    border: '1px solid var(--border)',
+                    boxShadow: '0 12px 32px rgba(15, 23, 42, 0.06)',
+                    position: 'relative',
+                    overflow: 'hidden',
+                  }}
                 >
-                  <motion.div
-                    initial={{ scale: 0.8, opacity: 0 }}
-                    whileInView={{ scale: 1, opacity: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ type: 'spring', stiffness: 260, damping: 20, delay: index * 0.15 + 0.1 }}
-                    style={{ position: 'relative', display: 'inline-block', marginBottom: '1.5rem' }}
-                  >
+                  <div style={{
+                    position: 'absolute', top: 0, right: 0, left: 0,
+                    height: '4px', background: step.gradient,
+                  }} />
+                  <div style={{
+                    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                    width: '64px', height: '64px', borderRadius: '16px',
+                    background: step.bg,
+                    marginBottom: '1rem',
+                  }}>
                     <div style={{
-                      width: '88px', height: '88px', borderRadius: '24px',
-                      background: step.gradient,
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      color: 'var(--text-light)',
-                      boxShadow: '0 10px 28px rgba(102,126,234,0.25)',
-                      margin: '0 auto',
+                      width: '46px', height: '46px', borderRadius: '12px',
+                      background: step.gradient,
+                      color: '#fff',
+                      boxShadow: '0 6px 16px rgba(0,0,0,0.15)',
                     }}>
                       {step.icon}
                     </div>
-                    <div style={{
-                      position: 'absolute', bottom: '-8px', right: '50%',
-                      transform: 'translateX(40px)',
-                      width: '32px', height: '32px', borderRadius: '50%',
-                      background: 'var(--card-hover)', color: 'var(--text-light)',
-                      fontWeight: 900, fontSize: '0.95rem',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      border: '3px solid var(--text-light)',
-                      boxShadow: '0 4px 10px rgba(0,0,0,0.2)',
-                    }}>
-                      {index + 1}
-                    </div>
-                  </motion.div>
-                  <h3 style={{ color: "var(--text-primary)", fontSize: '1.15rem', fontWeight: 700, margin: '0 0 0.6rem' }}>
+                  </div>
+                  <h3 style={{ color: 'var(--text-primary)', fontSize: '1.05rem', fontWeight: 700, margin: '0 0 0.6rem' }}>
                     {step.title}
                   </h3>
-                  <p style={{ color: "var(--text-secondary)", lineHeight: 1.75, fontSize: '0.93rem', margin: '0 auto', maxWidth: '260px' }}>
+                  <p style={{ color: 'var(--text-secondary)', lineHeight: 1.75, fontSize: '0.94rem', margin: 0 }}>
                     {step.desc}
                   </p>
                 </motion.div>
@@ -1638,13 +1640,11 @@ export default function Home() {
           >
             {/* Dashboard Header */}
             <div style={{
-              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-              marginBottom: '2.5rem', flexWrap: 'wrap', gap: '1.25rem',
-              borderBottom: 'none',
-              paddingBottom: '1.5rem'
+              display: 'flex', justifyContent: 'center', alignItems: 'center',
+              marginBottom: '2.5rem', paddingBottom: '1.5rem'
             }}>
-              <div style={{ textAlign: 'right' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
+              <div style={{ maxWidth: '720px', textAlign: 'center' }}>
+                <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '10px', marginBottom: '8px', flexWrap: 'wrap' }}>
                   <Activity size={24} style={{ color: 'var(--primary)' }} />
                   <h2 style={{
                     color: "var(--text-primary)", fontSize: 'clamp(1.5rem, 4.5vw, 2.1rem)',
@@ -1653,7 +1653,7 @@ export default function Home() {
                     میز مانیتورینگ و وضعیت سالن
                   </h2>
                 </div>
-                <p style={{ color: "var(--text-secondary)", fontSize: '0.95rem', margin: 0 }}>
+                <p style={{ color: "var(--text-secondary)", fontSize: '0.95rem', margin: '0 auto', maxWidth: '640px', lineHeight: 1.8 }}>
                   ابزارهای حیاتی کاربری و تحلیل آماری زنده بر اساس وضعیت واقعی سیستم شما.
                 </p>
               </div>
@@ -1775,19 +1775,19 @@ export default function Home() {
                   flexDirection: 'column',
                   justifyContent: 'space-between',
                   background: 'linear-gradient(to bottom, var(--card), var(--surface))',
-                  boxShadow: '0 10px 30px rgba(245, 158, 11, 0.05)',
+                  boxShadow: '0 10px 30px rgba(37, 99, 235, 0.06)',
                   position: 'relative'
                 }}
               >
                 <div style={{
                   position: 'absolute', top: 0, left: 0, right: 0, height: '4px',
-                  background: 'linear-gradient(90deg, var(--warning), var(--warning))', borderRadius: '24px 24px 0 0'
+                  background: 'linear-gradient(90deg, var(--primary), var(--primary-hover))', borderRadius: '24px 24px 0 0'
                 }} />
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.25rem' }}>
                     <div style={{
                       width: '42px', height: '42px', borderRadius: '12px',
-                      background: 'var(--warning-surface)', color: 'var(--warning)',
+                      background: 'rgba(59,130,246,0.14)', color: 'var(--primary)',
                       display: 'flex', alignItems: 'center', justifyContent: 'center'
                     }}>
                       <Scissors size={20} />
@@ -2007,20 +2007,6 @@ export default function Home() {
                   position: 'relative',
                 }}
               >
-                {/* Rank badge */}
-                <div style={{
-                  position: 'absolute', top: '12px', left: '12px', zIndex: 10,
-                  width: '32px', height: '32px', borderRadius: '50%',
-                  background: rankBgColor,
-                  border: `2px solid ${rankColor}`,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontWeight: 900, fontSize: '0.82rem',
-                  color: rankColor,
-                  boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-                }}>
-                  {rank + 1}
-                </div>
-
                 {/* Card banner */}
                 <div style={{
                   height: '130px',
@@ -2211,13 +2197,13 @@ export default function Home() {
               >
                 <div style={{
                   display: 'inline-flex', alignItems: 'center', gap: '8px',
-                  background: 'var(--warning-surface)',
-                  border: '1px solid var(--warning)',
+                  background: 'var(--info-surface)',
+                  border: '1px solid var(--primary)',
                   borderRadius: '50px',
                   padding: '7px 18px', marginBottom: '1rem',
                 }}>
-                  <Award size={15} style={{ color: 'var(--warning)' }} />
-                  <span style={{ color: 'var(--warning)', fontSize: '0.85rem', fontWeight: 700 }}>برترین آرایشگاه‌ها</span>
+                  <Award size={15} style={{ color: 'var(--primary)' }} />
+                  <span style={{ color: 'var(--primary)', fontSize: '0.85rem', fontWeight: 700 }}>برترین آرایشگاه‌ها</span>
                 </div>
                 <h2 style={{
                   color: "var(--text-primary)",
@@ -2290,11 +2276,11 @@ export default function Home() {
                 <div style={{ position: 'relative', zIndex: 1 }}>
                   <div style={{
                     display: 'inline-flex', alignItems: 'center', gap: '8px',
-                    background: 'var(--surface-glass-strong)', borderRadius: '50px',
+                    background: 'rgba(255,255,255,0.18)', borderRadius: '50px',
                     padding: '6px 16px', marginBottom: '1rem',
                   }}>
-                    <Scissors size={14} color="var(--warning)" />
-                    <span style={{ color: 'var(--warning)', fontSize: '0.82rem', fontWeight: 700 }}>
+                    <Scissors size={14} color="#fff" />
+                    <span style={{ color: '#fff', fontSize: '0.82rem', fontWeight: 700 }}>
                       {salons.length > 0 ? `${toPersianNumber(salons.length)}+ آرایشگاه در پلتفرم` : 'آرایشگاه‌های بیشتر'}
                     </span>
                   </div>

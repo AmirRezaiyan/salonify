@@ -612,14 +612,14 @@ export default function Salons() {
             <div style={{
               display: 'inline-flex', alignItems: 'center', gap: '6px',
               padding: '9px 14px', borderRadius: '50px',
-              border: `1.5px solid #dbeafe`,
+              border: `1.5px solid var(--info-border)`,
               background: 'var(--info-surface)',
-              color: '#2563eb', fontSize: '0.86rem', fontWeight: 700,
+              color: 'var(--primary)', fontSize: '0.86rem', fontWeight: 700,
             }}>
               {viewerGender === 'female' ? '♀ زنانه' : '♂ مردانه'}
               <span style={{
                 padding: '2px 8px', borderRadius: '999px',
-                background: '#dbeafe', color: '#1d4ed8', fontSize: '0.72rem', fontWeight: 800,
+                background: 'var(--info-surface)', color: 'var(--primary-dark)', fontSize: '0.72rem', fontWeight: 800,
               }}>
                 مخصوص شما
               </span>

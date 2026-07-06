@@ -391,6 +391,8 @@ const PortfolioGallery = ({ salonId }) => {
                   onClick={() => setSelectedCategory(cat.id)}
                   whileTap={{ scale: 0.95 }}
                   style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
                     padding: '7px 16px',
                     borderRadius: '999px',
                     border: active ? 'none' : `1.5px solid ${T.border}`,
@@ -407,19 +409,22 @@ const PortfolioGallery = ({ salonId }) => {
                     transition: 'all 0.2s',
                     fontFamily: 'inherit',
                     letterSpacing: '0.1px',
+                    direction: 'ltr',
                   }}
                 >
                   {cat.name}
                   {cat.items?.length > 0 && (
                     <span style={{
-                      marginRight: '6px',
+                      marginLeft: '8px',
                       fontSize: '0.72rem',
-                      opacity: active ? 0.8 : 0.6,
-                      background: active ? 'rgba(255,255,255,0.2)' : T.purpleLight,
+                      opacity: active ? 0.95 : 0.85,
+                      background: active ? 'rgba(255,255,255,0.18)' : T.purpleLight,
                       color: active ? '#fff' : T.purple,
                       borderRadius: '999px',
-                      padding: '1px 7px',
+                      padding: '3px 9px',
                       fontWeight: 600,
+                      minWidth: '24px',
+                      textAlign: 'center',
                     }}>
                       {toPersianNumber(cat.items.length)}
                     </span>

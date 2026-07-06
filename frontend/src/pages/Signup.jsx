@@ -61,13 +61,13 @@ const inputRtl = {
 const inputLtrError = {
   ...inputLtr,
   borderColor: COLORS.danger,
-  backgroundColor: COLORS.errorBg
+  backgroundColor: COLORS.lightBg
 };
 
 const inputRtlError = {
   ...inputRtl,
   borderColor: COLORS.danger,
-  backgroundColor: COLORS.errorBg
+  backgroundColor: COLORS.lightBg
 };
 
 const labelStyle = {
@@ -98,7 +98,7 @@ const textareaBase = {
 const textareaErr = {
   ...textareaBase,
   borderColor: COLORS.danger,
-  backgroundColor: COLORS.errorBg
+  backgroundColor: COLORS.lightBg
 };
 
 // کاملاً inline — بدون هیچ کامپوننت خارجی
@@ -943,7 +943,7 @@ function CitySelect({ name, label, value, onChange, error }) {
           borderRadius: '10px',
           fontSize: '0.95rem',
           color: selected ? COLORS.text : COLORS.muted,
-          backgroundColor: error ? COLORS.errorBg : COLORS.lightBg,
+          backgroundColor: COLORS.lightBg,
           cursor: 'pointer',
           display: 'flex',
           alignItems: 'center',

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
@@ -227,6 +227,31 @@ function groupWorkingHoursByDay(workingHours) {
     };
   });
 }
+
+const BOOKING_STATUS_FILTERS = [
+  { value: 'all', label: 'همه' },
+  { value: 'pending', label: 'در انتظار تأیید' },
+  { value: 'confirmed', label: 'تأیید شده' },
+  { value: 'cancelled', label: 'لغو شده' },
+];
+
+const BOOKINGS_PER_PAGE = 8;
+
+function getBookingSortTimestamp(booking) {
+  const rawDate = booking?.start_at || booking?.created_at || booking?.updated_at || null;
+  const parsed = rawDate ? new Date(rawDate) : null;
+  const timestamp = parsed && !Number.isNaN(parsed.getTime()) ? parsed.getTime() : 0;
+  return timestamp;
+}
+
+function sortBookingsForDisplay(bookings = []) {
+  return [...bookings].sort((a, b) => {
+    const timeDiff = getBookingSortTimestamp(b) - getBookingSortTimestamp(a);
+    if (timeDiff !== 0) return timeDiff;
+    return Number(b?.id ?? 0) - Number(a?.id ?? 0);
+  });
+}
+
 export default function AdminPanel() {
   const { theme, toggleTheme } = useTheme();
   const { isAuthenticated, user, logout } = useAuth();
@@ -235,6 +260,8 @@ export default function AdminPanel() {
   const [services, setServices] = useState([]);
   const [bookings, setBookings] = useState([]);
   const [workingHours, setWorkingHours] = useState([]);
+  const [bookingStatusFilter, setBookingStatusFilter] = useState('all');
+  const [bookingPage, setBookingPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -385,6 +412,29 @@ export default function AdminPanel() {
     fetchQRCode();
   }, [user?.id, user?.role]);
 
+  const sortedBookings = useMemo(() => sortBookingsForDisplay(bookings), [bookings]);
+
+  const filteredBookings = useMemo(() => {
+    if (bookingStatusFilter === 'all') return sortedBookings;
+    return sortedBookings.filter((booking) => String(booking?.status || '') === bookingStatusFilter);
+  }, [bookingStatusFilter, sortedBookings]);
+
+  const totalBookingPages = Math.max(1, Math.ceil(filteredBookings.length / BOOKINGS_PER_PAGE));
+  const paginatedBookings = useMemo(() => {
+    const startIndex = (bookingPage - 1) * BOOKINGS_PER_PAGE;
+    return filteredBookings.slice(startIndex, startIndex + BOOKINGS_PER_PAGE);
+  }, [bookingPage, filteredBookings]);
+
+  useEffect(() => {
+    setBookingPage(1);
+  }, [bookingStatusFilter]);
+
+  useEffect(() => {
+    if (bookingPage > totalBookingPages) {
+      setBookingPage(1);
+    }
+  }, [bookingPage, totalBookingPages]);
+
   const loadData = async () => {
     try {
       setLoading(true);
@@ -430,7 +480,7 @@ export default function AdminPanel() {
         setServices(servicesRes.data || []);
 
         const bookingsRes = await api.getBookings(salonId);
-        setBookings(bookingsRes.data || []);
+        setBookings(sortBookingsForDisplay(bookingsRes.data || []));
 
         // Load working hours
         try {
@@ -1574,7 +1624,8 @@ export default function AdminPanel() {
                   padding: 'clamp(1rem, 3vw, 2rem)',
                   boxShadow: '0 8px 30px rgba(0,0,0,0.08)',
                   border: "1px solid var(--border)",
-                  position: 'relative'
+                  position: 'relative',
+                  overflow: 'hidden'
                 }}
               >
                 <div style={{
@@ -1777,8 +1828,8 @@ export default function AdminPanel() {
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 style={{
-                  background: 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)',
-                  border: '1px solid #93c5fd',
+                  background: 'var(--info-surface)',
+                  border: '1px solid var(--info-border)',
                   borderRadius: '16px',
                   padding: '1rem',
                   marginBottom: '1.5rem',
@@ -1791,7 +1842,7 @@ export default function AdminPanel() {
                   width: '24px',
                   height: '24px',
                   borderRadius: '50%',
-                  background: '#0284c7',
+                  background: 'var(--primary-dark)',
                   color: 'white',
                   display: 'flex',
                   alignItems: 'center',
@@ -2031,7 +2082,7 @@ export default function AdminPanel() {
                     >
                       <div style={{
                         height: '4px',
-                        background: 'linear-gradient(135deg, #2563eb 0%, #38bdf8 100%)',
+                        background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
                         borderTopLeftRadius: '28px',
                         borderTopRightRadius: '28px'
                       }} />
@@ -2042,7 +2093,7 @@ export default function AdminPanel() {
                             width: '44px',
                             height: '44px',
                             borderRadius: '14px',
-                            background: 'linear-gradient(135deg, #2563eb 0%, #38bdf8 100%)',
+                            background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
@@ -2451,13 +2502,13 @@ export default function AdminPanel() {
                               marginBottom: '0.85rem'
                             }}>
                               <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
-                                <CalendarDays size={18} color="#0ea5e9" />
+                                <CalendarDays size={18} color="var(--primary)" />
                                 <span style={{ fontWeight: 800, color: "var(--text-primary)" }}>روز فعلی</span>
                                 <span style={{
                                   padding: '0.35rem 0.7rem',
                                   borderRadius: '999px',
                                   background: 'var(--info-surface)',
-                                  color: '#0369a1',
+                                  color: 'var(--primary-dark)',
                                   fontSize: '0.78rem',
                                   fontWeight: 700
                                 }}>
@@ -2482,8 +2533,8 @@ export default function AdminPanel() {
                                     padding: '0.55rem 0.85rem',
                                     borderRadius: '999px',
                                     border: 'none',
-                                    background: currentWizardDayIndex === 0 ? '#f1f5f9' : '#eff6ff',
-                                    color: currentWizardDayIndex === 0 ? '#94a3b8' : '#2563eb',
+                                    background: currentWizardDayIndex === 0 ? 'var(--surface)' : 'var(--info-surface)',
+                                    color: currentWizardDayIndex === 0 ? 'var(--text-muted)' : 'var(--primary)',
                                     fontSize: '0.83rem',
                                     fontWeight: 700,
                                     cursor: currentWizardDayIndex === 0 ? 'not-allowed' : 'pointer'
@@ -2507,8 +2558,8 @@ export default function AdminPanel() {
                                     padding: '0.55rem 0.85rem',
                                     borderRadius: '999px',
                                     border: 'none',
-                                    background: !nextWizardDay ? '#f1f5f9' : '#eff6ff',
-                                    color: !nextWizardDay ? '#94a3b8' : '#2563eb',
+                                    background: !nextWizardDay ? 'var(--surface)' : 'var(--info-surface)',
+                                    color: !nextWizardDay ? 'var(--text-muted)' : 'var(--primary)',
                                     fontSize: '0.83rem',
                                     fontWeight: 700,
                                     cursor: !nextWizardDay ? 'not-allowed' : 'pointer'
@@ -2547,8 +2598,8 @@ export default function AdminPanel() {
                                       gap: '0.25rem',
                                       padding: '0.8rem 0.7rem',
                                       borderRadius: '16px',
-                                      border: isSelected ? '1px solid #0ea5e9' : '1px solid #e2e8f0',
-                                      background: isSelected ? 'linear-gradient(135deg, #0ea5e9 0%, #38bdf8 100%)' : 'white',
+                                      border: isSelected ? '1px solid var(--primary)' : '1px solid var(--border)',
+                                      background: isSelected ? 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)' : 'var(--card)',
                                       color: isSelected ? 'white' : '#475569',
                                       boxShadow: isSelected ? '0 10px 22px rgba(14, 165, 233, 0.18)' : 'none',
                                       cursor: 'pointer',
@@ -2721,7 +2772,7 @@ export default function AdminPanel() {
                                       width: '32px',
                                       height: '32px',
                                       borderRadius: '10px',
-                                      background: 'linear-gradient(135deg, #0ea5e9 0%, #38bdf8 100%)',
+                                      background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
                                       color: 'white',
                                       fontWeight: 800,
                                       fontSize: '0.8rem'
@@ -3144,32 +3195,156 @@ export default function AdminPanel() {
                     </p>
                   </div>
                 ) : (
-                  <div style={{ overflowX: 'auto' }} className="admin-table">
-                    <table style={{
-                      width: '100%',
-                      borderCollapse: 'collapse',
-                      minWidth: 'auto',
-                      fontSize: 'clamp(0.7rem, 1.5vw, 0.9rem)'
+                  <>
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      gap: '12px',
+                      flexWrap: 'wrap',
+                      padding: '1rem 1.25rem 0.25rem'
                     }}>
-                      <thead>
-                        <tr style={{
-                          background: 'var(--background-secondary)',
-                          borderBottom: '1px solid #e2e8f0'
-                        }}>
-                          <TableHeader>مشتری</TableHeader>
-                          <TableHeader>خدمت</TableHeader>
-                          <TableHeader>تاریخ و ساعت</TableHeader>
-                          <TableHeader>وضعیت</TableHeader>
-                          <TableHeader>اطلاعات تماس</TableHeader>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {bookings.map(booking => (
-                          <BookingRow key={booking.id} booking={booking} />
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                        <label htmlFor="booking-status-filter" style={{ fontSize: '0.92rem', fontWeight: 700, color: 'var(--text-secondary)' }}>
+                          فیلتر وضعیت
+                        </label>
+                        <select
+                          id="booking-status-filter"
+                          value={bookingStatusFilter}
+                          onChange={(e) => setBookingStatusFilter(e.target.value)}
+                          style={{
+                            padding: '0.7rem 0.85rem',
+                            borderRadius: '12px',
+                            border: '1px solid var(--border)',
+                            background: 'var(--card)',
+                            color: 'var(--text-primary)',
+                            fontSize: '0.9rem',
+                            minWidth: '180px'
+                          }}
+                        >
+                          {BOOKING_STATUS_FILTERS.map((option) => (
+                            <option key={option.value} value={option.value}>
+                              {option.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div style={{ fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 600 }}>
+                        {toPersianNumber(filteredBookings.length)} رزرو
+                      </div>
+                    </div>
+
+                    {filteredBookings.length === 0 ? (
+                      <div style={{
+                        textAlign: 'center',
+                        padding: 'clamp(1.5rem, 3vw, 2.5rem) 1rem',
+                        color: 'var(--text-muted)'
+                      }}>
+                        <Calendar size={40} style={{ marginBottom: '0.75rem', opacity: 0.35 }} />
+                        <div style={{ fontWeight: 600, color: 'var(--text-secondary)' }}>
+                          هیچ رزروی با این وضعیت وجود ندارد
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <div style={{ overflowX: 'auto' }} className="admin-table">
+                          <table style={{
+                            width: '100%',
+                            borderCollapse: 'collapse',
+                            minWidth: 'auto',
+                            fontSize: 'clamp(0.7rem, 1.5vw, 0.9rem)'
+                          }}>
+                            <thead>
+                              <tr style={{
+                                background: 'var(--background-secondary)',
+                                borderBottom: '1px solid #e2e8f0'
+                              }}>
+                                <TableHeader>مشتری</TableHeader>
+                                <TableHeader>خدمت</TableHeader>
+                                <TableHeader>تاریخ و ساعت</TableHeader>
+                                <TableHeader>وضعیت</TableHeader>
+                                <TableHeader>اطلاعات تماس</TableHeader>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {paginatedBookings.map(booking => (
+                                <BookingRow key={booking.id} booking={booking} />
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+
+                        {totalBookingPages > 1 && (
+                          <div style={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            gap: '8px',
+                            marginTop: '1.25rem',
+                            flexWrap: 'wrap',
+                            paddingBottom: '1.25rem'
+                          }}>
+                            <button
+                              onClick={() => setBookingPage((page) => Math.max(1, page - 1))}
+                              disabled={bookingPage === 1}
+                              style={{
+                                width: 36,
+                                height: 36,
+                                borderRadius: 10,
+                                border: '1px solid var(--border)',
+                                background: 'var(--card)',
+                                color: 'var(--text-secondary)',
+                                cursor: bookingPage === 1 ? 'not-allowed' : 'pointer',
+                                opacity: bookingPage === 1 ? 0.5 : 1
+                              }}
+                            >
+                              {bookingPage === 1 ? '«' : '‹'}
+                            </button>
+
+                            {Array.from({ length: totalBookingPages }, (_, index) => {
+                              const page = index + 1;
+                              return (
+                                <button
+                                  key={page}
+                                  onClick={() => setBookingPage(page)}
+                                  style={{
+                                    width: 36,
+                                    height: 36,
+                                    borderRadius: 10,
+                                    border: 'none',
+                                    background: bookingPage === page ? '#5B4FCF' : '#F8FAFC',
+                                    color: bookingPage === page ? '#fff' : '#64748B',
+                                    fontWeight: bookingPage === page ? 700 : 500,
+                                    fontSize: '0.88rem',
+                                    cursor: 'pointer'
+                                  }}
+                                >
+                                  {toPersianNumber(page)}
+                                </button>
+                              );
+                            })}
+
+                            <button
+                              onClick={() => setBookingPage((page) => Math.min(totalBookingPages, page + 1))}
+                              disabled={bookingPage === totalBookingPages}
+                              style={{
+                                width: 36,
+                                height: 36,
+                                borderRadius: 10,
+                                border: '1px solid var(--border)',
+                                background: 'var(--card)',
+                                color: 'var(--text-secondary)',
+                                cursor: bookingPage === totalBookingPages ? 'not-allowed' : 'pointer',
+                                opacity: bookingPage === totalBookingPages ? 0.5 : 1
+                              }}
+                            >
+                              {bookingPage === totalBookingPages ? '»' : '›'}
+                            </button>
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </>
                 )}
               </motion.div>
             </div>
@@ -3218,7 +3393,8 @@ export default function AdminPanel() {
                   padding: 'clamp(1rem, 3vw, 2rem)',
                   boxShadow: '0 8px 30px rgba(0,0,0,0.08)',
                   border: "1px solid var(--border)",
-                  position: 'relative'
+                  position: 'relative',
+                  overflow: 'hidden'
                 }}
               >
                 <div style={{
@@ -4041,7 +4217,8 @@ export default function AdminPanel() {
                   boxShadow: '0 8px 30px rgba(0,0,0,0.08)',
                   border: "1px solid var(--border)",
                   position: 'relative',
-                  marginBottom: 'clamp(0.75rem, 2vw, 1.5rem)'
+                  marginBottom: 'clamp(0.75rem, 2vw, 1.5rem)',
+                  overflow: 'hidden'
                 }}
               >
                 <div style={{
@@ -4355,7 +4532,8 @@ export default function AdminPanel() {
                   boxShadow: '0 8px 30px rgba(0,0,0,0.08)',
                   border: "1px solid var(--border)",
                   position: 'relative',
-                  marginBottom: 'clamp(0.75rem, 2vw, 1.5rem)'
+                  marginBottom: 'clamp(0.75rem, 2vw, 1.5rem)',
+                  overflow: 'hidden'
                 }}
               >
                 <div style={{
@@ -4498,7 +4676,8 @@ export default function AdminPanel() {
                     padding: 'clamp(1rem, 3vw, 2rem)',
                     boxShadow: '0 8px 30px rgba(0,0,0,0.08)',
                     border: "1px solid var(--border)",
-                    position: 'relative'
+                    position: 'relative',
+                    overflow: 'hidden'
                   }}
                 >
                   <div style={{
@@ -5240,23 +5419,23 @@ function ServiceCard({ service, onToggleStatus, onEdit }) {
               gap: '4px',
               padding: '0.6rem',
               borderRadius: '999px',
-              border: '2px solid #bfdbfe',
+              border: '2px solid var(--info-border)',
               background: 'var(--card)',
-              color: '#2563eb',
+              color: 'var(--primary)',
               fontSize: '0.82rem',
               fontWeight: 700,
               cursor: 'pointer',
               transition: 'all 0.2s'
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = '#2563eb';
+              e.currentTarget.style.background = 'var(--primary)';
               e.currentTarget.style.color = 'white';
-              e.currentTarget.style.borderColor = '#2563eb';
+              e.currentTarget.style.borderColor = 'var(--primary)';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = 'var(--card)';
-              e.currentTarget.style.color = '#2563eb';
-              e.currentTarget.style.borderColor = '#bfdbfe';
+              e.currentTarget.style.color = 'var(--primary)';
+              e.currentTarget.style.borderColor = 'var(--info-border)';
             }}
           >
             <Edit2 size={14} />
