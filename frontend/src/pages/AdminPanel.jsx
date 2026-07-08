@@ -645,23 +645,26 @@ export default function AdminPanel() {
       return;
     }
 
+    const nextStatus = !service.is_active;
+    setServices((prev) => prev.map((item) => item.id === service.id ? { ...item, is_active: nextStatus } : item));
+
     try {
       setLoading(true);
       await api.updateService(service.id, {
-        is_active: !service.is_active
+        is_active: nextStatus
       });
       await loadData();
-      
-      // Show success message
+
       setSuccessModal({
         open: true,
-        message: service.is_active 
-          ? `خدمت "${service.name}" غیرفعال شد. دیگر برای مشتریان نمایش داده نمی‌شود.`
-          : `خدمت "${service.name}" فعال شد. اکنون برای مشتریان نمایش داده می‌شود.`
+        message: nextStatus
+          ? `خدمت "${service.name}" فعال شد. اکنون برای مشتریان نمایش داده می‌شود.`
+          : `خدمت "${service.name}" غیرفعال شد. دیگر برای مشتریان نمایش داده نمی‌شود.`
       });
     } catch (err) {
       console.error('Error updating service status:', err);
       console.error('Error response:', err.response);
+      setServices((prev) => prev.map((item) => item.id === service.id ? { ...item, is_active: service.is_active } : item));
       setError('خطا در بروزرسانی وضعیت خدمت');
     } finally {
       setLoading(false);

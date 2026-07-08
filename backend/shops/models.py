@@ -1,3 +1,5 @@
+from decimal import Decimal, InvalidOperation
+
 from django.db import models
 from django.db.models import JSONField
 from django.utils import timezone
@@ -70,7 +72,7 @@ class Service(models.Model):
     name = models.CharField(max_length=200)
     duration_minutes = models.PositiveIntegerField()
     price = models.DecimalField(max_digits=8, decimal_places=2)
-    is_active = models.BooleanField(default=True) 
+    is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -81,6 +83,17 @@ class Service(models.Model):
                 name='unique_active_service_name_per_salon',
             )
         ]
+
+    def _has_valid_price(self):
+        try:
+            return Decimal(str(self.price)) > 0
+        except (InvalidOperation, ValueError, TypeError):
+            return False
+
+    def save(self, *args, **kwargs):
+        if self.is_active and not self._has_valid_price():
+            self.is_active = False
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.name} ({self.salon})"

@@ -19,6 +19,14 @@ class ServiceValidationTests(TestCase):
         self.assertFalse(serializer.is_valid())
         self.assertIn('price', serializer.errors)
 
+    def test_zero_price_service_is_saved_as_inactive(self):
+        salon = Salon.objects.create(name='سالن تست', mobile='09910000000')
+        service = Service(salon=salon, name='سرویس بدون قیمت', price=Decimal('0.00'), duration_minutes=30, is_active=True)
+
+        service.save()
+
+        self.assertFalse(service.is_active)
+
     def test_public_service_list_hides_free_or_inactive_services(self):
         salon = Salon.objects.create(name='سالن تست', mobile='09910000000')
         Service.objects.create(salon=salon, name='سرویس رایگان', price=Decimal('0.00'), duration_minutes=30, is_active=True)
