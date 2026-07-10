@@ -35,7 +35,6 @@ import {
   QrCode,
   Download,
   Printer,
-  Copy,
   GripVertical,
   CalendarDays,
   RotateCcw,
@@ -2603,8 +2602,8 @@ export default function AdminPanel() {
                                       borderRadius: '16px',
                                       border: isSelected ? '1px solid var(--primary)' : '1px solid var(--border)',
                                       background: isSelected ? 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)' : 'var(--card)',
-                                      color: isSelected ? 'white' : '#475569',
-                                      boxShadow: isSelected ? '0 10px 22px rgba(14, 165, 233, 0.18)' : 'none',
+                                      color: isSelected ? 'white' : 'var(--text-secondary)',
+                                      boxShadow: isSelected ? 'var(--shadow-md)' : 'none',
                                       cursor: 'pointer',
                                       transition: 'all 0.2s ease',
                                       fontWeight: 800
@@ -2632,7 +2631,7 @@ export default function AdminPanel() {
                                   width: '44px',
                                   height: '44px',
                                   borderRadius: '14px',
-                                  background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+                                  background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
                                   display: 'flex',
                                   alignItems: 'center',
                                   justifyContent: 'center',
@@ -2653,8 +2652,8 @@ export default function AdminPanel() {
                               <div style={{
                                 padding: '0.55rem 0.85rem',
                                 borderRadius: '999px',
-                                background: '#fff7ed',
-                                color: '#c2410c',
+                                background: 'var(--warning-surface)',
+                                color: 'var(--warning-text)',
                                 fontWeight: 800,
                                 fontSize: '0.82rem'
                               }}>
@@ -2720,13 +2719,13 @@ export default function AdminPanel() {
                                 type="button"
                                 onClick={() => handleApplyWorkingHourPreset(preset)}
                                 style={{
-                                  border: '1px solid #dbeafe',
+                                  border: '1px solid var(--border)',
                                   background: 'var(--card)',
                                   borderRadius: '18px',
                                   padding: '0.9rem 1rem',
                                   cursor: 'pointer',
                                   textAlign: 'right',
-                                  boxShadow: '0 8px 22px rgba(15, 23, 42, 0.05)'
+                                  boxShadow: 'var(--shadow-sm)'
                                 }}
                               >
                                 <div style={{ fontSize: '1.1rem', marginBottom: '0.35rem' }}>{preset.icon}</div>
@@ -2752,11 +2751,11 @@ export default function AdminPanel() {
                                 onDrop={() => handleShiftDrop(index)}
                                 onDragEnd={handleShiftDragEnd}
                                 style={{
-                                  background: draggedShiftIndex === index ? '#eff6ff' : 'white',
-                                  border: draggedShiftIndex === index ? '1px solid #60a5fa' : '1px solid #e2e8f0',
+                                  background: draggedShiftIndex === index ? 'var(--info-surface)' : 'var(--card)',
+                                  border: draggedShiftIndex === index ? '1px solid var(--primary)' : '1px solid var(--border)',
                                   borderRadius: '20px',
                                   padding: 'clamp(0.85rem, 2.5vw, 1rem)',
-                                  boxShadow: '0 8px 20px rgba(15, 23, 42, 0.04)'
+                                  boxShadow: 'var(--shadow-sm)'
                                 }}
                               >
                                 <div style={{
@@ -2788,33 +2787,6 @@ export default function AdminPanel() {
                                   </div>
 
                                   <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                                    <button
-                                      type="button"
-                                      onClick={() => {
-                                        const duplicate = createShift(shift.start_time, shift.end_time);
-                                        setNewWorkingHour((prev) => ({
-                                          ...prev,
-                                          shifts: [
-                                            ...prev.shifts.slice(0, index + 1),
-                                            duplicate,
-                                            ...prev.shifts.slice(index + 1),
-                                          ],
-                                        }));
-                                      }}
-                                      style={{
-                                        border: 'none',
-                                        background: 'var(--info-surface)',
-                                        color: '#2563eb',
-                                        borderRadius: '999px',
-                                        padding: '0.45rem 0.75rem',
-                                        fontSize: '0.8rem',
-                                        fontWeight: 700,
-                                        cursor: 'pointer'
-                                      }}
-                                    >
-                                      <Copy size={14} style={{ marginLeft: '0.35rem', verticalAlign: '-2px' }} />
-                                      کپی
-                                    </button>
                                     {currentWizardShifts.length > 1 && (
                                       <button
                                         type="button"
@@ -2827,7 +2799,7 @@ export default function AdminPanel() {
                                         style={{
                                           border: 'none',
                                           background: 'var(--danger-surface)',
-                                          color: '#b91c1c',
+                                          color: 'var(--danger-text)',
                                           borderRadius: '999px',
                                           padding: '0.45rem 0.75rem',
                                           fontSize: '0.8rem',
@@ -2968,9 +2940,9 @@ export default function AdminPanel() {
                                           width: '100%',
                                           padding: '0.85rem 0.9rem',
                                           borderRadius: '14px',
-                                          border: '1px dashed #93c5fd',
+                                          border: '1px dashed var(--info-border)',
                                           background: 'var(--info-surface)',
-                                          color: '#2563eb',
+                                          color: 'var(--info-text)',
                                           fontSize: '0.85rem',
                                           fontWeight: 700,
                                           cursor: 'pointer'
@@ -2983,9 +2955,9 @@ export default function AdminPanel() {
                                         width: '100%',
                                         padding: '0.85rem 0.9rem',
                                         borderRadius: '14px',
-                                        border: '1px solid #fde68a',
+                                        border: '1px solid var(--warning-border)',
                                         background: 'var(--warning-surface)',
-                                        color: '#92400e',
+                                        color: 'var(--warning-text)',
                                         fontSize: '0.82rem',
                                         fontWeight: 700,
                                         textAlign: 'center'
