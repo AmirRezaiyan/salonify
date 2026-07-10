@@ -577,19 +577,6 @@ The project has a strong foundation and a clear path for ongoing improvement.
 
 ---
 
-## 🧡 Why This README Matters
-
-This README is meant to do more than describe the repository. It is meant to communicate the spirit of the project:
-
-- Salonify is practical.
-- Salonify is designed for real people.
-- Salonify values both aesthetics and function.
-- Salonify aims to make booking easier for everyone involved.
-
-A good README should make the project easy to understand at a glance, while also inviting deeper exploration.
-
----
-
 ## 📌 Quick Summary
 
 If you want the shortest possible understanding of the project, here it is:
