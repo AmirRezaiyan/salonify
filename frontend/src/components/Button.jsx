@@ -8,21 +8,27 @@ export const Button = ({
   variant = 'primary', 
   disabled = false,
   loading = false,
-  style = {}
+  style = {},
+  className = ''
 }) => {
   return (
     <motion.button
       type={type}
       onClick={onClick}
       disabled={disabled || loading}
-      className={`btn btn-${variant}`}
+      className={`btn btn-${variant} ${className}`.trim()}
       whileHover={{ scale: loading ? 1 : 1.05 }}
       whileTap={{ scale: loading ? 1 : 0.95 }}
       transition={{ type: 'spring', stiffness: 400, damping: 10 }}
-      style={style}
+      style={{
+        ...style,
+        direction: 'ltr',
+        textAlign: 'left',
+        justifyContent: 'center',
+      }}
     >
       {loading ? (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', width: '100%' }}>
           <motion.div
             style={{
               width: '18px',
@@ -34,7 +40,7 @@ export const Button = ({
             animate={{ rotate: 360 }}
             transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
           />
-          <span>در حال ورود...</span>
+          <span>Loading...</span>
         </div>
       ) : children}
     </motion.button>

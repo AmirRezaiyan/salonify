@@ -4,6 +4,7 @@ import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion'
 import { api } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import { useLanguage } from '../context/LanguageContext';
 import { Loading } from '../components/Loading';
 import { Alert } from '../components/Alert';
 import Reviews from '../components/Reviews';
@@ -58,7 +59,7 @@ const cardVariant = {
 };
 
 /* ─── SalonBanner ─────────────────────────────────────────────────────────── */
-function SalonBanner({ salon, servicesCount, T }) {
+function SalonBanner({ salon, servicesCount, T, t }) {
   return (
     <div style={{
       background: `linear-gradient(135deg, ${T.purple} 0%, ${T.purpleDeep} 100%)`,
@@ -125,14 +126,14 @@ function SalonBanner({ salon, servicesCount, T }) {
               lineHeight: 1.1,
             }}
           >
-            {salon?.name || 'خدمات سالن'}
+            {salon?.name || t('services.heroTitle')}
           </motion.h1>
 
           <motion.p
             {...fadeUp(0.25)}
             style={{ color: 'var(--text-light)', margin: 0, fontSize: '1rem' }}
           >
-            خدمت مورد نظر را انتخاب و نوبت بگیرید
+            {t('services.heroSubtitle')}
           </motion.p>
         </div>
 
@@ -151,7 +152,7 @@ function SalonBanner({ salon, servicesCount, T }) {
               backdropFilter: 'blur(6px)',
             }}>
               <Scissors size={12} />
-              {salon.gender === 'male' ? 'مردانه' : 'زنانه'}
+              {salon.gender === 'male' ? t('services.genderMale') : t('services.genderFemale')}
             </span>
           )}
           <span style={{
@@ -163,7 +164,7 @@ function SalonBanner({ salon, servicesCount, T }) {
             backdropFilter: 'blur(6px)',
           }}>
             <BadgeCheck size={12} />
-            {toPersianNumber(servicesCount)} خدمت فعال
+            {toPersianNumber(servicesCount)} {servicesCount === 1 ? t('services.activeServices') : t('services.activeServicesPlural')}
           </span>
         </motion.div>
       </div>
@@ -179,7 +180,7 @@ function SalonBanner({ salon, servicesCount, T }) {
 }
 
 /* ─── DisabledBanner ──────────────────────────────────────────────────────── */
-function DisabledBanner({ salon, T }) {
+function DisabledBanner({ salon, T, t }) {
   if (!salon?.is_currently_disabled) return null;
   return (
     <motion.div
@@ -197,7 +198,7 @@ function DisabledBanner({ salon, T }) {
       <Ban size={20} style={{ flexShrink: 0, marginTop: '2px' }} />
       <div>
         <p style={{ margin: '0 0 3px', fontWeight: 700, fontSize: '0.95rem' }}>
-          سالن در حال حاضر غیرفعال است
+          {t('services.disabledTitle')}
         </p>
         <p style={{ margin: 0, fontSize: '0.85rem', opacity: 0.85 }}>
           {salon?.disabled_until
@@ -210,7 +211,7 @@ function DisabledBanner({ salon, T }) {
 }
 
 /* ─── PriceNote ───────────────────────────────────────────────────────────── */
-function PriceNote({ T }) {
+function PriceNote({ T, t }) {
   return (
     <motion.div
       {...fadeUp(0.1)}
@@ -224,13 +225,13 @@ function PriceNote({ T }) {
       }}
     >
       <AlertTriangle size={14} style={{ flexShrink: 0 }} />
-      قیمت‌های نمایش داده‌شده پایه هستند و ممکن است بر اساس درخواست شما تغییر کنند.
+      {t('services.priceNote')}
     </motion.div>
   );
 }
 
 /* ─── AboutOwner ──────────────────────────────────────────────────────────── */
-function AboutOwner({ salon, T }) {
+function AboutOwner({ salon, T, t }) {
   if (!salon?.owner_image && !salon?.owner_description) return null;
 
   let imgPosition = { x: 50, y: 50 };
@@ -326,7 +327,7 @@ function AboutOwner({ salon, T }) {
           }}>
             <Scissors size={11} color="rgba(255,255,255,0.85)" />
             <span style={{ color: 'var(--text-light)', fontSize: '0.75rem', fontWeight: 600 }}>
-              متخصص آرایش
+              {t('services.aboutOwner')}
             </span>
           </div>
 
@@ -354,7 +355,7 @@ function AboutOwner({ salon, T }) {
 }
 
 /* ─── SalonAddressCard ────────────────────────────────────────────────────── */
-function SalonAddressCard({ salon, T }) {
+function SalonAddressCard({ salon, T, t }) {
   const address = salon?.address?.trim();
   if (!address) return null;
 
@@ -470,7 +471,7 @@ function BookButton({ canBook, salonDisabled, onClick, T }) {
 }
 
 /* ─── ServiceCard ─────────────────────────────────────────────────────────── */
-function ServiceCard({ service, salonDisabled, onBook, index, T }) {
+function ServiceCard({ service, salonDisabled, onBook, index, T, t }) {
   const [hovered, setHovered] = useState(false);
   const canBook = service.is_active && service.price > 0 && !salonDisabled && !!onBook;
 
@@ -549,7 +550,7 @@ function ServiceCard({ service, salonDisabled, onBook, index, T }) {
 }
 
 /* ─── SectionTitle ────────────────────────────────────────────────────────── */
-function SectionTitle({ icon, children, T }) {
+function SectionTitle({ icon, children, T, t }) {
   return (
     <motion.div
       initial={{ opacity: 0, x: 16 }}
@@ -580,7 +581,7 @@ function SectionTitle({ icon, children, T }) {
 }
 
 /* ─── EmptyState ──────────────────────────────────────────────────────────── */
-function EmptyState({ isStaff, T }) {
+function EmptyState({ isStaff, T, t }) {
   if (isStaff) {
     // For staff/owners - show a simple message
     return (
@@ -674,6 +675,7 @@ export default function Services() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { theme } = useTheme();
+  const { t } = useLanguage();
   const T = getThemeTokens(theme);
 
   const isStaff = user?.role === 'owner' || user?.role === 'staff';
@@ -721,7 +723,7 @@ export default function Services() {
       style={{ minHeight: '100vh', background: T.bg }}
     >
       {/* ── Banner ── */}
-      <SalonBanner salon={salon} servicesCount={activeCount} T={T} />
+      <SalonBanner salon={salon} servicesCount={activeCount} T={T} t={t} />
 
       {/* ── Toolbar ── */}
       <div style={{
@@ -753,20 +755,20 @@ export default function Services() {
           )}
         </AnimatePresence>
 
-        <DisabledBanner salon={salon} T={T} />
-        <PriceNote T={T} />
+        <DisabledBanner salon={salon} T={T} t={t} />
+        <PriceNote T={T} t={t} />
 
-        <AboutOwner salon={salon} T={T} />
-        <SalonAddressCard salon={salon} T={T} />
+        <AboutOwner salon={salon} T={T} t={t} />
+        <SalonAddressCard salon={salon} T={T} t={t} />
 
         {/* ── Services ── */}
         <section style={{ marginBottom: '3.5rem' }}>
-          <SectionTitle icon={<Scissors size={18} style={{ color: T.purple }} />} T={T}>
-            خدمات سالن
+          <SectionTitle icon={<Scissors size={18} style={{ color: T.purple }} />} T={T} t={t}>
+            {t('services.serviceList')}
           </SectionTitle>
 
           {services.length === 0 ? (
-            <EmptyState isStaff={isStaff} T={T} />
+            <EmptyState isStaff={isStaff} T={T} t={t} />
           ) : (
             <motion.div
               variants={stagger}
@@ -786,6 +788,7 @@ export default function Services() {
                   salonDisabled={!!salon?.is_currently_disabled}
                   onBook={isStaff ? null : handleBook}
                   T={T}
+                  t={t}
                 />
               ))}
             </motion.div>
@@ -800,8 +803,8 @@ export default function Services() {
             viewport={{ once: true, margin: '-60px' }}
             transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
           >
-            <SectionTitle icon={<Star size={18} style={{ color: T.purple }} />} T={T}>
-              نظرات مشتریان
+            <SectionTitle icon={<Star size={18} style={{ color: T.purple }} />} T={T} t={t}>
+              {t('services.reviews')}
             </SectionTitle>
 
             <div style={{

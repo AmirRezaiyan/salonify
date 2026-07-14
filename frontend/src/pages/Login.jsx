@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { motion } from 'framer-motion';
 import { Button } from '../components/Button';
 import { Alert } from '../components/Alert';
@@ -24,6 +25,7 @@ export default function Login() {
   const [resetMessage, setResetMessage] = useState('');
   const [resetError, setResetError] = useState('');
   const { login } = useAuth();
+  const { t, language } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -42,6 +44,46 @@ export default function Login() {
     }
   };
 
+  const normalizeLoginError = (message) => {
+    if (!message) return '';
+    const text = Array.isArray(message) ? message.join(' ') : String(message);
+    const lowerMsg = text.toLowerCase();
+
+    if (
+      lowerMsg.includes('no active account') ||
+      lowerMsg.includes('does not exist') ||
+      lowerMsg.includes('not found') ||
+      lowerMsg.includes('نام کاربری') ||
+      lowerMsg.includes('وجود ندارد')
+    ) {
+      return t('auth.usernameInvalid');
+    }
+
+    if (
+      lowerMsg.includes('password') ||
+      lowerMsg.includes('رمز') ||
+      lowerMsg.includes('wrong') ||
+      lowerMsg.includes('incorrect') ||
+      lowerMsg.includes('نادرست')
+    ) {
+      return t('auth.passwordInvalid');
+    }
+
+    if (lowerMsg.includes('invalid') || lowerMsg.includes('credentials')) {
+      return t('auth.loginFailed');
+    }
+
+    if (lowerMsg.includes('disabled') || lowerMsg.includes('غیرفعال')) {
+      return t('auth.accountDisabled');
+    }
+
+    if (lowerMsg.includes('network') || lowerMsg.includes('شبکه')) {
+      return t('auth.networkError');
+    }
+
+    return t('auth.loginFailed');
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -49,11 +91,11 @@ export default function Login() {
     let hasError = false;
 
     if (!formData.username) {
-      newErrors.username = 'لطفاً نام کاربری را وارد کنید';
+      newErrors.username = t('auth.usernameMissing');
       hasError = true;
     }
     if (!formData.password) {
-      newErrors.password = 'لطفاً رمز عبور را وارد کنید';
+      newErrors.password = t('auth.passwordMissing');
       hasError = true;
     }
 
@@ -88,41 +130,31 @@ export default function Login() {
       if (result.fieldErrors && typeof result.fieldErrors === 'object') {
         setErrors(prev => ({
           ...prev,
-          username: result.fieldErrors.username || '',
-          password: result.fieldErrors.password || '',
-          general: result.fieldErrors.general || '',
+          username: result.fieldErrors.username ? normalizeLoginError(result.fieldErrors.username) : '',
+          password: result.fieldErrors.password ? normalizeLoginError(result.fieldErrors.password) : '',
+          general: result.fieldErrors.general ? normalizeLoginError(result.fieldErrors.general) : '',
         }));
       } else {
-        const lowerMsg = errMsg.toLowerCase();
+        const normalized = normalizeLoginError(errMsg);
 
         if (
-          lowerMsg.includes('no active account') ||
-          lowerMsg.includes('does not exist') ||
-          lowerMsg.includes('وجود ندارد') ||
-          lowerMsg.includes('not found') ||
-          lowerMsg.includes('نام کاربری')
+          normalized === t('auth.usernameInvalid')
         ) {
-          setErrors(prev => ({ ...prev, username: 'نام کاربری وجود ندارد یا اشتباه است', password: '' }));
+          setErrors(prev => ({ ...prev, username: normalized, password: '' }));
         } else if (
-          lowerMsg.includes('password') ||
-          lowerMsg.includes('رمز') ||
-          lowerMsg.includes('wrong') ||
-          lowerMsg.includes('incorrect') ||
-          lowerMsg.includes('نادرست')
+          normalized === t('auth.passwordInvalid')
         ) {
-          setErrors(prev => ({ ...prev, password: 'رمز عبور نادرست است', username: '' }));
-        } else if (lowerMsg.includes('invalid') || lowerMsg.includes('credentials')) {
+          setErrors(prev => ({ ...prev, password: normalized, username: '' }));
+        } else if (
+          normalized === t('auth.loginFailed')
+        ) {
           setErrors(prev => ({
             ...prev,
-            username: 'نام کاربری وجود ندارد یا اشتباه است',
-            password: 'رمز عبور نادرست است',
+            username: t('auth.usernameInvalid'),
+            password: t('auth.passwordInvalid'),
           }));
-        } else if (lowerMsg.includes('disabled') || lowerMsg.includes('غیرفعال')) {
-          setErrors(prev => ({ ...prev, general: 'این حساب کاربری غیرفعال شده است' }));
-        } else if (lowerMsg.includes('network') || lowerMsg.includes('شبکه')) {
-          setErrors(prev => ({ ...prev, general: 'خطای شبکه. لطفاً دوباره تلاش کنید' }));
         } else {
-          setErrors(prev => ({ ...prev, general: errMsg || 'ورود ناموفق بود. لطفاً دوباره تلاش کنید.' }));
+          setErrors(prev => ({ ...prev, general: normalized }));
         }
       }
     }
@@ -135,7 +167,7 @@ export default function Login() {
     setResetMessage('');
 
     if (!formData.username.trim()) {
-      setResetError('برای ارسال لینک بازیابی، ابتدا نام کاربری را وارد کنید.');
+      setResetError(t('auth.resetError'));
       return;
     }
 
@@ -152,18 +184,18 @@ export default function Login() {
       const data = await response.json().catch(() => ({}));
 
       if (response.ok) {
-        setResetMessage(data.message || 'اگر این حساب وجود داشته باشد، لینک بازیابی به ایمیل ثبت‌شده ارسال می‌شود.');
+        setResetMessage(data.message || t('auth.resetInfo'));
       } else {
         setResetError(
           data.detail ||
             data.message ||
             data.username ||
             data.error ||
-            'ارسال لینک بازیابی ناموفق بود. دوباره تلاش کنید.'
+            t('auth.resetFailed')
         );
       }
     } catch (error) {
-      setResetError('خطای شبکه. لطفاً دوباره تلاش کنید.');
+      setResetError(t('auth.networkError'));
     } finally {
       setResetLoading(false);
     }
@@ -234,8 +266,8 @@ export default function Login() {
         justifyContent: 'center',
         padding: '1rem',
         boxSizing: 'border-box',
-        direction: 'rtl',
-        textAlign: 'right'
+        direction: language === 'en' ? 'ltr' : 'rtl',
+        textAlign: language === 'en' ? 'left' : 'right'
       }}
     >
       <div style={{
@@ -325,14 +357,14 @@ export default function Login() {
               textShadow: '0 2px 10px rgba(0,0,0,0.15)'
             }}
           >
-            ورود به حساب
+            {t('auth.loginTitle')}
           </motion.h1>
           <p style={{
             color: 'var(--text-light)',
             margin: 0,
             fontSize: '0.95rem'
           }}>
-            به نوبت‌دهی آنلاین آرایشگاه خوش آمدید
+            {t('auth.loginSubtitle')}
           </p>
         </div>
 
@@ -377,10 +409,10 @@ export default function Login() {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem' }}>
                 <div>
                   <p style={{ margin: 0, fontSize: '1rem', fontWeight: 700, color: '#111827' }}>
-                    لینک بازیابی ارسال شد
+                    {t('auth.resetSent')}
                   </p>
                   <p style={{ margin: '0.85rem 0 0 0', color: "var(--text-secondary)", lineHeight: 1.75 }}>
-                    اگر این حساب وجود داشته باشد، لینک بازیابی به ایمیل ثبت‌شده ارسال می‌شود.
+                    {t('auth.resetInfo')}
                   </p>
                 </div>
                 <button
@@ -394,7 +426,7 @@ export default function Login() {
                     fontSize: '1.4rem',
                     lineHeight: 1
                   }}
-                  aria-label="بستن"
+                  aria-label={t('common.close')}
                 >
                   ×
                 </button>
@@ -415,7 +447,7 @@ export default function Login() {
                   cursor: 'pointer'
                 }}
               >
-                متوجه شدم
+                {t('common.confirm')}
               </button>
             </motion.div>
           </motion.div>
@@ -440,12 +472,12 @@ export default function Login() {
               fontWeight: 600,
               fontSize: '0.95rem'
             }}>
-              نام کاربری
+              {t('auth.username')}
             </label>
             <div style={{ position: 'relative' }}>
               <input
                 type="text"
-                placeholder="username"
+                placeholder={t('auth.username')}
                 name="username"
                 value={formData.username}
                 onChange={handleChange}
@@ -476,7 +508,7 @@ export default function Login() {
               fontWeight: 600,
               fontSize: '0.95rem'
             }}>
-              رمز عبور
+              {t('auth.password')}
             </label>
             <div style={{ position: 'relative' }}>
               <input
@@ -515,7 +547,7 @@ export default function Login() {
                 onMouseEnter={(e) => e.currentTarget.style.color = '#667eea'}
                 onMouseLeave={(e) => e.currentTarget.style.color = '#94a3b8'}
                 tabIndex={-1}
-                aria-label={showPassword ? 'مخفی کردن رمز عبور' : 'نمایش رمز عبور'}
+                aria-label={showPassword ? t('auth.hidePassword') : t('auth.showPassword')}
               >
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
@@ -542,7 +574,7 @@ export default function Login() {
               }}
             >
               <Mail size={16} />
-              {resetLoading ? 'در حال ارسال...' : 'فراموشی رمز عبور'}
+              {resetLoading ? t('common.loading') : t('auth.forgotPassword')}
             </button>
           </div>
 
@@ -573,11 +605,11 @@ export default function Login() {
               }}
             >
               {loading ? (
-                'در حال ورود...'
+                t('auth.loading')
               ) : (
                 <>
                   <LogIn size={20} />
-                  ورود به حساب
+                  {t('auth.submit')}
                 </>
               )}
             </Button>
@@ -595,7 +627,7 @@ export default function Login() {
             fontSize: '0.95rem'
           }}
         >
-          حساب کاربری ندارید؟{' '}
+          {t('auth.noAccount')}{' '}
           <Link
             to="/signup"
             style={{
@@ -607,7 +639,7 @@ export default function Login() {
             onMouseEnter={(e) => e.target.style.color = '#764ba2'}
             onMouseLeave={(e) => e.target.style.color = '#667eea'}
           >
-            یک حساب بسازید
+            {t('auth.createAccount')}
           </Link>
         </motion.p>
 
@@ -632,14 +664,14 @@ export default function Login() {
             gap: '0.3rem'
           }}>
             <Sparkles size={14} color="#667eea" />
-            ورود به پلتفرم نوبت‌دهی آنلاین
+            {t('auth.loginTitle')}
           </p>
           <p style={{
             fontSize: '0.75rem',
             color: '#cbd5e1',
             margin: 0
           }}>
-            ورود سریع و امن به حساب کاربری
+            {t('auth.quickLogin')}
           </p>
         </motion.div>
       </motion.div>

@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { api } from '../api/client';
 import { Card } from '../components/Card';
 import { Button } from '../components/Button';
@@ -73,16 +74,16 @@ const normalizeGender = (value) => {
   return raw;
 };
 
-const genderLabel = (value) => {
+const genderLabel = (value, language = 'fa') => {
   const normalized = normalizeGender(value);
-  if (normalized === 'female') return 'زنانه';
-  if (normalized === 'male') return 'مردانه';
+  if (normalized === 'female') return language === 'en' ? 'Women' : 'زنانه';
+  if (normalized === 'male') return language === 'en' ? 'Men' : 'مردانه';
   return '';
 };
 
 /* ─────────────────────── Search Dialog Component ──────────────────── */
 
-function SearchDialog({ open, onClose, searchQuery, setSearchQuery, selectedCity, setSelectedCity, allCities, salons = [], onSalonSelect }) {
+function SearchDialog({ open, onClose, searchQuery, setSearchQuery, selectedCity, setSelectedCity, allCities, salons = [], onSalonSelect, t, isEnglish }) {
   const inputRef = useRef(null);
 
   useEffect(() => {
@@ -178,10 +179,10 @@ function SearchDialog({ open, onClose, searchQuery, setSearchQuery, selectedCity
                 </div>
                 <div>
                   <h2 style={{ color: 'var(--text-light)', fontSize: '1.3rem', fontWeight: 700, margin: 0 }}>
-                    جستجوی آرایشگاه
+                    {t('home.searchTitle')}
                   </h2>
                   <p style={{ color: 'var(--text-light)', fontSize: '0.88rem', margin: 0, marginTop: '2px' }}>
-                    نام آرایشگاه را جستجو کنید
+                    {t('home.searchSubtitle')}
                   </p>
                 </div>
               </div>
@@ -195,7 +196,7 @@ function SearchDialog({ open, onClose, searchQuery, setSearchQuery, selectedCity
                   ref={inputRef}
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
-                  placeholder="نام آرایشگاه را جستجو کنید..."
+                  placeholder={t('home.searchPlaceholder')}
                   style={{
                     width: '100%',
                     padding: '14px 48px 14px 16px',
@@ -206,7 +207,7 @@ function SearchDialog({ open, onClose, searchQuery, setSearchQuery, selectedCity
                     outline: 'none',
                     transition: 'border-color 0.2s',
                     boxSizing: 'border-box',
-                    direction: 'rtl',
+                    direction: isEnglish ? 'ltr' : 'rtl',
                     backgroundColor: 'var(--surface-muted)',
                     color: 'var(--text-primary)'
                   }}
@@ -240,8 +241,8 @@ function SearchDialog({ open, onClose, searchQuery, setSearchQuery, selectedCity
               {/* Salons List */}
               <p style={{ color: "var(--text-secondary)", fontSize: '0.9rem', marginBottom: '0.75rem', fontWeight: 600 }}>
                 {filteredSalons.length === 0
-                  ? 'آرایشگاهی یافت نشد'
-                  : `${toPersianNumber(filteredSalons.length)} آرایشگاه`}
+                  ? t('home.searchEmpty')
+                  : t('home.resultsCount').replace('{count}', formatCount(filteredSalons.length))}
               </p>
               <div style={{ maxHeight: '360px', overflowY: 'auto', paddingLeft: '4px' }}>
                 {filteredSalons.length === 0 ? (
@@ -252,8 +253,8 @@ function SearchDialog({ open, onClose, searchQuery, setSearchQuery, selectedCity
                     <Search size={40} style={{ marginBottom: '1rem', opacity: 0.3 }} />
                     <p style={{ margin: 0 }}>
                       {searchQuery
-                        ? 'آرایشگاهی با این نام یافت نشد'
-                        : 'نام آرایشگاه را جستجو کنید'}
+                        ? t('home.searchEmptyHint')
+                        : t('home.searchHint')}
                     </p>
                   </div>
                 ) : (
@@ -368,7 +369,7 @@ function SearchDialog({ open, onClose, searchQuery, setSearchQuery, selectedCity
                 onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 10px 28px rgba(102,126,234,0.45)'; }}
                 onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(102,126,234,0.35)'; }}
               >
-                بستن
+                {t('home.close')}
               </button>
             </div>
           </motion.div>
@@ -381,7 +382,7 @@ function SearchDialog({ open, onClose, searchQuery, setSearchQuery, selectedCity
 
 /* ──────────────────────── City Selection Dialog ──────────────────── */
 
-function CitySelectionDialog({ open, onClose, selectedCity, setSelectedCity, allCities }) {
+function CitySelectionDialog({ open, onClose, selectedCity, setSelectedCity, allCities, t, isEnglish }) {
   const inputRef = useRef(null);
 
   useEffect(() => {
@@ -470,10 +471,10 @@ function CitySelectionDialog({ open, onClose, selectedCity, setSelectedCity, all
                 </div>
                 <div>
                   <h2 style={{ color: '#fff', fontSize: '1.3rem', fontWeight: 700, margin: 0 }}>
-                    انتخاب شهر
+                    {t('home.selectCity')}
                   </h2>
                   <p style={{ color: 'var(--text-light)', fontSize: '0.88rem', margin: 0, marginTop: '2px' }}>
-                    شهر مورد نظر خود را انتخاب کنید
+                    {t('home.selectCitySubtitle')}
                   </p>
                 </div>
               </div>
@@ -483,7 +484,7 @@ function CitySelectionDialog({ open, onClose, selectedCity, setSelectedCity, all
             <div style={{ padding: '1.5rem' }}>
               {/* City Grid */}
               <p style={{ color: "var(--text-secondary)", fontSize: '0.9rem', marginBottom: '0.75rem', fontWeight: 600 }}>
-                انتخاب شهر
+                {t('home.selectCity')}
               </p>
               <div style={{ maxHeight: '360px', overflowY: 'auto', paddingLeft: '4px' }}>
                 <div style={{
@@ -506,7 +507,7 @@ function CitySelectionDialog({ open, onClose, selectedCity, setSelectedCity, all
                       fontFamily: 'inherit',
                     }}
                   >
-                    همه شهرها
+                    {t('home.allCities')}
                   </button>
                   {allCities.map(city => (
                     <button
@@ -564,7 +565,7 @@ function CitySelectionDialog({ open, onClose, selectedCity, setSelectedCity, all
                 onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 10px 28px rgba(102,126,234,0.45)'; }}
                 onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(102,126,234,0.35)'; }}
               >
-                اعمال فیلتر
+                {t('home.applyFilter')}
               </button>
             </div>
           </motion.div>
@@ -578,6 +579,18 @@ function CitySelectionDialog({ open, onClose, selectedCity, setSelectedCity, all
 /* ──────────────────────────── Main Component ──────────────────────── */
 
 export default function Home() {
+  const { t, language } = useLanguage();
+  const isEnglish = language === 'en';
+  const formatCount = (value, options = {}) => {
+    if (value === null || value === undefined || value === '') return '';
+    return isEnglish ? Number(value).toLocaleString('en-US', options) : toPersianNumber(value, options);
+  };
+  const formatPrice = (value) => {
+    if (value === null || value === undefined || value === '') return t('home.notProvided');
+    const rounded = Math.round(Number(value) || 0);
+    return isEnglish ? `${rounded.toLocaleString('en-US')} Toman` : formatToman(rounded);
+  };
+
   const [tenant, setTenant] = useState(null);
   const [services, setServices] = useState([]);
   const [salons, setSalons] = useState([]);
@@ -647,8 +660,8 @@ export default function Home() {
 
       if (salonId) {
         const servicesResponse = await api.getServices(salonId);
-        // فیلتر کردن سرویس‌های با قیمت معتبر (> 0)
-        setServices(servicesResponse.data.filter(s => s.price > 0));
+        // فقط سرویس‌های فعال و با قیمت معتبر را نگه‌داریم
+        setServices(servicesResponse.data.filter(s => s.is_active && Number(s.price) > 0));
       }
 
       // Fetch QR Code Link directly from API for Owner/Staff to ensure the exact booking link is used
@@ -670,7 +683,7 @@ export default function Home() {
       setError('');
     } catch (err) {
       console.error('Failed to load salon data:', err);
-      setError('بارگذاری اطلاعات سالن ناموفق بود.');
+      setError(t('home.loadError'));
     } finally {
       setLoading(false);
     }
@@ -699,7 +712,7 @@ export default function Home() {
       setError('');
     } catch (err) {
       console.error('Failed to load salons:', err);
-      setError('بارگذاری لیست سالن‌ها ناموفق بود.');
+      setError(t('home.salonsLoadError'));
     } finally {
       setLoading(false);
     }
@@ -799,7 +812,7 @@ export default function Home() {
               lineHeight: 1.1,
             }}
           >
-            به <span style={{ color: 'var(--warning)' }}>سالنیفای</span> خوش‌آمدید
+            {t('home.welcomeTitle').replace('سالنیفای', 'سالنیفای')}
           </motion.h1>
 
           <motion.p
@@ -814,8 +827,7 @@ export default function Home() {
               lineHeight: 1.85,
             }}
           >
-            پلتفرمی برای نوبت‌دهی آنلاین آرایشگاه‌ها؛ آرایشگاه مورد نظرتان را پیدا کنید،
-            خدمت دلخواه را انتخاب کنید و در چند ثانیه نوبت بگیرید
+            {t('home.welcomeSubtitle')}
           </motion.p>
 
           <motion.p
@@ -830,9 +842,7 @@ export default function Home() {
               lineHeight: 1.8,
             }}
           >
-            بدون نیاز به تماس تلفنی یا حضور حضوری، آرایشگاه‌های ثبت‌شده در پلتفرم را مرور کنید
-            و نوبت خودتان را مدیریت کنید. صاحبان سالن نیز می‌توانند خدمات و نوبت‌های خود را از
-            طریق پنل مدیریتی کنترل کنند.
+            {t('home.welcomeSubtitle2')}
           </motion.p>
 
           <motion.div
@@ -866,7 +876,7 @@ export default function Home() {
               onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 14px 36px rgba(251,191,36,0.5)'; }}
               onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 8px 28px rgba(251,191,36,0.4)'; }}
             >
-              <span style={{ display: 'block', lineHeight: 1, marginBottom: 4 }}>شروع کنید — رایگان</span>
+              <span style={{ display: 'block', lineHeight: 1, marginBottom: 4 }}>{t('home.startFree')}</span>
             </button>
             <button
               onClick={() => navigate('/login')}
@@ -893,7 +903,7 @@ export default function Home() {
               onMouseEnter={e => { e.currentTarget.style.background = 'var(--surface-glass)'; }}
               onMouseLeave={e => { e.currentTarget.style.background = 'var(--surface-glass-muted)'; }}
             >
-              <span style={{ display: 'block', lineHeight: 1, marginBottom: 4 }}>ورود به حساب</span>
+              <span style={{ display: 'block', lineHeight: 1, marginBottom: 4 }}>{t('home.loginAccount')}</span>
             </button>
           </motion.div>
 
@@ -908,9 +918,9 @@ export default function Home() {
             }}
           >
             {[
-              { icon: <CheckCircle size={16} />, text: 'ثبت‌نام رایگان' },
-              { icon: <Smartphone size={16} />, text: 'بدون نیاز به نصب اپلیکیشن' },
-              { icon: <Clock size={16} />, text: 'رزرو در هر ساعت از شبانه‌روز' },
+              { icon: <CheckCircle size={16} />, text: t('home.freeSignup') },
+              { icon: <Smartphone size={16} />, text: t('home.noAppRequired') },
+              { icon: <Clock size={16} />, text: t('home.bookAnyTime') },
             ].map((b, i) => (
               <div key={i} style={{
                 display: 'flex', alignItems: 'center', gap: '8px',
@@ -936,7 +946,7 @@ export default function Home() {
     // Owner / Staff (Enhanced Panel Overview)
     if (isOwnerOrStaff) {
       const salonName = tenant?.name || user?.salon?.name;
-      const ownerName = user?.full_name || 'مدیر گرامی';
+      const ownerName = user?.full_name || t('home.ownerFallback');
       
       return (
         <motion.div
@@ -972,7 +982,7 @@ export default function Home() {
             }}
           >
             <Sparkles size={16} fill="var(--primary)" style={{ filter: 'drop-shadow(0 2px 8px rgba(37,99,235,0.45))' }} />
-            <span>پنل حرفه‌ای مدیریت سالن</span>
+            <span>{t('home.ownerPanelTitle')}</span>
           </motion.div>
 
           <h1 style={{
@@ -984,7 +994,7 @@ export default function Home() {
             letterSpacing: '-0.02em',
             lineHeight: 1.2
           }}>
-            مدیریت سالن <span style={{ color: 'var(--warning)' }}>{salonName || 'شما'}</span>
+            {t('home.ownerPanelHeading')} <span style={{ color: 'var(--warning)' }}>{salonName || (isEnglish ? 'you' : 'شما')}</span>
           </h1>
 
           <p style={{
@@ -996,7 +1006,7 @@ export default function Home() {
             lineHeight: 1.8,
             fontWeight: 500
           }}>
-            سلام {ownerName}؛ به پیشخوان مدیریت سالن خود خوش آمدید. نوبت‌ها و خدمات خود را با ابزارهای زیر بهینه‌سازی کنید.
+            {t('home.ownerPanelIntro').replace('{name}', ownerName)}
           </p>
 
           {/* Elegant Dashboard Buttons Block */}
@@ -1042,10 +1052,10 @@ export default function Home() {
             marginBottom: '1.5rem',
           }}
         >
-          <div style={{ textAlign: 'right' }}>
-            <div style={{ color: 'var(--text-light)', fontSize: '0.78rem' }}>خوش اومدی</div>
+          <div style={{ textAlign: isEnglish ? 'left' : 'right' }}>
+            <div style={{ color: 'var(--text-light)', fontSize: '0.78rem' }}>{t('home.customerGreeting')}</div>
             <div style={{ color: '#fff', fontSize: '1rem', fontWeight: 700 }}>
-              {user?.full_name || user?.name || 'مشتری گرامی'}
+              {user?.full_name || user?.name || t('home.customerFallback')}
             </div>
           </div>
         </motion.div>
@@ -1063,7 +1073,7 @@ export default function Home() {
             letterSpacing: '-0.02em',
           }}
         >
-          {viewerGenderLabel ? `بهترین آرایشگاه‌های ${viewerGenderLabel} را پیدا کن ✨` : 'بهترین آرایشگاه را پیدا کن ✨'}
+          {viewerGenderLabel ? t('home.customerHeadingGender').replace('{gender}', viewerGenderLabel) : t('home.customerHeading')}
         </motion.h1>
 
         <motion.p
@@ -1078,7 +1088,7 @@ export default function Home() {
             lineHeight: 1.85,
           }}
         >
-          {viewerGenderLabel ? `جستجو کن، نوبت بگیر و فقط سالن‌های ${viewerGenderLabel} را ببین!` : 'جستجو کن، نوبت بگیر و بدون انتظار برو آرایشگاه!'}
+          {viewerGenderLabel ? t('home.customerPromoGender').replace('{gender}', viewerGenderLabel) : t('home.customerPromo')}
         </motion.p>
 
       </motion.div>
@@ -1088,10 +1098,11 @@ export default function Home() {
   /* ──────────────────────────── Render ──────────────────────────── */
 
   // Dynamic values computation for the real-time operational dashboard (Fully robust with parseFloat support)
-  const activeServicesCount = services.filter(s => s.is_active).length;
-  const inactiveServicesCount = services.filter(s => !s.is_active).length;
-  const averagePrice = services.length > 0 
-    ? Math.round(services.reduce((sum, s) => sum + (parseFloat(s.price) || 0), 0) / services.length) 
+  const activeServices = services.filter(s => s.is_active && Number(s.price) > 0);
+  const activeServicesCount = activeServices.length;
+  const inactiveServicesCount = services.filter(s => !s.is_active || Number(s.price) <= 0).length;
+  const averagePrice = activeServicesCount > 0 
+    ? Math.round(activeServices.reduce((sum, s) => sum + (parseFloat(s.price) || 0), 0) / activeServicesCount) 
     : 0;
   
   // Create sharing booking link based on current domain or tenant/host values
@@ -1102,7 +1113,7 @@ export default function Home() {
   const rawGender = tenant?.gender || user?.salon?.gender || user?.gender || 'male';
   const normalizedGender = normalizeGender(rawGender);
   const isMale = normalizedGender === 'male';
-  const viewerGenderLabel = genderLabel(user?.gender || user?.salon?.gender);
+  const viewerGenderLabel = genderLabel(user?.gender || user?.salon?.gender, language);
 
   // Defensive Multi-Path & Parsing Strategy for Fetching Rating Values 
   const getDisplayRating = () => {
@@ -1132,7 +1143,7 @@ export default function Home() {
   const ratingValue = getDisplayRating();
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--home-page-surface)', direction: 'rtl' }}>
+    <div style={{ minHeight: '100vh', background: 'var(--home-page-surface)', direction: isEnglish ? 'ltr' : 'rtl' }}>
 
       {/* Search Dialog */}
       <SearchDialog
@@ -1149,6 +1160,8 @@ export default function Home() {
           localStorage.setItem('selected_salon_name', salon.name);
           navigate('/services');
         }}
+        t={t}
+        isEnglish={isEnglish}
       />
 
       {/* City Selection Dialog */}
@@ -1158,6 +1171,8 @@ export default function Home() {
         selectedCity={selectedCity}
         setSelectedCity={setSelectedCity}
         allCities={allCities}
+        t={t}
+        isEnglish={isEnglish}
       />
 
       {/* ─── HERO ─── */}
@@ -1239,7 +1254,7 @@ export default function Home() {
             }}>
               <Award size={18} style={{ color: isCustomer ? 'var(--accent)' : 'var(--primary)' }} />
               <span style={{ color: isCustomer ? 'var(--accent)' : 'var(--primary)', fontSize: '0.9rem', fontWeight: 700 }}>
-                {isCustomer ? 'چرا سالنیفای؟' : 'چرا سالنیفای؟'}
+                {t('home.whyTitle')}
               </span>
             </div>
             <h2 style={{
@@ -1249,10 +1264,10 @@ export default function Home() {
               margin: '0 0 0.75rem',
               letterSpacing: '-0.02em',
             }}>
-              {isCustomer ?'چند کلیک تا رزرو نوبت' : 'تجربه‌ای متفاوت در نوبت‌دهی'}
+              {isCustomer ? t('home.sectionTitle') : t('home.sectionTitleOwner')}
             </h2>
             <p style={{ color: "var(--text-secondary)", fontSize: '1.05rem', maxWidth: '500px', margin: '0 auto' }}>
-              {isCustomer ? 'بدون تماس تلفنی، بدون انتظار — فقط رزرو کن و برو' : 'همه چیز را در یک پلتفرم مدیریت کنید'}
+              {isCustomer ? t('home.sectionSubtitle') : t('home.sectionSubtitleOwner')}
             </p>
           </div>
 
@@ -1264,58 +1279,58 @@ export default function Home() {
             {(isCustomer ? [
               {
                 icon: <Search size={36} />,
-                title: 'آرایشگاه مناسب خودت رو پیدا کن',
-                desc: 'از بین آرایشگاه‌های ثبت‌شده در شهرت جستجو کن، امتیاز و نظرات رو ببین و انتخاب کن',
+                title: t('home.customerFeatureTitle'),
+                desc: t('home.customerFeatureDesc'),
                 gradient: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
                 bg: 'var(--surface)',
               },
               {
                 icon: <CalendarCheck size={36} />,
-                title: 'نوبتت رو آنلاین بگیر',
-                desc: 'خدمت دلخواه، قیمت و زمان مناسب رو انتخاب کن — نوبت در چند ثانیه ثبت میشه',
+                title: t('home.customerBookingTitle'),
+                desc: t('home.customerBookingDesc'),
                 gradient: 'linear-gradient(135deg, #14B8A6 0%, #22C55E 100%)',
                 bg: 'var(--success-surface)',
               },
               {
                 icon: <Clock size={36} />,
-                title: 'بدون انتظار، سر وقت برو',
-                desc: 'وقتی نوبتت ثبته، دیگه لازم نیست زود بری و منتظر بمونی — سر ساعت برو آرایشگاه',
+                title: t('home.featureTimingTitle'),
+                desc: t('home.featureTimingDesc'),
                 gradient: 'linear-gradient(135deg, #8B5CF6 0%, #A855F7 100%)',
                 bg: 'var(--info-surface)',
               },
               {
                 icon: <Star size={36} />,
-                title: 'بهترین‌ها رو انتخاب کن',
-                desc: 'امتیاز و نظرات مشتریان قبلی کمکت می‌کنه بهترین آرایشگاه رو با اطمینان انتخاب کنی',
+                title: t('home.customerBestTitle'),
+                desc: t('home.customerBestDesc'),
                 gradient: 'linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%)',
                 bg: 'var(--warning-surface)',
               },
             ] : [
               {
                 icon: <Calendar size={36} />,
-                title: 'مدیریت هوشمند نوبت‌ها',
-                desc: 'کنترل کامل رزروها و برنامه‌ریزی دقیق کاری در هر ساعت از شبانه‌روز',
+                title: t('home.ownerFeatureTitle'),
+                desc: t('home.ownerFeatureDesc'),
                 gradient: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
                 bg: 'var(--surface)',
               },
               {
                 icon: <Scissors size={36} />,
-                title: 'دیده شدن در برترین‌ها',
-                desc: 'نمایش حرفه‌ای سالن شما در کنار بهترین‌های شهر، جهت جذب مشتریان جدید و معتبر',
+                title: t('home.ownerVisibilityTitle'),
+                desc: t('home.ownerVisibilityDesc'),
                 gradient: 'linear-gradient(135deg, #8B5CF6 0%, #A855F7 100%)',
                 bg: 'var(--surface)',
               },
               {
                 icon: <Clock size={36} />,
-                title: 'بهینه‌سازی زمان و درآمد',
-                desc: 'کاهش کنسلی‌ها و مدیریت دقیق زمان‌بندی برای افزایش بهره‌وری و درآمد سالن',
+                title: t('home.ownerOptimizationTitle'),
+                desc: t('home.ownerOptimizationDesc'),
                 gradient: 'linear-gradient(135deg, #14B8A6 0%, #22C55E 100%)',
                 bg: 'var(--success-surface)',
               },
               {
                 icon: <Users size={36} />,
-                title: 'پنل مدیریت حرفه‌ای',
-                desc: 'ابزارهای گزارش‌گیری و تیم پشتیبانی اختصاصی برای مدیریت ساده و سریع کسب‌وکارتان',
+                title: t('home.ownerPanelTitleText'),
+                desc: t('home.ownerPanelDesc'),
                 gradient: 'linear-gradient(135deg, #06B6D4 0%, #0EA5E9 100%)',
                 bg: 'var(--info-surface)',
               },
@@ -1331,7 +1346,7 @@ export default function Home() {
                   background: 'var(--card)',
                   borderRadius: '20px',
                   padding: '2rem 1.75rem',
-                  textAlign: 'right',
+                  textAlign: isEnglish ? 'left' : 'right',
                   boxShadow: '0 4px 20px rgba(0,0,0,0.06)',
                   border: "1px solid var(--border)",
                   position: 'relative',
@@ -1385,7 +1400,9 @@ export default function Home() {
                 padding: '8px 20px', marginBottom: '1.25rem',
               }}>
                 <ListChecks size={18} style={{ color: 'var(--primary)' }} />
-                <span style={{ color: 'var(--primary)', fontSize: '0.9rem', fontWeight: 700 }}>چطور کار می‌کند؟</span>
+                <span style={{ color: 'var(--primary)', fontSize: '0.9rem', fontWeight: 700 }}>
+                  {t('home.howItWorksTitle')}
+                </span>
               </div>
               <h2 style={{
                 color: "var(--text-primary)",
@@ -1394,10 +1411,10 @@ export default function Home() {
                 margin: '0 0 0.75rem',
                 letterSpacing: '-0.02em',
               }}>
-                در سه قدم نوبت بگیرید
+                {t('home.howItWorksSubtitle')}
               </h2>
               <p style={{ color: "var(--text-secondary)", fontSize: '1.05rem', maxWidth: '520px', margin: '0 auto' }}>
-                از جستجو تا رزرو، تنها چند کلیک فاصله دارید
+                {t('home.howItWorksDesc')}
               </p>
             </div>
 
@@ -1409,22 +1426,22 @@ export default function Home() {
               {[
                 {
                   icon: <Search size={28} />,
-                  title: 'آرایشگاه را پیدا کنید',
-                  desc: 'با جستجو بر اساس نام یا شهر، آرایشگاه مورد نظرتان را در پلتفرم پیدا کنید',
+                  title: t('home.howItWorksStep1Title'),
+                  desc: t('home.howItWorksStep1Desc'),
                   gradient: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
                   bg: 'var(--surface)',
                 },
                 {
                   icon: <ListChecks size={28} />,
-                  title: 'خدمت را انتخاب کنید',
-                  desc: 'لیست خدمات، قیمت و مدت‌زمان هر کدام را ببینید و خدمت مدنظرتان را انتخاب کنید',
+                  title: t('home.howItWorksStep2Title'),
+                  desc: t('home.howItWorksStep2Desc'),
                   gradient: 'linear-gradient(135deg, #8B5CF6 0%, #A855F7 100%)',
                   bg: 'var(--surface)',
                 },
                 {
                   icon: <CalendarCheck size={28} />,
-                  title: 'نوبت بگیرید',
-                  desc: 'زمان مناسب خودتان را انتخاب کنید و نوبت‌تان ثبت می‌شود؛ همین‌قدر ساده',
+                  title: t('home.howItWorksStep3Title'),
+                  desc: t('home.howItWorksStep3Desc'),
                   gradient: 'linear-gradient(135deg, #14B8A6 0%, #22C55E 100%)',
                   bg: 'var(--success-surface)',
                 },
@@ -1440,7 +1457,8 @@ export default function Home() {
                     background: 'var(--card)',
                     borderRadius: '24px',
                     padding: '1.75rem',
-                    textAlign: 'right',
+                    textAlign: isEnglish ? 'left' : 'right',
+                    direction: isEnglish ? 'ltr' : 'rtl',
                     border: '1px solid var(--border)',
                     boxShadow: '0 12px 32px rgba(15, 23, 42, 0.06)',
                     position: 'relative',
@@ -1467,10 +1485,10 @@ export default function Home() {
                       {step.icon}
                     </div>
                   </div>
-                  <h3 style={{ color: 'var(--text-primary)', fontSize: '1.05rem', fontWeight: 700, margin: '0 0 0.6rem' }}>
+                  <h3 style={{ color: 'var(--text-primary)', fontSize: '1.05rem', fontWeight: 700, margin: '0 0 0.6rem', textAlign: isEnglish ? 'left' : 'right' }}>
                     {step.title}
                   </h3>
-                  <p style={{ color: 'var(--text-secondary)', lineHeight: 1.75, fontSize: '0.94rem', margin: 0 }}>
+                  <p style={{ color: 'var(--text-secondary)', lineHeight: 1.75, fontSize: '0.94rem', margin: 0, textAlign: isEnglish ? 'left' : 'right' }}>
                     {step.desc}
                   </p>
                 </motion.div>
@@ -1495,7 +1513,7 @@ export default function Home() {
                 padding: '8px 20px', marginBottom: '1.25rem',
               }}>
                 <Users size={18} style={{ color: 'var(--accent)' }} />
-                <span style={{ color: 'var(--accent)', fontSize: '0.9rem', fontWeight: 700 }}>برای چه کسانی مناسب است؟</span>
+                <span style={{ color: 'var(--accent)', fontSize: '0.9rem', fontWeight: 700 }}>{t('home.whoForTitle')}</span>
               </div>
               <h2 style={{
                 color: "var(--text-primary)",
@@ -1504,7 +1522,7 @@ export default function Home() {
                 margin: '0 0 0.75rem',
                 letterSpacing: '-0.02em',
               }}>
-                هم برای مشتری، هم برای صاحب سالن
+                {t('home.whoForSubtitle')}
               </h2>
             </div>
 
@@ -1535,13 +1553,13 @@ export default function Home() {
                   <UserCircle2 size={32} />
                 </div>
                 <h3 style={{ color: "var(--text-primary)", fontSize: '1.3rem', fontWeight: 800, margin: '0 0 1.1rem' }}>
-                  مشتری‌ها
+                  {t('signup.roleCustomer')}
                 </h3>
                 <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
                   {[
-                    { icon: <Search size={18} />, text: 'جستجوی آرایشگاه‌های ثبت‌شده در پلتفرم بر اساس نام یا شهر' },
-                    { icon: <Wallet size={18} />, text: 'مشاهده دقیق قیمت و مدت‌زمان هر خدمت پیش از رزرو' },
-                    { icon: <CalendarCheck size={18} />, text: 'رزرو و مدیریت نوبت‌ها از طریق حساب کاربری شخصی' },
+                    { icon: <Search size={18} />, text: t('home.customerSearchHint') },
+                    { icon: <Wallet size={18} />, text: t('home.customerPriceHint') },
+                    { icon: <CalendarCheck size={18} />, text: t('home.customerBookingHint') },
                   ].map((item, i) => (
                     <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
                       <span style={{ color: 'var(--primary)', flexShrink: 0, marginTop: '2px' }}>{item.icon}</span>
@@ -1564,7 +1582,7 @@ export default function Home() {
                   onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
                   onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; }}
                 >
-                  ثبت‌نام به‌عنوان مشتری
+                  {t('home.customerSignup')}
                   <ArrowLeft size={16} />
                 </button>
               </motion.div>
@@ -1591,13 +1609,13 @@ export default function Home() {
                   <Store size={32} />
                 </div>
                 <h3 style={{ color: "var(--text-primary)", fontSize: '1.3rem', fontWeight: 800, margin: '0 0 1.1rem' }}>
-                  صاحبان سالن
+                  {t('home.ownerHeroTitle')}
                 </h3>
                 <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
                   {[
-                    { icon: <Scissors size={18} />, text: 'تعریف و مدیریت خدمات سالن همراه با قیمت و مدت‌زمان' },
-                    { icon: <BellRing size={18} />, text: 'مشاهده و مدیریت نوبت‌های ثبت‌شده توسط مشتریان' },
-                    { icon: <Users size={18} />, text: 'معرفی سالن به مشتریان جدید از طریق پلتفرم' },
+                    { icon: <Scissors size={18} />, text: t('home.ownerServicesHint') },
+                    { icon: <BellRing size={18} />, text: t('home.ownerBookingsHint') },
+                    { icon: <Users size={18} />, text: t('home.ownerVisibilityHint') },
                   ].map((item, i) => (
                     <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
                       <span style={{ color: 'var(--accent)', flexShrink: 0, marginTop: '2px' }}>{item.icon}</span>
@@ -1620,7 +1638,7 @@ export default function Home() {
                   onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
                   onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; }}
                 >
-                  ثبت‌نام سالن من
+                  {t('home.ownerSignup')}
                   <ArrowLeft size={16} />
                 </button>
               </motion.div>
@@ -1650,11 +1668,11 @@ export default function Home() {
                     color: "var(--text-primary)", fontSize: 'clamp(1.5rem, 4.5vw, 2.1rem)',
                     fontWeight: 850, margin: 0,
                   }}>
-                    میز مانیتورینگ و وضعیت سالن
+                    {t('home.dashboardTitle')}
                   </h2>
                 </div>
                 <p style={{ color: "var(--text-secondary)", fontSize: '0.95rem', margin: '0 auto', maxWidth: '640px', lineHeight: 1.8 }}>
-                  ابزارهای حیاتی کاربری و تحلیل آماری زنده بر اساس وضعیت واقعی سیستم شما.
+                  {t('home.dashboardSubtitle')}
                 </p>
               </div>
             </div>
@@ -1695,11 +1713,11 @@ export default function Home() {
                       <Copy size={20} />
                     </div>
                     <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: "var(--text-primary)" }}>
-                      لینک اختصاصی نوبت‌دهی
+                      {t('home.bookingLinkTitle')}
                     </h3>
                   </div>
                   <p style={{ color: "var(--text-secondary)", fontSize: '0.88rem', lineHeight: 1.7, margin: '0 0 1.5rem' }}>
-                    این لینک اختصاصی سالن شماست. آن را کپی کرده و در بیو اینستاگرام، پیامک‌ها یا کانال‌های ارتباطی خود قرار دهید تا مشتریان مستقیماً نوبت بگیرند.
+                    {t('home.bookingLinkDesc')}
                   </p>
                   
                   {/* Visual copy input field */}
@@ -1752,12 +1770,12 @@ export default function Home() {
                   {copied ? (
                     <>
                       <Check size={18} />
-                      لینک با موفقیت کپی شد!
+                      {t('home.bookingLinkCopied')}
                     </>
                   ) : (
                     <>
                       <Copy size={16} />
-                      کپی کردن لینک نوبت‌دهی
+                      {t('home.bookingLinkButton')}
                     </>
                   )}
                 </button>
@@ -1793,26 +1811,26 @@ export default function Home() {
                       <Scissors size={20} />
                     </div>
                     <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: "var(--text-primary)" }}>
-                      وضعیت خدمات و قیمت‌ها
+                      {t('home.servicesSummaryTitle')}
                     </h3>
                   </div>
                   <p style={{ color: "var(--text-secondary)", fontSize: '0.88rem', lineHeight: 1.7, margin: '0 0 1.5rem' }}>
-                    خلاصه‌ای از خدمات فعال شما در سامانه نوبت‌دهی سالنیفای به همراه برآورد ارزش و میانگین قیمت واقعی تراکنش‌های سالن شما.
+                    {t('home.ownerSummary')}
                   </p>
 
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ color: "var(--text-secondary)", fontSize: '0.9rem' }}>خدمات فعال برای مشتریان:</span>
+                      <span style={{ color: "var(--text-secondary)", fontSize: '0.9rem' }}>{t('home.activeServicesLabel')}</span>
                       <span style={{ color: 'var(--success)', fontWeight: 800, fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        {activeServicesCount} خدمت
+                        {formatCount(activeServicesCount)} {isEnglish ? (activeServicesCount === 1 ? t('home.serviceSingular') : t('home.servicePlural')) : t('home.servicePlural')}
                         <span style={{ width: '8px', height: '8px', background: 'var(--success)', borderRadius: '50%' }} />
                       </span>
                     </div>
                     {inactiveServicesCount > 0 && (
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ color: "var(--text-secondary)", fontSize: '0.9rem' }}>خدمات غیرفعال موقت:</span>
+                        <span style={{ color: "var(--text-secondary)", fontSize: '0.9rem' }}>{t('home.inactiveServicesLabel')}</span>
                         <span style={{ color: 'var(--danger)', fontWeight: 700, fontSize: '0.95rem' }}>
-                          {inactiveServicesCount} خدمت
+                          {formatCount(inactiveServicesCount)} {isEnglish ? (inactiveServicesCount === 1 ? t('home.serviceSingular') : t('home.servicePlural')) : t('home.servicePlural')}
                         </span>
                       </div>
                     )}
@@ -1823,9 +1841,9 @@ export default function Home() {
                       justifyContent: 'space-between',
                       alignItems: 'center'
                     }}>
-                      <span style={{ color: "var(--text-secondary)", fontSize: '0.9rem', fontWeight: 600 }}>میانگین ارزش خدمات سالن:</span>
+                      <span style={{ color: "var(--text-secondary)", fontSize: '0.9rem', fontWeight: 600 }}>{t('home.averagePriceLabel')}</span>
                       <span style={{ color: 'var(--primary)', fontWeight: 900, fontSize: '1.1rem' }}>
-                        {averagePrice > 0 ? formatToman(averagePrice) : 'هنوز محاسبه نشده'}
+                        {averagePrice > 0 ? formatPrice(averagePrice) : t('home.notProvided')}
                       </span>
                     </div>
                   </div>
@@ -1841,7 +1859,7 @@ export default function Home() {
                   fontWeight: 550,
                   border: "1px solid var(--border)"
                 }}>
-                  تعداد کل خدمات تعریف شده: {toPersianNumber(services.length)} مورد
+                  {t('home.totalServicesLabel')} {formatCount(services.length)} {isEnglish ? (services.length === 1 ? t('home.itemSingular') : t('home.itemPlural')) : t('home.itemPlural')}
                 </div>
               </motion.div>
 
@@ -1875,22 +1893,22 @@ export default function Home() {
                       <Store size={20} />
                     </div>
                     <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: "var(--text-primary)" }}>
-                      شناسنامه دیجیتال سالن
+                      {t('home.salonIdentityTitle')}
                     </h3>
                   </div>
                   <p style={{ color: "var(--text-secondary)", fontSize: '0.88rem', lineHeight: 1.7, margin: '0 0 1.5rem' }}>
-                    خلاصه‌ای از ساختار و مشخصاتی که مشتریان شما در پروفایل نوبت‌دهی خود مشاهده می‌کنند. اطلاعات تکمیلی در تب تنظیمات قابل ویرایش است.
+                    {t('home.salonIdentityDesc')}
                   </p>
 
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ color: "var(--text-secondary)", fontSize: '0.9rem' }}>شهر فعالیت ثبت‌شده:</span>
+                      <span style={{ color: "var(--text-secondary)", fontSize: '0.9rem' }}>{t('home.salonCityLabel')}</span>
                       <span style={{ color: "var(--text-primary)", fontWeight: 700, fontSize: '0.95rem' }}>
-                        {tenant?.city || user?.salon?.city || 'بدون شهر ثبت شده'}
+                        {tenant?.city || user?.salon?.city || t('home.notProvided')}
                       </span>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ color: "var(--text-secondary)", fontSize: '0.9rem' }}>تخصص جنسیتی سالن:</span>
+                      <span style={{ color: "var(--text-secondary)", fontSize: '0.9rem' }}>{t('home.salonGenderLabel')}</span>
                       <span style={{ 
                         padding: '4px 10px', 
                         borderRadius: '20px', 
@@ -1899,14 +1917,14 @@ export default function Home() {
                         background: isMale ? 'var(--info-surface)' : 'var(--warning-surface)',
                         color: isMale ? 'var(--primary)' : 'var(--accent)'
                       }}>
-                        {isMale ? '♂ تخصصی آقایان' : '♀ تخصصی بانوان'}
+                        {isMale ? t('home.salonGenderMale') : t('home.salonGenderFemale')}
                       </span>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ color: "var(--text-secondary)", fontSize: '0.9rem' }}>میانگین امتیاز مشتریان:</span>
+                      <span style={{ color: "var(--text-secondary)", fontSize: '0.9rem' }}>{t('home.salonRatingLabel')}</span>
                       <span style={{ color: 'var(--warning)', fontWeight: 800, fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
                         <Star size={16} fill="var(--warning)" color="var(--warning)" />
-                        {ratingValue !== null ? toPersianNumber(ratingValue, { minimumFractionDigits: 1, maximumFractionDigits: 1 }) : 'بدون امتیاز'}
+                        {ratingValue !== null ? formatCount(ratingValue, { minimumFractionDigits: 1, maximumFractionDigits: 1 }) : t('home.noRating')}
                       </span>
                     </div>
                   </div>
@@ -1922,7 +1940,7 @@ export default function Home() {
                   fontWeight: 550,
                   border: "1px solid var(--border)"
                 }}>
-                  تلفن تماس: {tenant?.phone || user?.salon?.phone || 'ثبت نشده'}
+                  {t('home.salonPhoneLabel')} {tenant?.phone || user?.salon?.phone || t('home.notProvided')}
                 </div>
               </motion.div>
             </div>
@@ -2071,7 +2089,7 @@ export default function Home() {
                       boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
                       zIndex: 2,
                     }}>
-                      {isMaleSalon ? '♂ مردانه' : '♀ زنانه'}
+                      {isMaleSalon ? t('home.salonGenderMale') : t('home.salonGenderFemale')}
                     </span>
                   )}
                 </div>
@@ -2110,16 +2128,16 @@ export default function Home() {
                           ))}
                         </div>
                         <span style={{ fontWeight: 800, color: 'var(--warning)', fontSize: '0.88rem' }}>
-                          {rating.toFixed(1)}
+                          {formatCount(rating.toFixed(1), { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
                         </span>
                         {salon.review_count > 0 && (
                           <span style={{ color: "var(--text-muted)", fontSize: '0.76rem' }}>
-                            ({toPersianNumber(salon.review_count)} نظر)
+                            ({formatCount(salon.review_count)} {isEnglish ? (salon.review_count === 1 ? t('home.reviewSingular') : t('home.reviewPlural')) : t('home.reviewPlural')})
                           </span>
                         )}
                       </>
                     ) : (
-                      <span style={{ color: 'var(--border-muted)', fontSize: '0.78rem' }}>بدون امتیاز</span>
+                      <span style={{ color: 'var(--border-muted)', fontSize: '0.78rem' }}>{t('home.noRating')}</span>
                     )}
                   </div>
 
@@ -2144,7 +2162,7 @@ export default function Home() {
                     onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 22px rgba(102,126,234,0.35)'; }}
                     onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 16px rgba(102,126,234,0.25)'; }}
                   >
-                    رزرو نوبت
+                    {t('home.bookNow')}
                     <ArrowLeft size={14} />
                   </button>
                 </div>
@@ -2169,10 +2187,10 @@ export default function Home() {
                 }}>
                   <Scissors size={56} style={{ color: 'var(--primary-light)', marginBottom: '1.25rem' }} />
                   <h3 style={{ color: "var(--text-secondary)", fontSize: '1.4rem', margin: '0 0 0.5rem', fontWeight: 700 }}>
-                    هنوز آرایشگاهی ثبت نشده
+                    {t('home.noSalonsTitle')}
                   </h3>
                   <p style={{ color: "var(--text-muted)", margin: 0, fontSize: '0.95rem' }}>
-                    به زودی آرایشگاه‌های جدید اضافه می‌شوند
+                    {t('home.noSalonsText')}
                   </p>
                 </div>
               </motion.section>
@@ -2203,7 +2221,7 @@ export default function Home() {
                   padding: '7px 18px', marginBottom: '1rem',
                 }}>
                   <Award size={15} style={{ color: 'var(--primary)' }} />
-                  <span style={{ color: 'var(--primary)', fontSize: '0.85rem', fontWeight: 700 }}>برترین آرایشگاه‌ها</span>
+                  <span style={{ color: 'var(--primary)', fontSize: '0.85rem', fontWeight: 700 }}>{t('home.topSalonsTitle')}</span>
                 </div>
                 <h2 style={{
                   color: "var(--text-primary)",
@@ -2212,11 +2230,11 @@ export default function Home() {
                   letterSpacing: '-0.02em',
                 }}>
                   {viewerGenderLabel
-                    ? `بهترین آرایشگاه‌های ${viewerGenderLabel} بر اساس امتیاز`
-                    : 'بهترین آرایشگاه‌ها بر اساس امتیاز'}
+                    ? t('home.customerHeadingGender').replace('{gender}', viewerGenderLabel)
+                    : t('home.topSalonsTitle')}
                 </h2>
                 <p style={{ color: "var(--text-muted)", fontSize: '0.9rem', margin: 0 }}>
-                  ۵ آرایشگاه برتر که مشتریان بیشترین رضایت را داشته‌اند
+                  {t('home.topSalonsSubtitle')}
                 </p>
               </motion.div>
 
@@ -2281,20 +2299,22 @@ export default function Home() {
                   }}>
                     <Scissors size={14} color="#fff" />
                     <span style={{ color: '#fff', fontSize: '0.82rem', fontWeight: 700 }}>
-                      {salons.length > 0 ? `${toPersianNumber(salons.length)}+ آرایشگاه در پلتفرم` : 'آرایشگاه‌های بیشتر'}
+                      {salons.length > 0
+                        ? t('home.moreSalonsLabel').replace('{count}', formatCount(salons.length))
+                        : t('home.moreSalonsText')}
                     </span>
                   </div>
                   <h3 style={{
                     color: '#fff', fontSize: 'clamp(1.2rem, 3vw, 1.7rem)',
                     fontWeight: 900, margin: '0 0 0.5rem',
                   }}>
-                    آرایشگاه بیشتری می‌خوای پیدا کنی؟
+                    {t('home.viewAllTitle')}
                   </h3>
                   <p style={{
                     color: 'rgba(255,255,255,0.82)', fontSize: '0.95rem',
                     margin: '0 0 1.75rem', lineHeight: 1.7,
                   }}>
-                    در صفحه آرایشگاه‌ها می‌تونی با فیلتر شهر، جنسیت و جستجو، دقیقاً همون رو که می‌خوای پیدا کنی
+                    {t('home.viewAllSubtitle')}
                   </p>
                   <button
                     onClick={() => navigate('/salons')}
@@ -2310,7 +2330,7 @@ export default function Home() {
                     onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 14px 36px rgba(0,0,0,0.25)'; }}
                     onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 8px 28px rgba(0,0,0,0.18)'; }}
                   >
-                    مشاهده همه آرایشگاه‌ها
+                    {t('home.viewAllButton')}
                     <ArrowLeft size={18} />
                   </button>
                 </div>
@@ -2362,14 +2382,14 @@ export default function Home() {
                 fontWeight: 900, margin: '0 0 0.75rem',
                 textShadow: '0 4px 24px rgba(0,0,0,0.2)',
               }}>
-               اعتماد کاربران به پلتفرم ما در یک نگاه
+                {t('home.platformTitle')}
               </h2>
               <p style={{
                 color: 'rgba(255,255,255,0.88)',
                 fontSize: '1.05rem', maxWidth: '600px',
                 margin: '0 auto', lineHeight: 1.85,
               }}>
-                با پلتفرم ما تجربه‌ای سریع، مطمئن و راحت از نوبت‌دهی آنلاین داشته باشید
+                {t('home.platformSubtitle')}
               </p>
             </div>
 
@@ -2380,18 +2400,18 @@ export default function Home() {
             }}>
               {[
                 {
-                  value: (platformStats.salons_count || 0).toLocaleString('fa-IR'),
-                  label: 'آرایشگاه همکار',
+                  value: formatCount(platformStats.salons_count || 0),
+                  label: t('home.platformSalons'),
                   icon: <Scissors size={30} />,
                 },
                 {
-                  value: (platformStats.confirmed_bookings || 0).toLocaleString('fa-IR'),
-                  label: 'نوبت موفق',
+                  value: formatCount(platformStats.confirmed_bookings || 0),
+                  label: t('home.platformBookings'),
                   icon: <CheckCircle size={30} />,
                 },
                 {
-                  value: `${(platformStats.satisfaction_percent || 0).toLocaleString('fa-IR')}%`,
-                  label: 'رضایت کاربران',
+                  value: `${formatCount(platformStats.satisfaction_percent || 0)}%`,
+                  label: t('home.platformSatisfaction'),
                   icon: <Star size={30} />,
                 },
               ].map((stat, index) => (

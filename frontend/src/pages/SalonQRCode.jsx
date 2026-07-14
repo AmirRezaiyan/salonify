@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { api } from '../api/client';
 import QRCode from 'qrcode';
 import '../styles/SalonQRCode.css';
@@ -8,6 +9,10 @@ import '../styles/SalonQRCode.css';
 const SalonQRCode = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
+  const { t, language } = useLanguage();
+  const isEnglish = language === 'en';
+  const pageDirection = isEnglish ? 'ltr' : 'rtl';
+  const textAlignment = isEnglish ? 'left' : 'right';
   const [qrCodeUrl, setQrCodeUrl] = useState(null);
   const [salonInfo, setSalonInfo] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -20,7 +25,7 @@ const SalonQRCode = () => {
     }
 
     if (user?.role !== 'owner' || !user?.salon) {
-      setError('فقط مالک سالن می‌تواند این صفحه را ببیند');
+      setError(t('qrCode.ownerOnly'));
       setLoading(false);
       return;
     }
@@ -51,7 +56,7 @@ const SalonQRCode = () => {
         setLoading(false);
       } catch (err) {
         console.error('خطا در دریافت QR Code:', err);
-        setError(err.response?.data?.error || 'خطا در دریافت QR Code');
+        setError(err.response?.data?.error || t('qrCode.loadError'));
         setLoading(false);
       }
     };
@@ -76,9 +81,9 @@ const SalonQRCode = () => {
     const printWindow = window.open();
     const html = `
       <!DOCTYPE html>
-      <html dir="rtl">
+      <html dir="${language === 'en' ? 'ltr' : 'rtl'}">
       <head>
-        <title>QR Code - ${salonInfo?.salon_name || 'سالن'}</title>
+        <title>${t('qrCode.printTitle', { salonName: salonInfo?.salon_name || 'Salon' })}</title>
         <style>
           body {
             text-align: center;
@@ -108,14 +113,13 @@ const SalonQRCode = () => {
         </style>
       </head>
       <body>
-        <h1>${salonInfo?.salon_name || 'سالن'}</h1>
-        <p>QR Code برای رزرو نوبت</p>
+        <h1>${salonInfo?.salon_name || 'Salon'}</h1>
+        <p>${t('qrCode.title')}</p>
         <div class="qr-container">
           <img src="${qrCodeUrl}" alt="QR Code"/>
         </div>
         <div class="info">
-          <p>مشتریان می‌توانند این QR Code را اسکن کنند</p>
-          <p>تا برای رزرو نوبت در سالن شما وارد شوند</p>
+          <p>${t('qrCode.scanInfo')}</p>
         </div>
       </body>
       </html>
@@ -127,10 +131,10 @@ const SalonQRCode = () => {
 
   if (loading) {
     return (
-      <div className="qr-code-page">
+      <div className="qr-code-page" style={{ direction: pageDirection, textAlign: textAlignment }}>
         <div className="loading-spinner">
           <div className="spinner"></div>
-          <p>در حال بارگیری...</p>
+          <p>{t('qrCode.loading')}</p>
         </div>
       </div>
     );
@@ -138,11 +142,11 @@ const SalonQRCode = () => {
 
   if (error) {
     return (
-      <div className="qr-code-page">
+      <div className="qr-code-page" style={{ direction: pageDirection, textAlign: textAlignment }}>
         <div className="error-container">
-          <h2>❌ خطا</h2>
+          <h2>{t('qrCode.errorTitle')}</h2>
           <p>{error}</p>
-          <button onClick={() => navigate('/')}>بازگشت</button>
+          <button onClick={() => navigate('/')}>{t('qrCode.returnHome')}</button>
         </div>
       </div>
     );
@@ -150,57 +154,55 @@ const SalonQRCode = () => {
 
   if (!qrCodeUrl || !salonInfo) {
     return (
-      <div className="qr-code-page">
+      <div className="qr-code-page" style={{ direction: pageDirection, textAlign: textAlignment }}>
         <div className="error-container">
-          <h2>❌ خطا</h2>
-          <p>اطلاعات QR Code دریافت نشد</p>
-          <button onClick={() => navigate('/')}>بازگشت</button>
+          <h2>{t('qrCode.errorTitle')}</h2>
+          <p>{t('qrCode.noInfo')}</p>
+          <button onClick={() => navigate('/')}>{t('qrCode.returnHome')}</button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="qr-code-page">
+    <div className="qr-code-page" style={{ direction: pageDirection, textAlign: textAlignment }}>
       <div className="qr-code-container">
-        <h1>QR Code سالن شما</h1>
+        <h1>{t('qrCode.title')}</h1>
         <p className="salon-name">{salonInfo.salon_name}</p>
 
         <div className="qr-code-display">
           <img src={qrCodeUrl} alt="QR Code" className="qr-image" />
           <p className="qr-info">
-            مشتریان با اسکن این QR Code می‌توانند 
-            <br />
-            برای رزرو نوبت در سالن شما وارد شوند
+            {t('qrCode.scanInfo')}
           </p>
         </div>
 
         <div className="qr-code-url">
-          <p>لینک QR Code:</p>
+          <p>{t('qrCode.linkLabel')}</p>
           <code>{salonInfo.qr_url}</code>
         </div>
 
         <div className="action-buttons">
           <button className="btn btn-primary" onClick={downloadQRCode}>
-            📥 دانلود تصویر
+            {t('qrCode.download')}
           </button>
           <button className="btn btn-secondary" onClick={printQRCode}>
-            🖨️ چاپ
+            {t('qrCode.print')}
           </button>
         </div>
 
         <div className="instructions">
-          <h3>نحوه استفاده:</h3>
+          <h3>{t('qrCode.instructions')}</h3>
           <ol>
-            <li>این QR Code را دانلود یا چاپ کنید</li>
-            <li>آن را در مغازه خود نصب کنید</li>
-            <li>مشتریان می‌توانند اسکن کنند</li>
-            <li>وارد سالن شما شده و رزرو کنند</li>
+            <li>{t('qrCode.instruction1')}</li>
+            <li>{t('qrCode.instruction2')}</li>
+            <li>{t('qrCode.instruction3')}</li>
+            <li>{t('qrCode.instruction4')}</li>
           </ol>
         </div>
 
         <button className="btn btn-back" onClick={() => navigate('/')}>
-          🏠 بازگشت
+          {t('qrCode.back')}
         </button>
       </div>
     </div>

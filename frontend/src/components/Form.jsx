@@ -67,7 +67,7 @@ export const Select = ({
         name={name}
         value={value}
         onChange={onChange}
-        className={`form-input ${error ? 'error' : ''}`}
+        className={`form-select ${error ? 'error' : ''}`}
         required={required}
       >
         <option value="">Select...</option>

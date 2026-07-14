@@ -567,10 +567,15 @@ button {
   min-width: 44px;
 }
 
-/* Direction rtl support for tables */
+/* Direction support for tables and admin surfaces */
 table[dir="rtl"],
 div[style*="direction: 'rtl'"] table {
   text-align: right;
+}
+
+.admin-panel [dir="ltr"],
+.admin-panel [style*="direction: 'ltr'"] {
+  text-align: left;
 }
 
 /* Ensure proper flex wrap on small containers */

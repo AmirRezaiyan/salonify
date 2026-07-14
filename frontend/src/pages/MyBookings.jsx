@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { api } from '../api/client';
 import { Loading } from '../components/Loading';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { Button } from '../components/Button';
 import { Alert } from '../components/Alert';
 import { Input } from '../components/Form';
@@ -37,24 +38,24 @@ function useInterval(callback, delay) {
   }, [delay]);
 }
 
-function timeLeft(startAt) {
+function timeLeft(startAt, t) {
   if (!startAt) return { finished: false, text: '—', color: "var(--text-secondary)" };
   const now = new Date();
   const then = new Date(startAt);
   const diff = then - now;
   if (Number.isNaN(then.getTime())) return { finished: false, text: '—', color: "var(--text-secondary)" };
-  if (diff <= 0) return { finished: true, text: 'شروع شده', color: 'var(--success)' };
+  if (diff <= 0) return { finished: true, text: t('bookings.bookingStarted', 'شروع شده'), color: 'var(--success)' };
   const mins = Math.floor(diff / 60000);
   const hours = Math.floor(mins / 60);
   const minutes = mins % 60;
   if (hours > 24) {
     const days = Math.floor(hours / 24);
-    return { finished: false, text: `${days} روز`, color: 'var(--success)' };
+    return { finished: false, text: `${days} ${t('bookings.daysLabel', 'روز')}`, color: 'var(--success)' };
   }
   if (hours > 0) {
-    return { finished: false, text: `${hours} ساعت و ${minutes} دقیقه`, color: 'var(--primary)' };
+    return { finished: false, text: `${hours} ${t('bookings.hoursLabel', 'ساعت')} و ${minutes} ${t('bookings.minutesLabel', 'دقیقه')}`, color: 'var(--primary)' };
   }
-  return { finished: false, text: `${minutes} دقیقه`, color: 'var(--warning)' };
+  return { finished: false, text: `${minutes} ${t('bookings.minutesLabel', 'دقیقه')}`, color: 'var(--warning)' };
 }
 
 function canModifyBookingLocally(booking) {
@@ -79,16 +80,16 @@ function getBookingSalonId(booking) {
   return null;
 }
 
-function getStatusConfig(status) {
+function getStatusConfig(status, t) {
   switch (status) {
     case 'confirmed':
-      return { label: 'تأیید شده', color: 'var(--success)', bg: 'var(--success-surface)', dot: 'var(--success)', icon: CheckCircle };
+      return { label: t('bookings.confirmedStatus', 'تأیید شده'), color: 'var(--success)', bg: 'var(--success-surface)', dot: 'var(--success)', icon: CheckCircle };
     case 'pending':
-      return { label: 'در انتظار', color: 'var(--warning)', bg: 'var(--warning-surface)', dot: 'var(--warning)', icon: Clock };
+      return { label: t('bookings.pendingStatus', 'در انتظار'), color: 'var(--warning)', bg: 'var(--warning-surface)', dot: 'var(--warning)', icon: Clock };
     case 'cancelled':
-      return { label: 'لغو شده', color: 'var(--danger)', bg: 'var(--danger-surface)', dot: 'var(--danger)', icon: XCircle };
+      return { label: t('bookings.cancelledStatus', 'لغو شده'), color: 'var(--danger)', bg: 'var(--danger-surface)', dot: 'var(--danger)', icon: XCircle };
     default:
-      return { label: status || 'نامشخص', color: "var(--text-secondary)", bg: 'var(--surface-muted)', dot: 'var(--text-muted)', icon: Clock };
+      return { label: status || t('bookings.unknownStatus', 'نامشخص'), color: "var(--text-secondary)", bg: 'var(--surface-muted)', dot: 'var(--text-muted)', icon: Clock };
   }
 }
 
@@ -105,8 +106,8 @@ function sortBookingsList(list) {
   });
 }
 
-function StatusBadge({ status }) {
-  const s = getStatusConfig(status);
+function StatusBadge({ status, t }) {
+  const s = getStatusConfig(status, t);
   const Icon = s.icon;
   return (
     <span
@@ -217,9 +218,16 @@ function PageBtn({ onClick, disabled, icon }) {
   );
 }
 
-function Pagination({ current, total, onChange }) {
+function Pagination({ current, total, onChange, isEnglish }) {
   if (total <= 1) return null;
   const pages = Array.from({ length: total }, (_, i) => i + 1);
+  const formatDisplayNumber = (value) => {
+    const num = Number(value);
+    if (Number.isFinite(num)) {
+      return isEnglish ? new Intl.NumberFormat('en-US').format(num) : toPersianNumber(num);
+    }
+    return isEnglish ? String(value) : toPersianNumber(value);
+  };
   return (
     <div
       style={{
@@ -250,12 +258,12 @@ function Pagination({ current, total, onChange }) {
             transition: 'background 0.15s',
           }}
         >
-          {toPersianNumber(p)}
+          {formatDisplayNumber(p)}
         </button>
       ))}
       <PageBtn onClick={() => onChange(Math.min(total, current + 1))} disabled={current === total} icon={<ChevronLeft size={15} />} />
       <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginRight: 4 }}>
-        {toPersianNumber(current)} / {toPersianNumber(total)}
+        {formatDisplayNumber(current)} / {formatDisplayNumber(total)}
       </span>
     </div>
   );
@@ -268,6 +276,8 @@ function BookingCard({
   onCancel,
   canManage,
   canCustomerManage,
+  t,
+  isEnglish,
 }) {
   const isPending = booking.status === 'pending';
   const isProcessing = processingId === booking.id;
@@ -277,8 +287,8 @@ function BookingCard({
   const customerName = booking.customer_name || booking.user?.username || booking.customer || '—';
   const phone = booking.customer_phone || booking.user?.phone_number || booking.phone_number || booking.phone || '—';
   const bookingDate = booking.start_at ? new Date(booking.start_at) : null;
-  const time = bookingDate ? bookingDate.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) : '—';
-  const remaining = timeLeft(booking.start_at);
+  const time = bookingDate ? bookingDate.toLocaleTimeString(isEnglish ? 'en-US' : 'fa-IR', { hour: '2-digit', minute: '2-digit' }) : '—';
+  const remaining = timeLeft(booking.start_at, t);
 
   return (
     <motion.div
@@ -318,14 +328,14 @@ function BookingCard({
             <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: 2 }}>{phone}</div>
           </div>
         </div>
-        <StatusBadge status={booking.status} />
+        <StatusBadge status={booking.status} t={t} />
       </div>
 
       <div style={{ height: 1, background: 'var(--card-hover)' }} />
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-        <Detail icon={<Scissors size={14} />} label="خدمت" value={serviceName} />
-        <Detail icon={<Clock size={14} />} label="زمان" value={time} />
+        <Detail icon={<Scissors size={14} />} label={t('bookings.service', 'خدمت')} value={serviceName} />
+        <Detail icon={<Clock size={14} />} label={t('bookings.time', 'زمان')} value={time} />
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
@@ -361,7 +371,7 @@ function BookingCard({
               fontWeight: 600,
             }}
           >
-            {bookingDate.toLocaleDateString('fa-IR', { year: 'numeric', month: 'long', day: 'numeric' })}
+            {bookingDate.toLocaleDateString(isEnglish ? 'en-US' : 'fa-IR', { year: 'numeric', month: 'long', day: 'numeric' })}
           </span>
         )}
       </div>
@@ -375,7 +385,7 @@ function BookingCard({
             bg="#D1FAE5"
             hoverBg="#A7F3D0"
             icon={<CheckCircle size={14} />}
-            label={isProcessing ? '...' : 'تأیید رزرو'}
+            label={isProcessing ? '...' : t('bookings.confirmBookingAction', 'تأیید رزرو')}
           />
           <ActionButton
             onClick={() => onCancel(booking)}
@@ -384,7 +394,7 @@ function BookingCard({
             bg="#FEE2E2"
             hoverBg="#FECACA"
             icon={<XCircle size={14} />}
-            label={isProcessing ? '...' : 'لغو رزرو'}
+            label={isProcessing ? '...' : t('bookings.cancelBookingAction', 'لغو رزرو')}
           />
         </div>
       )}
@@ -398,7 +408,7 @@ function BookingCard({
             bg="#FEE2E2"
             hoverBg="#FECACA"
             icon={<XCircle size={14} />}
-            label={isProcessing ? '...' : 'لغو نوبت'}
+            label={isProcessing ? '...' : t('bookings.cancelCustomerBooking', 'لغو نوبت')}
           />
         </div>
       )}
@@ -416,7 +426,7 @@ function BookingCard({
             lineHeight: 1.8,
           }}
         >
-          این نوبت دیگر قابل لغو نیست.
+          {t('bookings.bookingNotCancellable', 'این نوبت دیگر قابل لغو نیست.')}
         </div>
       )}
     </motion.div>
@@ -739,6 +749,10 @@ function SuccessModal({ open, message, onClose }) {
 
 export default function MyBookings() {
   const { isAuthenticated, user } = useAuth();
+  const { t, language } = useLanguage();
+  const isEnglish = language === 'en';
+  const pageDirection = isEnglish ? 'ltr' : 'rtl';
+  const pageTextAlign = isEnglish ? 'left' : 'right';
 
   const [phone, setPhone] = useState(localStorage.getItem('customer_phone') || '');
   const [bookings, setBookings] = useState([]);
@@ -856,6 +870,13 @@ export default function MyBookings() {
   const confirmedCount = bookings.filter((b) => b.status === 'confirmed').length;
   const pendingCount = bookings.filter((b) => b.status === 'pending').length;
   const cancelledCount = bookings.filter((b) => b.status === 'cancelled').length;
+  const formatDisplayNumber = (value) => {
+    const num = Number(value);
+    if (Number.isFinite(num)) {
+      return isEnglish ? new Intl.NumberFormat('en-US').format(num) : toPersianNumber(num);
+    }
+    return isEnglish ? String(value) : toPersianNumber(value);
+  };
 
   if (!isAuthenticated && !salonId) {
     return (
@@ -897,8 +918,8 @@ export default function MyBookings() {
             }}
           />
           <Calendar size={64} color="#94a3b8" style={{ marginBottom: '1.5rem' }} />
-          <h2 style={{ color: "var(--text-primary)", fontSize: '1.8rem', fontWeight: 700, marginBottom: '1rem' }}>سالن انتخاب نشده</h2>
-          <p style={{ color: "var(--text-secondary)", marginBottom: '2rem' }}>لطفاً ابتدا از صفحه اصلی یک سالن را انتخاب کنید.</p>
+          <h2 style={{ color: "var(--text-primary)", fontSize: '1.8rem', fontWeight: 700, marginBottom: '1rem' }}>{t('bookings.noSalonSelectedTitle', 'سالن انتخاب نشده')}</h2>
+          <p style={{ color: "var(--text-secondary)", marginBottom: '2rem' }}>{t('bookings.noSalonSelectedText', 'لطفاً ابتدا از صفحه اصلی یک سالن را انتخاب کنید.')}</p>
           <Button
             onClick={() => (window.location.href = '/')}
             style={{
@@ -912,7 +933,7 @@ export default function MyBookings() {
               boxShadow: '0 6px 16px rgba(102, 126, 234, 0.3)',
             }}
           >
-            بازگشت به صفحه اصلی
+            {t('bookings.goHome', 'بازگشت به صفحه اصلی')}
           </Button>
         </div>
       </motion.div>
@@ -927,7 +948,8 @@ export default function MyBookings() {
       style={{
         minHeight: '100vh',
         background: 'var(--background)',
-        direction: 'rtl',
+        direction: pageDirection,
+        textAlign: pageTextAlign,
       }}
     >
       <motion.div
@@ -1010,7 +1032,7 @@ export default function MyBookings() {
                   textShadow: '0 4px 20px rgba(0,0,0,0.2)',
                 }}
               >
-                نوبت‌های من
+                {t('bookings.title', 'نوبت‌های من')}
               </motion.h1>
               <motion.p
                 initial={{ opacity: 0, x: -20 }}
@@ -1022,49 +1044,11 @@ export default function MyBookings() {
                   margin: '4px 0 0 0',
                 }}
               >
-                مشاهده و مدیریت نوبت‌های شما
+                {t('bookings.subtitle', 'مشاهده و مدیریت نوبت‌های شما')}
               </motion.p>
             </div>
           </div>
 
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.5 }}
-          >
-            <Button
-              onClick={loadBookings}
-              variant="outline"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '12px 28px',
-                borderRadius: '50px',
-                border: '2px solid rgba(255, 255, 255, 0.3)',
-                background: 'rgba(255, 255, 255, 0.15)',
-                backdropFilter: 'blur(10px)',
-                color: 'white',
-                fontSize: '1rem',
-                fontWeight: 600,
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                boxShadow: '0 4px 15px rgba(0,0,0,0.2)',
-              }}
-              disabled={loading || searchLoading}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.25)';
-                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.5)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
-                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.3)';
-              }}
-            >
-              <RefreshCw size={18} />
-              بروزرسانی
-            </Button>
-          </motion.div>
         </div>
       </motion.div>
 
@@ -1112,7 +1096,7 @@ export default function MyBookings() {
               >
                 <Sparkles size={24} />
               </div>
-              <h2 style={{ color: "var(--text-primary)", fontSize: '1.4rem', fontWeight: 700, margin: 0 }}>اطلاعات حساب کاربری</h2>
+              <h2 style={{ color: "var(--text-primary)", fontSize: '1.4rem', fontWeight: 700, margin: 0 }}>{t('bookings.accountInfoTitle', 'اطلاعات حساب کاربری')}</h2>
             </div>
             <div
               style={{
@@ -1121,9 +1105,9 @@ export default function MyBookings() {
                 gap: '1.5rem',
               }}
             >
-              <InfoItem icon={<User size={20} />} label="نام کاربر" value={user.username || user.name || '—'} gradient="linear-gradient(135deg, #667eea 0%, #764ba2 100%)" />
-              <InfoItem icon={<Phone size={20} />} label="شماره موبایل" value={user.phone_number || user.phone || '—'} gradient="linear-gradient(135deg, #f093fb 0%, #f5576c 100%)" />
-              <InfoItem icon={<Mail size={20} />} label="ایمیل" value={user.email || '—'} gradient="linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)" />
+              <InfoItem icon={<User size={20} />} label={t('bookings.accountInfoUsername', 'نام کاربر')} value={user.username || user.name || '—'} gradient="linear-gradient(135deg, #667eea 0%, #764ba2 100%)" />
+              <InfoItem icon={<Phone size={20} />} label={t('bookings.accountInfoPhone', 'شماره موبایل')} value={user.phone_number || user.phone || '—'} gradient="linear-gradient(135deg, #f093fb 0%, #f5576c 100%)" />
+              <InfoItem icon={<Mail size={20} />} label={t('bookings.accountInfoEmail', 'ایمیل')} value={user.email || '—'} gradient="linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)" />
             </div>
           </motion.div>
         )}
@@ -1167,7 +1151,7 @@ export default function MyBookings() {
             >
               <Clock size={24} />
             </div>
-            <h2 style={{ color: "var(--text-primary)", fontSize: '1.4rem', fontWeight: 700, margin: 0 }}>لیست رزروها</h2>
+            <h2 style={{ color: "var(--text-primary)", fontSize: '1.4rem', fontWeight: 700, margin: 0 }}>{t('bookings.bookingsListTitle', 'لیست رزروها')}</h2>
           </div>
 
           <AnimatePresence>
@@ -1211,17 +1195,17 @@ export default function MyBookings() {
                 >
                   <Search size={20} />
                 </div>
-                <h3 style={{ color: "var(--text-primary)", fontSize: '1.2rem', fontWeight: 700, margin: 0 }}>جستجوی نوبت‌ها</h3>
+                <h3 style={{ color: "var(--text-primary)", fontSize: '1.2rem', fontWeight: 700, margin: 0 }}>{t('bookings.searchTitle', 'جستجوی نوبت‌ها')}</h3>
               </div>
               <form onSubmit={handleSearch}>
                 <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end', flexWrap: 'wrap' }}>
                   <div style={{ flex: 1, minWidth: '250px' }}>
                     <label style={{ display: 'block', marginBottom: '8px', color: "var(--text-secondary)", fontWeight: 600, fontSize: '0.9rem' }}>
-                      شماره موبایل
+                      {t('bookings.searchPhone', 'شماره موبایل')}
                     </label>
                     <Input
                       type="tel"
-                      placeholder="مثال: ۰۹۱۲۱۲۳۴۵۶۷"
+                      placeholder={t('bookings.searchPlaceholder', 'مثال: ۰۹۱۲۱۲۳۴۵۶۷')}
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
                       icon={<Phone size={18} />}
@@ -1262,13 +1246,13 @@ export default function MyBookings() {
                     ) : (
                       <>
                         <Search size={18} />
-                        جستجوی نوبت‌ها
+                        {t('bookings.searchButton', 'جستجوی نوبت‌ها')}
                       </>
                     )}
                   </Button>
                 </div>
                 <p style={{ marginTop: '1rem', color: "var(--text-secondary)", fontSize: '0.9rem' }}>
-                  برای دسترسی ساده‌تر و مشاهده تمامی نوبت‌ها، وارد حساب کاربری خود شوید.
+                  {t('bookings.searchHint', 'برای دسترسی ساده‌تر و مشاهده تمامی نوبت‌ها، وارد حساب کاربری خود شوید.')}
                 </p>
               </form>
             </motion.div>
@@ -1277,7 +1261,7 @@ export default function MyBookings() {
           {loading && !bookings.length ? (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ textAlign: 'center', padding: '4rem' }}>
               <Loading />
-              <p style={{ marginTop: '1rem', color: "var(--text-secondary)" }}>در حال بارگذاری نوبت‌ها...</p>
+              <p style={{ marginTop: '1rem', color: "var(--text-secondary)" }}>{t('bookings.loadingBookings', 'در حال بارگذاری نوبت‌ها...')}</p>
             </motion.div>
           ) : (
             <>
@@ -1293,10 +1277,10 @@ export default function MyBookings() {
                     flexWrap: 'wrap',
                   }}
                 >
-                  <StatChip label="کل نوبت‌ها" value={toPersianNumber(bookings.length)} color="#667eea" bg="#EDE9FE" />
-                  {confirmedCount > 0 && <StatChip label="تأیید شده" value={toPersianNumber(confirmedCount)} color="#065F46" bg="#D1FAE5" />}
-                  {pendingCount > 0 && <StatChip label="در انتظار" value={toPersianNumber(pendingCount)} color="#92400E" bg="#FEF3C7" />}
-                  {cancelledCount > 0 && <StatChip label="لغو شده" value={toPersianNumber(cancelledCount)} color="#991B1B" bg="#FEE2E2" />}
+                  <StatChip label={t('bookings.totalBookings', 'کل نوبت‌ها')} value={formatDisplayNumber(bookings.length)} color="#667eea" bg="#EDE9FE" />
+                  {confirmedCount > 0 && <StatChip label={t('bookings.confirmedStatus', 'تأیید شده')} value={formatDisplayNumber(confirmedCount)} color="#065F46" bg="#D1FAE5" />}
+                  {pendingCount > 0 && <StatChip label={t('bookings.pendingStatus', 'در انتظار')} value={formatDisplayNumber(pendingCount)} color="#92400E" bg="#FEF3C7" />}
+                  {cancelledCount > 0 && <StatChip label={t('bookings.cancelledStatus', 'لغو شده')} value={formatDisplayNumber(cancelledCount)} color="#991B1B" bg="#FEE2E2" />}
                 </motion.div>
               )}
 
@@ -1313,11 +1297,11 @@ export default function MyBookings() {
                   }}
                 >
                   <Clock size={64} style={{ color: "var(--text-muted)", marginBottom: '1.5rem' }} />
-                  <h3 style={{ color: "var(--text-secondary)", fontSize: '1.5rem', marginBottom: '0.5rem' }}>نوبتی یافت نشد</h3>
+                  <h3 style={{ color: "var(--text-secondary)", fontSize: '1.5rem', marginBottom: '0.5rem' }}>{t('bookings.noBookingsFoundTitle', 'نوبتی یافت نشد')}</h3>
                   <p style={{ color: "var(--text-secondary)" }}>
                     {!isAuthenticated && !phone
-                      ? 'برای مشاهده نوبت‌های خود، شماره موبایل خود را وارد کنید.'
-                      : 'شما هنوز نوبتی ثبت نکرده‌اید یا نوبتی با این مشخصات وجود ندارد.'}
+                      ? t('bookings.noBookingsFoundHint', 'برای مشاهده نوبت‌های خود، شماره موبایل خود را وارد کنید.')
+                      : t('bookings.noBookingsFoundEmpty', 'شما هنوز نوبتی ثبت نکرده‌اید یا نوبتی با این مشخصات وجود ندارد.')}
                   </p>
                 </motion.div>
               ) : (
@@ -1343,12 +1327,14 @@ export default function MyBookings() {
                         canCustomerManage={customerCanManage}
                         onConfirm={(b) => performAction(b, 'confirm')}
                         onCancel={(b) => requestCancel(b)}
+                        t={t}
+                        isEnglish={isEnglish}
                       />
                     );
                   })}
                 </div>
               )}
-              <Pagination current={currentPage} total={totalPages} onChange={setCurrentPage} />
+              <Pagination current={currentPage} total={totalPages} onChange={setCurrentPage} isEnglish={isEnglish} />
             </>
           )}
         </motion.div>

@@ -1,4 +1,5 @@
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import OwnerBookings from '../components/OwnerBookings';
 import { motion } from 'framer-motion';
 import { Calendar, ArrowRight, Building2, MapPin, Phone, Sparkles, Clock } from 'lucide-react';
@@ -7,6 +8,7 @@ import { Loading } from '../components/Loading';
 
 export default function OwnerBookingsPage() {
   const { user, loading: authLoading } = useAuth();
+  const { t, language } = useLanguage();
   const tenantId = user?.salon?.id || localStorage.getItem('salon_id');
 
   if (authLoading) return <Loading />;
@@ -19,7 +21,7 @@ export default function OwnerBookingsPage() {
       style={{
         minHeight: '100vh',
         background: 'var(--background)',
-        direction: 'rtl'
+        direction: language === 'en' ? 'ltr' : 'rtl'
       }}
     >
       {/* هدر با گرادیانت مشابه Hero Section هوم */}
@@ -99,7 +101,7 @@ export default function OwnerBookingsPage() {
                   textShadow: '0 4px 20px rgba(0,0,0,0.2)'
                 }}
               >
-                مدیریت رزروها
+                {t('ownerBookings.title')}
               </motion.h1>
               <motion.p
                 initial={{ opacity: 0, x: -20 }}
@@ -111,7 +113,7 @@ export default function OwnerBookingsPage() {
                   margin: '4px 0 0 0'
                 }}
               >
-                مشاهده و مدیریت رزروهای سالن
+                {t('ownerBookings.subtitle')}
               </motion.p>
             </div>
           </div>
@@ -150,7 +152,7 @@ export default function OwnerBookingsPage() {
               }}
             >
               <ArrowRight size={18} />
-              بازگشت به پنل
+              {t('ownerBookings.back')}
             </Button>
           </motion.div>
         </div>
@@ -214,7 +216,7 @@ export default function OwnerBookingsPage() {
                 fontWeight: 700,
                 margin: 0
               }}>
-                اطلاعات سالن
+                {t('ownerBookings.salonInfo')}
               </h2>
             </div>
 
@@ -225,19 +227,19 @@ export default function OwnerBookingsPage() {
             }}>
               <InfoItem
                 icon={<Building2 size={20} />}
-                label="نام سالن"
+                label={t('ownerBookings.salonNameLabel')}
                 value={user.salon.name}
                 gradient="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
               />
               <InfoItem
                 icon={<MapPin size={20} />}
-                label="شهر"
+                label={t('ownerBookings.cityLabel')}
                 value={user.salon.city || '—'}
                 gradient="linear-gradient(135deg, #f093fb 0%, #f5576c 100%)"
               />
               <InfoItem
                 icon={<Phone size={20} />}
-                label="تلفن"
+                label={t('ownerBookings.phoneLabel')}
                 value={user.salon.phone || '—'}
                 gradient="linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)"
               />
@@ -254,9 +256,11 @@ export default function OwnerBookingsPage() {
             background: 'var(--card)',
             borderRadius: '24px',
             padding: '2rem',
+            paddingTop: '2.5rem',
             boxShadow: '0 8px 30px rgba(0,0,0,0.08)',
             border: "1px solid var(--border)",
-            position: 'relative'
+            position: 'relative',
+            overflow: 'hidden'
           }}
         >
           {/* نوار گرادیانت بالا */}
@@ -265,16 +269,14 @@ export default function OwnerBookingsPage() {
             top: 0,
             left: 0,
             right: 0,
-            height: '4px',
-            background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)'
+            height: '5px',
+            borderTopLeftRadius: '24px',
+            borderTopRightRadius: '24px',
+            background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
+            zIndex: 0
           }} />
 
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px',
-            marginBottom: '1.5rem'
-          }}>
+          <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '1.5rem' }}>
             <div style={{
               width: '48px',
               height: '48px',
@@ -294,7 +296,7 @@ export default function OwnerBookingsPage() {
               fontWeight: 700,
               margin: 0
             }}>
-              لیست رزروها
+              {t('ownerBookings.bookingsList')}
             </h2>
           </div>
 

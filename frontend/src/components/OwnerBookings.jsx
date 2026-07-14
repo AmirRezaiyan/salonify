@@ -1,20 +1,22 @@
 import { useEffect, useState } from 'react';
 import { api } from '../api/client';
+import { useLanguage } from '../context/LanguageContext';
 import { toPersianNumber } from '../utils/formatCurrency';
 import { Loading } from './Loading';
 import { CheckCircle, XCircle, User, Scissors, Clock, Phone, ChevronLeft, ChevronRight, AlertCircle, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const STATUS_MAP = {
-  pending:   { label: 'در انتظار', bg: '#FEF3C7', color: '#92400E', dot: '#F59E0B' },
-  confirmed: { label: 'تأیید شده', bg: '#D1FAE5', color: '#065F46', dot: '#10B981' },
-  cancelled: { label: 'لغو شده',  bg: '#FEE2E2', color: '#991B1B', dot: '#EF4444' },
+  pending:   { label: { fa: 'در انتظار', en: 'Pending' }, bg: '#FEF3C7', color: '#92400E', dot: '#F59E0B' },
+  confirmed: { label: { fa: 'تأیید شده', en: 'Confirmed' }, bg: '#D1FAE5', color: '#065F46', dot: '#10B981' },
+  cancelled: { label: { fa: 'لغو شده', en: 'Cancelled' }, bg: '#FEE2E2', color: '#991B1B', dot: '#EF4444' },
 };
 
 // ============================================================
 // کامپوننت دیالوگ مدال
 // ============================================================
-function DialogModal({ isOpen, onClose, type, title, message, icon }) {
+function DialogModal({ isOpen, onClose, type, title, message, icon, t, language }) {
+  const isEnglish = language === 'en';
   const configs = {
     success_confirm: {
       headerBg: 'linear-gradient(135deg, #059669 0%, #10B981 100%)',
@@ -40,11 +42,11 @@ function DialogModal({ isOpen, onClose, type, title, message, icon }) {
   const [btnHover, setBtnHover] = useState(false);
 
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && type !== 'error') {
       const timer = setTimeout(onClose, 4000);
       return () => clearTimeout(timer);
     }
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, type]);
 
   return (
     <AnimatePresence>
@@ -82,7 +84,8 @@ function DialogModal({ isOpen, onClose, type, title, message, icon }) {
               borderRadius: 24,
               overflow: 'hidden',
               boxShadow: '0 25px 60px rgba(0,0,0,0.25)',
-              direction: 'rtl',
+              direction: isEnglish ? 'ltr' : 'rtl',
+              textAlign: isEnglish ? 'left' : 'right',
             }}
           >
             {/* هدر رنگی */}
@@ -107,7 +110,7 @@ function DialogModal({ isOpen, onClose, type, title, message, icon }) {
               <button
                 onClick={onClose}
                 style={{
-                  position: 'absolute', top: 12, left: 12,
+                  position: 'absolute', top: 12, right: isEnglish ? 12 : undefined, left: isEnglish ? undefined : 12,
                   width: 30, height: 30, borderRadius: 8,
                   border: 'none', background: 'var(--surface-glass-strong)',
                   color: '#fff', cursor: 'pointer',
@@ -122,7 +125,7 @@ function DialogModal({ isOpen, onClose, type, title, message, icon }) {
             <div style={{ padding: '1.5rem' }}>
               <p style={{
                 color: "var(--text-secondary)", fontSize: '0.95rem', lineHeight: 1.8,
-                margin: '0 0 1.5rem 0', textAlign: 'center',
+                margin: '0 0 1.5rem 0', textAlign: isEnglish ? 'left' : 'center',
               }}>
                 {message}
               </p>
@@ -152,7 +155,7 @@ function DialogModal({ isOpen, onClose, type, title, message, icon }) {
                   cursor: 'pointer', transition: 'background 0.2s',
                 }}
               >
-                متوجه شدم
+                {t('common.close', 'Close')}
               </button>
             </div>
           </motion.div>
@@ -166,8 +169,9 @@ function DialogModal({ isOpen, onClose, type, title, message, icon }) {
 // ============================================================
 // بقیه کامپوننت‌ها (بدون تغییر)
 // ============================================================
-function StatusBadge({ status }) {
-  const s = STATUS_MAP[status] || { label: status || '—', bg: '#F1F5F9', color: "var(--text-secondary)", dot: '#94A3B8' };
+function StatusBadge({ status, language }) {
+  const s = STATUS_MAP[status] || { label: { fa: status || '—', en: status || '—' }, bg: '#F1F5F9', color: "var(--text-secondary)", dot: '#94A3B8' };
+  const label = s.label?.[language] || s.label || status || '—';
   return (
     <span style={{
       display: 'inline-flex', alignItems: 'center', gap: 6,
@@ -176,12 +180,13 @@ function StatusBadge({ status }) {
       fontSize: '0.78rem', fontWeight: 600, letterSpacing: '0.01em'
     }}>
       <span style={{ width: 7, height: 7, borderRadius: '50%', background: s.dot, flexShrink: 0 }} />
-      {s.label}
+      {label}
     </span>
   );
 }
 
-function BookingCard({ b, processingId, onConfirm, onCancel }) {
+function BookingCard({ b, processingId, onConfirm, onCancel, language, t }) {
+  const [isHovered, setIsHovered] = useState(false);
   const isPending = b.status === 'pending';
   const isProcessing = processingId === b.id;
   const serviceName = b.services?.length
@@ -192,17 +197,26 @@ function BookingCard({ b, processingId, onConfirm, onCancel }) {
   const time = b.start_at ? new Date(b.start_at).toLocaleString('fa-IR') : '—';
 
   return (
-    <div style={{
-      background: 'var(--card)',
-      border: '1px solid var(--border)',
-      borderRadius: 16,
-      padding: '1.25rem 1.5rem',
-      display: 'flex', flexDirection: 'column', gap: 12,
-      transition: 'box-shadow 0.2s',
-      boxShadow: isPending ? '0 0 0 2px #EDE9FE' : '0 1px 4px rgba(0,0,0,0.05)',
-    }}
-      onMouseEnter={e => e.currentTarget.style.boxShadow = '0 4px 20px rgba(91,79,207,0.1)'}
-      onMouseLeave={e => e.currentTarget.style.boxShadow = isPending ? '0 0 0 2px #EDE9FE' : '0 1px 4px rgba(0,0,0,0.05)'}
+    <div
+      tabIndex={0}
+      role="button"
+      style={{
+        background: 'var(--card)',
+        border: '1px solid var(--border)',
+        borderRadius: 16,
+        padding: '1.25rem 1.5rem',
+        display: 'flex', flexDirection: 'column', gap: 12,
+        transition: 'box-shadow 0.2s, transform 0.2s',
+        boxShadow: isHovered
+          ? '0 8px 24px rgba(91,79,207,0.16)'
+          : (isPending ? '0 0 0 2px #EDE9FE' : '0 1px 4px rgba(0,0,0,0.05)'),
+        transform: isHovered ? 'translateY(-2px)' : 'translateY(0)',
+        cursor: 'default',
+      }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      onFocus={() => setIsHovered(true)}
+      onBlur={() => setIsHovered(false)}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -218,14 +232,14 @@ function BookingCard({ b, processingId, onConfirm, onCancel }) {
             <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: 2 }}>{phone}</div>
           </div>
         </div>
-        <StatusBadge status={b.status} />
+        <StatusBadge status={b.status} language={language} />
       </div>
 
       <div style={{ height: 1, background: 'var(--card-hover)' }} />
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-        <Detail icon={<Scissors size={14} />} label="خدمت" value={serviceName} />
-        <Detail icon={<Clock size={14} />} label="زمان" value={time} />
+        <Detail icon={<Scissors size={14} />} label={t('bookings.service', 'Service')} value={serviceName} />
+        <Detail icon={<Clock size={14} />} label={t('bookings.time', 'Time')} value={time} />
       </div>
 
       {isPending && (
@@ -235,14 +249,14 @@ function BookingCard({ b, processingId, onConfirm, onCancel }) {
             disabled={isProcessing}
             color="#059669" bg="#D1FAE5" hoverBg="#A7F3D0"
             icon={<CheckCircle size={14} />}
-            label={isProcessing ? '...' : 'تأیید رزرو'}
+            label={isProcessing ? '...' : t('bookings.confirmBookingAction', 'Confirm booking')}
           />
           <ActionButton
             onClick={() => onCancel(b.id)}
             disabled={isProcessing}
             color="#DC2626" bg="#FEE2E2" hoverBg="#FECACA"
             icon={<XCircle size={14} />}
-            label={isProcessing ? '...' : 'لغو رزرو'}
+            label={isProcessing ? '...' : t('bookings.cancelBookingAction', 'Cancel booking')}
           />
         </div>
       )}
@@ -281,8 +295,10 @@ function ActionButton({ onClick, disabled, color, bg, hoverBg, icon, label }) {
   );
 }
 
-function Pagination({ current, total, onChange }) {
+function Pagination({ current, total, onChange, language }) {
   if (total <= 1) return null;
+  const isEnglish = language === 'en';
+  const formatNumber = (value) => (isEnglish ? String(value) : toPersianNumber(value));
   const pages = Array.from({ length: total }, (_, i) => i + 1);
   return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 6, marginTop: '2rem', flexWrap: 'wrap', direction: 'ltr' }}>
@@ -294,11 +310,11 @@ function Pagination({ current, total, onChange }) {
           color: current === p ? '#fff' : '#64748B',
           fontWeight: current === p ? 700 : 500, fontSize: '0.88rem',
           cursor: 'pointer', transition: 'background 0.15s'
-        }}>{toPersianNumber(p)}</button>
+        }}>{formatNumber(p)}</button>
       ))}
       <PageBtn onClick={() => onChange(current + 1)} disabled={current === total} icon={<ChevronLeft size={15} />} />
       <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginRight: 4 }}>
-        {toPersianNumber(current)} / {toPersianNumber(total)}
+        {formatNumber(current)} / {formatNumber(total)}
       </span>
     </div>
   );
@@ -318,6 +334,13 @@ function PageBtn({ onClick, disabled, icon }) {
 // کامپوننت اصلی
 // ============================================================
 export function OwnerBookings({ tenantId }) {
+  const { t, language } = useLanguage();
+  const isEnglish = language === 'en';
+
+  const formatNumberByLanguage = (value) => {
+    if (value === null || value === undefined || value === '') return '';
+    return isEnglish ? String(value) : toPersianNumber(value);
+  };
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState(null);
@@ -361,8 +384,8 @@ export function OwnerBookings({ tenantId }) {
       } catch {
         showDialog(
           'error',
-          'خطا در بارگذاری',
-          'متأسفانه در دریافت لیست رزروها مشکلی پیش آمد. لطفاً صفحه را رفرش کنید یا دوباره تلاش کنید.'
+          t('common.error', 'Error'),
+          t('bookings.loadFailed', 'We could not load the bookings. Please try again.')
         );
       } finally {
         setLoading(false);
@@ -382,28 +405,28 @@ export function OwnerBookings({ tenantId }) {
       if (action === 'confirm') {
         showDialog(
           'success_confirm',
-          'رزرو تأیید شد ✓',
-          'رزرو مشتری با موفقیت تأیید شد. مشتری از این موضوع مطلع خواهد شد و نوبت در تقویم سالن ثبت گردید.'
+          t('bookings.successConfirmTitle', 'Booking confirmed'),
+          t('bookings.successConfirmMessage', 'The booking has been confirmed successfully.')
         );
       } else {
         showDialog(
           'success_cancel',
-          'رزرو لغو شد',
-          'رزرو مشتری لغو شد و نوبت آزاد گردید. در صورت نیاز می‌توانید با مشتری تماس بگیرید و زمان جایگزینی پیشنهاد دهید.'
+          t('bookings.successCancelTitle', 'Booking cancelled'),
+          t('bookings.successCancelMessage', 'The booking has been cancelled successfully.')
         );
       }
     } catch {
       if (action === 'confirm') {
         showDialog(
           'error',
-          'خطا در تأیید رزرو',
-          'متأسفانه تأیید این رزرو با مشکل مواجه شد. ممکن است رزرو توسط مشتری لغو شده باشد یا اتصال اینترنت قطع باشد. لطفاً دوباره تلاش کنید.'
+          t('common.error', 'Error'),
+          t('bookings.confirmFailed', 'We could not confirm this booking. Please try again.')
         );
       } else {
         showDialog(
           'error',
-          'خطا در لغو رزرو',
-          'متأسفانه لغو این رزرو با مشکل مواجه شد. لطفاً اتصال اینترنت خود را بررسی کرده و دوباره تلاش کنید.'
+          t('common.error', 'Error'),
+          t('bookings.cancelFailed', 'We could not cancel this booking. Please try again.')
         );
       }
     } finally {
@@ -419,7 +442,7 @@ export function OwnerBookings({ tenantId }) {
   const pendingCount = bookings.filter(b => b.status === 'pending').length;
 
   return (
-    <div style={{ direction: 'rtl' }}>
+    <div style={{ direction: isEnglish ? 'ltr' : 'rtl' }}>
 
       {/* دیالوگ مدال */}
       <DialogModal
@@ -429,13 +452,15 @@ export function OwnerBookings({ tenantId }) {
         title={dialog.title}
         message={dialog.message}
         icon={dialog.icon}
+        t={t}
+        language={language}
       />
 
       {/* خلاصه آماری */}
       {bookings.length > 0 && (
         <div style={{ display: 'flex', gap: 12, marginBottom: '1.5rem', flexWrap: 'wrap' }}>
-          <StatChip label="کل رزروها" value={toPersianNumber(bookings.length)} color="#5B4FCF" bg="#EDE9FE" />
-          {pendingCount > 0 && <StatChip label="در انتظار تأیید" value={toPersianNumber(pendingCount)} color="#92400E" bg="#FEF3C7" />}
+          <StatChip label={t('bookings.totalBookings', 'Total bookings')} value={formatNumberByLanguage(bookings.length)} color="#5B4FCF" bg="#EDE9FE" />
+          {pendingCount > 0 && <StatChip label={t('bookings.pendingStatus', 'Pending')} value={formatNumberByLanguage(pendingCount)} color="#92400E" bg="#FEF3C7" />}
         </div>
       )}
 
@@ -445,8 +470,8 @@ export function OwnerBookings({ tenantId }) {
           color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12
         }}>
           <Clock size={40} strokeWidth={1.5} />
-          <div style={{ fontWeight: 600, fontSize: '1rem', color: 'var(--text-secondary)' }}>هنوز رزروی ثبت نشده</div>
-          <div style={{ fontSize: '0.85rem' }}>رزروهای جدید اینجا نمایش داده می‌شوند.</div>
+          <div style={{ fontWeight: 600, fontSize: '1rem', color: 'var(--text-secondary)' }}>{t('bookings.noBookings', 'No bookings to display')}</div>
+          <div style={{ fontSize: '0.85rem' }}>{t('bookings.noBookingsFoundHint', 'Enter your phone number to view your bookings.')}</div>
         </div>
       ) : (
         <>
@@ -461,10 +486,12 @@ export function OwnerBookings({ tenantId }) {
                 processingId={processingId}
                 onConfirm={(id) => handleAction(id, 'confirm')}
                 onCancel={(id) => handleAction(id, 'cancel')}
+                language={language}
+                t={t}
               />
             ))}
           </div>
-          <Pagination current={currentPage} total={totalPages} onChange={setCurrentPage} />
+          <Pagination current={currentPage} total={totalPages} onChange={setCurrentPage} language={language} />
         </>
       )}
     </div>

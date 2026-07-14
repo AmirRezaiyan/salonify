@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ChevronLeft, ChevronRight, Images, ZoomIn } from 'lucide-react';
 import { api } from '../api/client';
+import { useLanguage } from '../context/LanguageContext';
 import { toPersianNumber } from '../utils/formatCurrency';
 
 const T = {
@@ -300,6 +301,7 @@ function ImageTile({ item, index, onClick }) {
 
 /* ─── PortfolioGallery ────────────────────────────────────────────────────── */
 const PortfolioGallery = ({ salonId }) => {
+  const { t } = useLanguage();
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [lightboxIndex, setLightboxIndex] = useState(null);
@@ -370,7 +372,7 @@ const PortfolioGallery = ({ salonId }) => {
               <Images size={18} style={{ color: T.purple }} />
             </div>
             <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: T.ink, letterSpacing: '-0.3px' }}>
-              نمونه کارها
+              {t('portfolioGallery.title', 'Portfolio')}
             </h3>
           </div>
 
@@ -471,7 +473,7 @@ const PortfolioGallery = ({ salonId }) => {
                   borderRadius: T.radiusSm,
                 }}
               >
-                هیچ نمونه‌کاری برای این دسته‌بندی ثبت نشده
+                {t('portfolioGallery.empty', 'No portfolio items have been added for this category yet')}
               </motion.div>
             )}
           </AnimatePresence>

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { motion } from 'framer-motion';
 import { Button } from '../components/Button';
 import {
@@ -91,18 +92,36 @@ const textareaBase = {
   minHeight: '110px',
   resize: 'vertical',
   lineHeight: 1.7,
+};
+
+const textareaLtr = {
+  ...textareaBase,
+  direction: 'ltr',
+  textAlign: 'left'
+};
+
+const textareaRtl = {
+  ...textareaBase,
   direction: 'rtl',
   textAlign: 'right'
 };
 
-const textareaErr = {
-  ...textareaBase,
+const textareaLtrErr = {
+  ...textareaLtr,
+  borderColor: COLORS.danger,
+  backgroundColor: COLORS.lightBg
+};
+
+const textareaRtlErr = {
+  ...textareaRtl,
   borderColor: COLORS.danger,
   backgroundColor: COLORS.lightBg
 };
 
 // کاملاً inline — بدون هیچ کامپوننت خارجی
 const FieldError = ({ msg }) => {
+  const { language } = useLanguage();
+  const isEnglish = language === 'en';
   if (!msg) return null;
   return (
     <p
@@ -114,7 +133,9 @@ const FieldError = ({ msg }) => {
         fontWeight: 500,
         display: 'flex',
         alignItems: 'center',
-        gap: '0.3rem'
+        gap: '0.3rem',
+        direction: isEnglish ? 'ltr' : 'rtl',
+        textAlign: isEnglish ? 'left' : 'right'
       }}
     >
       ⚠ {msg}
@@ -211,6 +232,8 @@ export default function Signup() {
   const [showPassConfirm, setShowPassConfirm] = useState(false);
 
   const { register } = useAuth();
+  const { t, language } = useLanguage();
+  const isEnglish = language === 'en';
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -238,74 +261,73 @@ export default function Signup() {
   const validateForm = () => {
     const e = {};
 
-    if (!formData.username?.trim()) e.username = 'نام کاربری الزامی است';
-    else if (formData.username.length < 3) e.username = 'حداقل ۳ کاراکتر';
-    else if (!/^[\x00-\x7F]+$/.test(formData.username)) e.username = 'فقط حروف و ارقام انگلیسی';
+    if (!formData.username?.trim()) e.username = t('signup.usernameRequired');
+    else if (formData.username.length < 3) e.username = t('signup.usernameMin');
+    else if (!/^[\x00-\x7F]+$/.test(formData.username)) e.username = t('signup.usernameAscii');
 
-    if (!formData.email?.trim()) e.email = 'ایمیل الزامی است';
+    if (!formData.email?.trim()) e.email = t('signup.emailRequired');
     else {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(formData.email)) e.email = 'ایمیل معتبر نیست (مثال: user@example.com)';
+      if (!emailRegex.test(formData.email)) e.email = t('signup.emailInvalid');
     }
 
-    if (!formData.first_name?.trim()) e.first_name = 'نام الزامی است';
-    if (!formData.last_name?.trim()) e.last_name = 'نام خانوادگی الزامی است';
+    if (!formData.first_name?.trim()) e.first_name = t('signup.fieldRequired');
+    if (!formData.last_name?.trim()) e.last_name = t('signup.fieldRequired');
 
-    if (!formData.phone_number?.trim()) e.phone_number = 'شماره تلفن الزامی است';
+    if (!formData.phone_number?.trim()) e.phone_number = t('signup.phoneRequired');
     else {
       const phoneDigits = formData.phone_number.replace(/\D/g, '');
-      if (phoneDigits.length < 10) e.phone_number = 'شماره تلفن باید حداقل ۱۰ رقم باشد';
-      else if (phoneDigits.length > 12) e.phone_number = 'شماره تلفن نمی‌تواند بیش‌تر از ۱۲ رقم باشد';
+      if (phoneDigits.length < 10) e.phone_number = t('signup.phoneInvalid');
+      else if (phoneDigits.length > 12) e.phone_number = t('signup.phoneInvalid');
     }
 
-    if (!formData.password) e.password = 'رمز عبور الزامی است';
-    else if (formData.password.length < 6) e.password = 'رمز عبور باید حداقل ۶ کاراکتر باشد';
+    if (!formData.password) e.password = t('signup.passwordRequired');
+    else if (formData.password.length < 6) e.password = t('signup.passwordMin');
 
-    if (!formData.password_confirm) e.password_confirm = 'تأیید رمز عبور الزامی است';
-    else if (formData.password !== formData.password_confirm) e.password_confirm = 'رمزها مطابقت ندارند';
+    if (!formData.password_confirm) e.password_confirm = t('signup.passwordConfirmRequired');
+    else if (formData.password !== formData.password_confirm) e.password_confirm = t('signup.passwordsMismatch');
 
     if (formData.role === 'owner') {
-      if (!formData.salon_name?.trim()) e.salon_name = 'نام سالن برای مالک الزامی است';
-      if (!formData.salon_city?.trim()) e.salon_city = 'شهر سالن برای مالک الزامی است';
-      if (!formData.salon_gender?.trim()) e.salon_gender = 'جنسیت سالن برای مالک الزامی است';
-      if (!formData.salon_address?.trim()) e.salon_address = 'آدرس سالن برای مالک الزامی است';
+      if (!formData.salon_name?.trim()) e.salon_name = t('signup.salonNameRequired');
+      if (!formData.salon_city?.trim()) e.salon_city = t('signup.salonCityRequired');
+      if (!formData.salon_gender?.trim()) e.salon_gender = t('signup.salonGenderRequired');
+      if (!formData.salon_address?.trim()) e.salon_address = t('signup.salonAddressRequired');
 
       if (formData.salon_phone?.trim()) {
         const salonPhoneDigits = formData.salon_phone.replace(/\D/g, '');
-        if (salonPhoneDigits.length < 10) e.salon_phone = 'شماره سالن معتبر نیست (حداقل ۱۰ رقم)';
-        else if (salonPhoneDigits.length > 12) e.salon_phone = 'شماره سالن نمی‌تواند بیش‌تر از ۱۲ رقم باشد';
+        if (salonPhoneDigits.length < 10) e.salon_phone = t('signup.salonPhoneInvalid');
+        else if (salonPhoneDigits.length > 12) e.salon_phone = t('signup.salonPhoneInvalid');
       }
     }
 
-    // مشتریان باید شهر خود را انتخاب کنند
     if (formData.role === 'customer') {
-      if (!formData.city?.trim()) e.city = 'شهر الزامی است';
+      if (!formData.city?.trim()) e.city = t('signup.cityRequired');
     }
 
     return e;
   };
 
   // ─── ترجمه خطا ──────────────────────────────────────────────────────────────
-  function toFarsiError(field, msg) {
+  function toErrorMessage(field, msg) {
     const m = String(msg).toLowerCase();
     if (m.includes('already exists') || m.includes('قبلاً ثبت شده') || m.includes('duplicate')) {
-      if (field === 'email') return 'این ایمیل قبلاً ثبت شده است';
-      if (field === 'phone_number') return 'این شماره تلفن قبلاً ثبت شده است';
-      if (field === 'salon_phone') return 'این شماره تلفن سالن قبلاً ثبت شده است';
-      if (field === 'username') return 'این نام کاربری قبلاً ثبت شده است';
-      return 'این مقدار قبلاً ثبت شده است';
+      if (field === 'email') return t('signup.emailTaken');
+      if (field === 'phone_number') return t('signup.phoneTaken');
+      if (field === 'salon_phone') return t('signup.salonPhoneTaken');
+      if (field === 'username') return t('signup.usernameTaken');
+      return t('signup.fieldRequired');
     }
-    if (m.includes('too short') || m.includes('at least 8')) return 'رمز عبور باید حداقل ۸ کاراکتر باشد';
-    if (m.includes('too common') || m.includes('common')) return 'رمز عبور خیلی ساده است';
-    if (m.includes('entirely numeric') || m.includes('numeric')) return 'رمز عبور نباید فقط عدد باشد';
+    if (m.includes('too short') || m.includes('at least 8')) return t('signup.passwordTooShort');
+    if (m.includes('too common') || m.includes('common')) return t('signup.passwordTooCommon');
+    if (m.includes('entirely numeric') || m.includes('numeric')) return t('signup.passwordNumeric');
     if (field === 'email' && (m.includes('invalid') || m.includes('enter a valid')))
-      return 'فرمت ایمیل صحیح نیست (مثال: user@example.com)';
+      return t('signup.emailFormat');
     if (field === 'phone_number' && m.includes('invalid'))
-      return 'شماره تلفن معتبر نیست (حداقل ۱۰ رقم)';
+      return t('signup.phoneNumberInvalid');
     if (field === 'salon_phone' && m.includes('invalid'))
-      return 'شماره تلفن سالن معتبر نیست (حداقل ۱۰ رقم)';
+      return t('signup.salonPhoneNumberInvalid');
     if ((field === 'salon_name' || field === 'salon_city' || field === 'salon_gender' || field === 'salon_address') && m.includes('required'))
-      return 'این فیلد الزامی است';
+      return t('signup.salonFieldRequired');
     return msg;
   }
 
@@ -351,24 +373,24 @@ export default function Signup() {
           Object.keys(src).forEach(function (key) {
             const val = src[key];
             const raw = Array.isArray(val) ? (val[0] || '') : String(val);
-            msgs[key] = toFarsiError(key, raw);
+            msgs[key] = toErrorMessage(key, raw);
           });
 
           if (Object.keys(msgs).length > 0) {
             setErrors(msgs);
-            setError('لطفاً خطاهای مشخص‌شده را اصلاح کنید');
+            setError(t('signup.generalError'));
             setLoading(false);
             window.scrollTo({ top: 0, behavior: 'smooth' });
             return;
           }
         }
 
-        setError(result.error || 'ثبت نام ناموفق بود. دوباره تلاش کنید.');
+        setError(result.error || t('signup.signupError'));
         setLoading(false);
         window.scrollTo({ top: 0, behavior: 'smooth' });
       })
       .catch(function () {
-        setError('خطای غیرمنتظره. لطفاً دوباره تلاش کنید.');
+        setError(t('signup.signupError'));
         setLoading(false);
       });
   }
@@ -384,8 +406,8 @@ export default function Signup() {
         alignItems: 'flex-start',
         padding: '2rem 1rem',
         boxSizing: 'border-box',
-        direction: 'rtl',
-        textAlign: 'right'
+        direction: language === 'en' ? 'ltr' : 'rtl',
+        textAlign: language === 'en' ? 'left' : 'right'
       }}
     >
       {/* پس‌زمینه تزئینی */}
@@ -470,10 +492,10 @@ export default function Signup() {
               textShadow: '0 2px 10px rgba(0,0,0,0.15)'
             }}
           >
-            ساخت حساب کاربری
+            {t('signup.createAccountButton')}
           </h1>
           <p style={{ color: 'var(--text-light)', margin: 0, fontSize: '0.95rem' }}>
-            اطلاعات خود را وارد کنید
+            {t('signup.signupIntro')}
           </p>
         </div>
 
@@ -485,7 +507,7 @@ export default function Signup() {
 
           {/* ───── انتخاب نقش ───── */}
           <div style={{ marginBottom: '2rem' }}>
-            <label style={{ ...labelStyle, marginBottom: '0.6rem' }}>نوع حساب</label>
+            <label style={{ ...labelStyle, marginBottom: '0.6rem' }}>{t('signup.accountType')}</label>
             <div
               style={{
                 display: 'grid',
@@ -494,8 +516,8 @@ export default function Signup() {
               }}
             >
               {[
-                { value: 'customer', label: 'مشتری', icon: <User size={18} />, desc: 'رزرو نوبت آنلاین' },
-                { value: 'owner', label: 'مالک سالن', icon: <Store size={18} />, desc: 'مدیریت سالن و نوبت‌ها' }
+                { value: 'customer', label: t('signup.roleCustomer'), icon: <User size={18} />, desc: t('signup.roleCustomerDesc') },
+                { value: 'owner', label: t('signup.roleOwner'), icon: <Store size={18} />, desc: t('signup.roleOwnerDesc') }
               ].map(({ value, label, icon, desc }) => {
                 const active = formData.role === value;
                 return (
@@ -513,7 +535,7 @@ export default function Signup() {
                       backgroundColor: active ? 'rgba(37,99,235,0.06)' : 'var(--surface-muted)',
                       cursor: 'pointer',
                       transition: 'all 0.2s',
-                      textAlign: 'right'
+                      textAlign: isEnglish ? 'left' : 'right'
                     }}
                   >
                     <span style={{
@@ -543,7 +565,7 @@ export default function Signup() {
           </div>
 
           {/* ───── بخش اطلاعات کاربری ───── */}
-          <SectionTitle icon={<User size={18} />} title="اطلاعات شخصی" />
+          <SectionTitle icon={<User size={18} />} title={t('signup.personalInfo')} />
 
           <div
             style={{
@@ -554,12 +576,12 @@ export default function Signup() {
             }}
           >
             <div>
-              <label style={labelStyle}>نام کاربری</label>
+              <label style={labelStyle}>{t('auth.username')}</label>
               <div style={{ position: 'relative' }}>
                 <input
                   type="text"
                   name="username"
-                  placeholder="username"
+                  placeholder={t('signup.usernamePlaceholder')}
                   value={formData.username}
                   onChange={handleChange}
                   style={errors.username ? inputLtrError : inputLtr}
@@ -572,12 +594,12 @@ export default function Signup() {
             </div>
 
             <div>
-              <label style={labelStyle}>ایمیل</label>
+              <label style={labelStyle}>{t('auth.username')}</label>
               <div style={{ position: 'relative' }}>
                 <input
                   type="email"
                   name="email"
-                  placeholder="example@email.com"
+                  placeholder={t('signup.emailPlaceholder')}
                   value={formData.email}
                   onChange={handleChange}
                   style={errors.email ? inputLtrError : inputLtr}
@@ -599,32 +621,38 @@ export default function Signup() {
             }}
           >
             <div>
-              <label style={labelStyle}>نام</label>
-              <input
-                type="text"
-                name="first_name"
-                placeholder="نام"
-                value={formData.first_name}
-                onChange={handleChange}
-                style={errors.first_name ? inputRtlError : inputRtl}
-                onFocus={(e) => onFocus(e, !!errors.first_name)}
-                onBlur={onBlur}
-              />
+              <label style={labelStyle}>{t('signup.firstNamePlaceholder')}</label>
+              <div style={{ position: 'relative' }}>
+                <input
+                  type="text"
+                  name="first_name"
+                  placeholder={t('signup.firstNamePlaceholder')}
+                  value={formData.first_name}
+                  onChange={handleChange}
+                  style={errors.first_name ? (isEnglish ? inputLtrError : inputRtlError) : (isEnglish ? inputLtr : inputRtl)}
+                  onFocus={(e) => onFocus(e, !!errors.first_name)}
+                  onBlur={onBlur}
+                />
+                <User size={16} color={errors.first_name ? COLORS.danger : '#94a3b8'} style={iconStyle(isEnglish ? 'left' : 'right')} />
+              </div>
               <FieldError msg={errors.first_name} />
             </div>
 
             <div>
-              <label style={labelStyle}>نام خانوادگی</label>
-              <input
-                type="text"
-                name="last_name"
-                placeholder="نام خانوادگی"
-                value={formData.last_name}
-                onChange={handleChange}
-                style={errors.last_name ? inputRtlError : inputRtl}
-                onFocus={(e) => onFocus(e, !!errors.last_name)}
-                onBlur={onBlur}
-              />
+              <label style={labelStyle}>{t('signup.lastNamePlaceholder')}</label>
+              <div style={{ position: 'relative' }}>
+                <input
+                  type="text"
+                  name="last_name"
+                  placeholder={t('signup.lastNamePlaceholder')}
+                  value={formData.last_name}
+                  onChange={handleChange}
+                  style={errors.last_name ? (isEnglish ? inputLtrError : inputRtlError) : (isEnglish ? inputLtr : inputRtl)}
+                  onFocus={(e) => onFocus(e, !!errors.last_name)}
+                  onBlur={onBlur}
+                />
+                <User size={16} color={errors.last_name ? COLORS.danger : '#94a3b8'} style={iconStyle(isEnglish ? 'left' : 'right')} />
+              </div>
               <FieldError msg={errors.last_name} />
             </div>
           </div>
@@ -638,15 +666,15 @@ export default function Signup() {
             }}
           >
             <div>
-              <label style={labelStyle}>شماره موبایل</label>
+              <label style={labelStyle}>{t('signup.phoneRequired')}</label>
               <div style={{ position: 'relative' }}>
                 <input
                   type="tel"
                   name="phone_number"
-                  placeholder="۰۹۱۲۳۴۵۶۷۸۹"
+                  placeholder={t('signup.phonePlaceholder')}
                   value={formData.phone_number}
                   onChange={handleChange}
-                  style={errors.phone_number ? inputRtlError : inputRtl}
+                  style={errors.phone_number ? (isEnglish ? inputLtrError : inputRtlError) : (isEnglish ? inputLtr : inputRtl)}
                   onFocus={(e) => onFocus(e, !!errors.phone_number)}
                   onBlur={onBlur}
                 />
@@ -656,14 +684,15 @@ export default function Signup() {
             </div>
 
             <div>
-              <label style={labelStyle}>جنسیت</label>
+              <label style={labelStyle}>{t('signup.genderLabel')}</label>
               <div style={{ position: 'relative' }}>
                 <select
                   name="gender"
                   value={formData.gender}
                   onChange={handleChange}
+                  dir={isEnglish ? 'ltr' : 'rtl'}
                   style={{
-                    ...(errors.gender ? inputRtlError : inputRtl),
+                    ...(errors.gender ? (isEnglish ? inputLtrError : inputRtlError) : (isEnglish ? inputLtr : inputRtl)),
                     paddingRight: '2.5rem',
                     appearance: 'none',
                     cursor: 'pointer'
@@ -671,11 +700,12 @@ export default function Signup() {
                   onFocus={(e) => onFocus(e, !!errors.gender)}
                   onBlur={onBlur}
                 >
-                  <option value="">انتخاب جنسیت</option>
-                  <option value="male">مرد</option>
-                  <option value="female">زن</option>
+                  <option value="">{t('signup.fieldRequired')}</option>
+                  <option value="male">{t('signup.genderMale')}</option>
+                  <option value="female">{t('signup.genderFemale')}</option>
                 </select>
-                <ChevronDown size={16} color={errors.gender ? '#f5576c' : '#94a3b8'} style={iconStyle('right')} />
+                <User size={16} color={errors.gender ? COLORS.danger : '#94a3b8'} style={iconStyle(isEnglish ? 'left' : 'right')} />
+                <ChevronDown size={16} color={errors.gender ? '#f5576c' : '#94a3b8'} style={iconStyle(isEnglish ? 'right' : 'left')} />
               </div>
               <FieldError msg={errors.gender} />
             </div>
@@ -684,7 +714,7 @@ export default function Signup() {
           <div style={{ marginBottom: '2rem' }}>
             <CitySelect
               name="city"
-              label="شهر"
+              label={t('signup.cityPlaceholder')}
               value={formData.city}
               onChange={handleChange}
               error={errors.city}
@@ -694,7 +724,7 @@ export default function Signup() {
           {/* ───── اطلاعات سالن فقط برای مالک ───── */}
           {formData.role === 'owner' && (
             <>
-              <SectionTitle icon={<Scissors size={18} />} title="اطلاعات سالن" />
+              <SectionTitle icon={<Scissors size={18} />} title={t('signup.salonInfo')} />
 
               <div
                 style={{
@@ -705,15 +735,15 @@ export default function Signup() {
                 }}
               >
                 <div>
-                  <label style={labelStyle}>نام سالن</label>
+                  <label style={labelStyle}>{t('signup.salonNamePlaceholder')}</label>
                   <div style={{ position: 'relative' }}>
                     <input
                       type="text"
                       name="salon_name"
-                      placeholder="نام سالن"
+                      placeholder={t('signup.salonNamePlaceholder')}
                       value={formData.salon_name}
                       onChange={handleChange}
-                    style={errors.salon_name ? inputRtlError : inputRtl}
+                    style={errors.salon_name ? (isEnglish ? inputLtrError : inputRtlError) : (isEnglish ? inputLtr : inputRtl)}
                       onFocus={(e) => onFocus(e, !!errors.salon_name)}
                       onBlur={onBlur}
                     />
@@ -725,7 +755,7 @@ export default function Signup() {
                 <div>
                   <CitySelect
                     name="salon_city"
-                    label="شهر سالن"
+                    label={t('signup.salonCityPlaceholder')}
                     value={formData.salon_city}
                     onChange={handleChange}
                     error={errors.salon_city}
@@ -742,15 +772,15 @@ export default function Signup() {
                 }}
               >
                 <div>
-                  <label style={labelStyle}>شماره سالن</label>
+                  <label style={labelStyle}>{t('signup.salonPhonePlaceholder')}</label>
                   <div style={{ position: 'relative' }}>
                     <input
                       type="tel"
                       name="salon_phone"
-                      placeholder="شماره تلفن سالن"
+                      placeholder={t('signup.salonPhonePlaceholder')}
                       value={formData.salon_phone}
                       onChange={handleChange}
-                    style={errors.salon_phone ? inputRtlError : inputRtl}
+                    style={errors.salon_phone ? (isEnglish ? inputLtrError : inputRtlError) : (isEnglish ? inputLtr : inputRtl)}
                       onFocus={(e) => onFocus(e, !!errors.salon_phone)}
                       onBlur={onBlur}
                     />
@@ -760,14 +790,15 @@ export default function Signup() {
                 </div>
 
                 <div>
-                  <label style={labelStyle}>جنسیت سالن</label>
+                  <label style={labelStyle}>{t('signup.genderLabel')}</label>
                   <div style={{ position: 'relative' }}>
                     <select
                       name="salon_gender"
                       value={formData.salon_gender}
                       onChange={handleChange}
+                      dir={isEnglish ? 'ltr' : 'rtl'}
                       style={{
-                        ...(errors.salon_gender ? inputRtlError : inputRtl),
+                        ...(errors.salon_gender ? (isEnglish ? inputLtrError : inputRtlError) : (isEnglish ? inputLtr : inputRtl)),
                         paddingRight: '2.5rem',
                         appearance: 'none',
                         cursor: 'pointer'
@@ -775,21 +806,21 @@ export default function Signup() {
                       onFocus={(e) => onFocus(e, !!errors.salon_gender)}
                       onBlur={onBlur}
                     >
-                      <option value="">انتخاب کنید</option>
-                      <option value="male">مردانه</option>
-                      <option value="female">زنانه</option>
+                      <option value="">{t('signup.fieldRequired')}</option>
+                      <option value="male">{t('signup.genderMale')}</option>
+                      <option value="female">{t('signup.genderFemale')}</option>
                     </select>
-                    <ChevronDown size={16} color={errors.salon_gender ? '#f5576c' : '#94a3b8'} style={iconStyle('right')} />
+                    <ChevronDown size={16} color={errors.salon_gender ? '#f5576c' : '#94a3b8'} style={iconStyle(isEnglish ? 'right' : 'left')} />
                   </div>
                   <FieldError msg={errors.salon_gender} />
                 </div>
               </div>
 
               <div style={{ marginBottom: '2rem' }}>
-                <label style={labelStyle}>آدرس سالن</label>
+                <label style={labelStyle}>{t('signup.salonAddressPlaceholder')}</label>
                 <textarea
                   name="salon_address"
-                  placeholder="آدرس کامل سالن"
+                  placeholder={t('signup.salonAddressPlaceholder')}
                   value={formData.salon_address}
                   onChange={handleChange}
                   style={errors.salon_address ? textareaErr : textareaBase}
@@ -802,7 +833,7 @@ export default function Signup() {
           )}
 
           {/* ───── بخش رمز عبور ───── */}
-          <SectionTitle icon={<Lock size={18} />} title="رمز عبور" />
+          <SectionTitle icon={<Lock size={18} />} title={t('signup.passwordSection')} />
 
           <div
             style={{
@@ -813,12 +844,12 @@ export default function Signup() {
             }}
           >
             <div>
-              <label style={labelStyle}>رمز عبور</label>
+              <label style={labelStyle}>{t('auth.password')}</label>
               <div style={{ position: 'relative' }}>
                 <input
                   type={showPass ? 'text' : 'password'}
                   name="password"
-                  placeholder="Password"
+                  placeholder={t('signup.passwordPlaceholder')}
                   value={formData.password}
                   onChange={handleChange}
                   style={errors.password ? inputLtrError : inputLtr}
@@ -831,12 +862,12 @@ export default function Signup() {
             </div>
 
             <div>
-              <label style={labelStyle}>تأیید رمز عبور</label>
+              <label style={labelStyle}>{t('signup.passwordConfirmPlaceholder')}</label>
               <div style={{ position: 'relative' }}>
                 <input
                   type={showPassConfirm ? 'text' : 'password'}
                   name="password_confirm"
-                  placeholder="Confirm password"
+                  placeholder={t('signup.passwordConfirmPlaceholder')}
                   value={formData.password_confirm}
                   onChange={handleChange}
                   style={errors.password_confirm ? inputLtrError : inputLtr}
@@ -875,21 +906,21 @@ export default function Signup() {
                 justifyContent: 'center'
               }}
             >
-              {loading ? 'در حال ساخت حساب...' : (<><UserPlus size={20} /> ساخت حساب کاربری</>)}
+              {loading ? t('signup.createAccountLoading') : (<><UserPlus size={20} /> {t('signup.createAccountButton')}</>)}
             </Button>
           </div>
         </form>
 
         {/* ── فوتر ── */}
         <p style={{ textAlign: 'center', marginTop: '1.75rem', color: "var(--text-secondary)", fontSize: '0.95rem' }}>
-          حساب کاربری دارید؟{' '}
+          {t('signup.haveAccountPrompt')}{' '}
           <Link
             to="/login"
             style={{ color: COLORS.primary, fontWeight: 700, textDecoration: 'none' }}
             onMouseEnter={(e) => (e.target.style.color = COLORS.primaryDark)}
             onMouseLeave={(e) => (e.target.style.color = COLORS.primary)}
           >
-            وارد شوید
+            {t('signup.loginLink')}
           </Link>
         </p>
 
@@ -906,9 +937,9 @@ export default function Signup() {
             }}
           >
             <Sparkles size={14} color="#667eea" />
-            شروع استفاده از پلتفرم نوبت‌دهی آنلاین
+            {t('signup.signupFooter')}
           </p>
-          <p style={{ fontSize: '0.75rem', color: '#cbd5e1', margin: 0 }}>ثبت نام سریع و رایگان</p>
+          <p style={{ fontSize: '0.75rem', color: '#cbd5e1', margin: 0 }}>{t('signup.signupFooterSub')}</p>
         </div>
       </motion.div>
     </div>
@@ -918,6 +949,8 @@ export default function Signup() {
 // ─── کامپوننت‌های کمکی ────────────────────────────────────────────────────────
 
 function CitySelect({ name, label, value, onChange, error }) {
+  const { t, language } = useLanguage();
+  const isEnglish = language === 'en';
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
 
@@ -948,14 +981,15 @@ function CitySelect({ name, label, value, onChange, error }) {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          direction: 'rtl',
+          direction: isEnglish ? 'ltr' : 'rtl',
+          textAlign: isEnglish ? 'left' : 'right',
           fontFamily: 'inherit',
           boxSizing: 'border-box'
         }}
       >
         <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <MapPin size={15} color={error ? COLORS.danger : COLORS.muted} />
-          {selected ? selected.label : 'انتخاب شهر'}
+          {selected ? selected.label : t('signup.selectCity')}
         </span>
         <ChevronDown size={15} color={error ? COLORS.danger : COLORS.muted} />
       </button>
@@ -981,19 +1015,19 @@ function CitySelect({ name, label, value, onChange, error }) {
               maxHeight: '75vh',
               display: 'flex',
               flexDirection: 'column',
-              direction: 'rtl'
+              direction: isEnglish ? 'ltr' : 'rtl'
             }}
           >
             {/* handle */}
             <div style={{ width: '40px', height: '4px', borderRadius: '2px', background: 'var(--surface-muted)', margin: '0 auto 0.75rem' }} />
-            <p style={{ fontWeight: 700, fontSize: '1rem', color: COLORS.text, margin: '0 0 0.75rem', textAlign: 'center' }}>انتخاب شهر</p>
+            <p style={{ fontWeight: 700, fontSize: '1rem', color: COLORS.text, margin: '0 0 0.75rem', textAlign: 'center' }}>{t('signup.cityModalTitle')}</p>
 
             {/* search */}
             <div style={{ position: 'relative', marginBottom: '0.75rem' }}>
               <input
                 autoFocus
                 type="text"
-                placeholder="جستجو..."
+                placeholder={t('signup.citySearchPlaceholder')}
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 style={{
@@ -1001,7 +1035,8 @@ function CitySelect({ name, label, value, onChange, error }) {
                   border: `1.5px solid ${COLORS.border}`,
                   borderRadius: '8px', fontSize: '0.9rem',
                   outline: 'none', boxSizing: 'border-box',
-                  direction: 'rtl', fontFamily: 'inherit',
+                  direction: isEnglish ? 'ltr' : 'rtl', fontFamily: 'inherit',
+                  textAlign: isEnglish ? 'left' : 'right',
                   color: COLORS.text, backgroundColor: COLORS.lightBg
                 }}
               />
@@ -1010,7 +1045,7 @@ function CitySelect({ name, label, value, onChange, error }) {
             {/* list */}
             <div style={{ overflowY: 'auto', flex: 1 }}>
               {filtered.length === 0 && (
-                <p style={{ color: "var(--text-muted)", textAlign: 'center', padding: '1rem 0', fontSize: '0.9rem' }}>شهری یافت نشد</p>
+                <p style={{ color: "var(--text-muted)", textAlign: 'center', padding: '1rem 0', fontSize: '0.9rem' }}>{t('signup.cityNotFound')}</p>
               )}
               {filtered.map(c => (
                 <button
@@ -1024,7 +1059,7 @@ function CitySelect({ name, label, value, onChange, error }) {
                     color: value === c.value ? COLORS.primary : COLORS.text,
                     fontWeight: value === c.value ? 700 : 400,
                     fontSize: '0.95rem', cursor: 'pointer',
-                    textAlign: 'right', fontFamily: 'inherit',
+                    textAlign: isEnglish ? 'left' : 'right', fontFamily: 'inherit',
                     marginBottom: '2px', display: 'flex',
                     alignItems: 'center', justifyContent: 'space-between'
                   }}
@@ -1060,6 +1095,7 @@ function SectionTitle({ icon, title }) {
 }
 
 function EyeToggle({ show, onToggle, hasErr }) {
+  const { t } = useLanguage();
   const [hovered, setHovered] = useState(false);
   return (
     <button
@@ -1068,7 +1104,7 @@ function EyeToggle({ show, onToggle, hasErr }) {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       tabIndex={-1}
-      aria-label={show ? 'مخفی کردن رمز' : 'نمایش رمز'}
+      aria-label={show ? t('signup.hidePassword') : t('signup.showPassword')}
       style={{
         position: 'absolute',
         left: '0.65rem',

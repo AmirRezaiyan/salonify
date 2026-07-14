@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import { useLanguage } from '../context/LanguageContext';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import {
   Menu, X, LogOut, Home, Calendar, Settings,
@@ -26,10 +27,10 @@ const C = {
 };
 
 // ─── Helper: Role badge ─────────────────────────────────────────────────────
-function roleMeta(role) {
-  if (role === 'owner') return { label: 'مالک', color: '#f59e0b' };
-  if (role === 'staff') return { label: 'کارمند', color: 'var(--secondary)' };
-  return { label: 'مشتری', color: '#10b981' };
+function roleMeta(role, language) {
+  if (role === 'owner') return { label: language === 'en' ? 'Owner' : 'مالک سالن', color: '#f59e0b' };
+  if (role === 'staff') return { label: language === 'en' ? 'Staff' : 'کارمند', color: 'var(--secondary)' };
+  return { label: language === 'en' ? 'Customer' : 'مشتری', color: '#10b981' };
 }
 
 // ─── NavItem ────────────────────────────────────────────────────────────────
@@ -101,11 +102,12 @@ function MobileNavItem({ to, icon, children, active, onClick }) {
 
 function ThemeToggle({ theme, onClick, mobile = false }) {
   const isDark = theme === 'dark';
+  const { t } = useLanguage();
   return (
     <button
       type="button"
       onClick={onClick}
-      aria-label="تغییر حالت تم"
+      aria-label={t('header.theme')}
       aria-pressed={isDark}
       className={`hdr-theme-toggle${mobile ? ' hdr-theme-toggle--mobile' : ''}`}
     >
@@ -123,7 +125,30 @@ function ThemeToggle({ theme, onClick, mobile = false }) {
           <Moon size={14} />
         </span>
       </span>
-      <span className="hdr-theme-toggle__label">{isDark ? 'روشن' : 'تاریک'}</span>
+      <span className="hdr-theme-toggle__label">{isDark ? t('header.themeLight') : t('header.themeDark')}</span>
+    </button>
+  );
+}
+
+function LanguageToggle({ mobile = false }) {
+  const { language, setLanguage, t } = useLanguage();
+  const isEnglish = language === 'en';
+
+  return (
+    <button
+      type="button"
+      onClick={() => setLanguage(isEnglish ? 'fa' : 'en')}
+      aria-label={t('header.toggle')}
+      style={{
+        display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+        padding: mobile ? '12px 14px' : '8px 12px', minWidth: mobile ? '140px' : '110px',
+        borderRadius: '999px', border: '1px solid var(--border)', background: 'var(--card-hover)',
+        color: 'var(--text-primary)', cursor: 'pointer', fontWeight: 700, fontSize: mobile ? '0.95rem' : '0.9rem',
+        transition: 'all 0.2s ease', outline: 'none', boxShadow: 'none',
+      }}
+    >
+      <span>{isEnglish ? 'FA' : 'EN'}</span>
+      <span>{isEnglish ? t('header.switchToPersian') : t('header.switchToEnglish')}</span>
     </button>
   );
 }
@@ -132,6 +157,7 @@ function ThemeToggle({ theme, onClick, mobile = false }) {
 export default function Header() {
   const { isAuthenticated, user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const { t, language, setLanguage } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -184,7 +210,7 @@ export default function Header() {
   const handleLogout = () => { logout(); close(); navigate('/login'); };
 
   const isOwnerOrStaff = user?.role === 'owner' || user?.role === 'staff';
-  const rm = roleMeta(user?.role);
+  const rm = roleMeta(user?.role, useLanguage().language);
 
   return (
     <>
@@ -218,8 +244,13 @@ export default function Header() {
         }
 
         .hdr-theme-toggle:focus-visible {
-          outline: 3px solid var(--primary);
-          outline-offset: 3px;
+          outline: none;
+          box-shadow: none;
+        }
+
+        .hdr-theme-toggle:focus {
+          outline: none;
+          box-shadow: none;
         }
 
         .hdr-theme-toggle__track {
@@ -344,33 +375,34 @@ export default function Header() {
                   background: C.brand,
                   WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
                   letterSpacing: '-0.02em', lineHeight: 1.1,
-                }}>سالنیفای</div>
+                }}>{t('header.brandTitle')}</div>
                 <div style={{ fontSize: '0.68rem', color: 'var(--text-secondary)', fontWeight: 500, letterSpacing: '0.01em' }}>
-                  نوبت‌دهی آنلاین
+                  {t('header.brandSubtitle')}
                 </div>
               </div>
             </Link>
 
             {/* ── Desktop nav ── */}
             <nav className="hdr-desktop" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <NavItem to="/" icon={<Home size={16} />} active={is('/')}>صفحه اصلی</NavItem>
+              <NavItem to="/" icon={<Home size={16} />} active={is('/')}>{t('header.home')}</NavItem>
 
               {isAuthenticated && !isOwnerOrStaff && (
                 <NavItem to="/my-bookings" icon={<Calendar size={16} />} active={is('/my-bookings')}>
-                  نوبت‌های من
+                  {t('header.myBookings')}
                 </NavItem>
               )}
               {isAuthenticated && isOwnerOrStaff && (
                 <NavItem to="/owner-bookings" icon={<Calendar size={16} />} active={is('/owner-bookings')}>
-                  رزروهای سالن
+                  {t('header.ownerBookings')}
                 </NavItem>
               )}
               {isAuthenticated && user?.role === 'owner' && (
                 <NavItem to="/admin" icon={<Settings size={16} />} active={is('/admin')}>
-                  پنل مدیریت
+                  {t('header.admin')}
                 </NavItem>
               )}
 
+              <LanguageToggle />
               <ThemeToggle theme={theme} onClick={toggleTheme} />
               <a
                 href="https://t.me/amir_rezaiyan"
@@ -386,7 +418,7 @@ export default function Header() {
                 }}
               >
                 <MessageCircle size={16} />
-                پشتیبانی
+                {t('header.support')}
               </a>
             </nav>
 
@@ -416,7 +448,7 @@ export default function Header() {
                     }}>
                       {user?.username?.[0]?.toUpperCase() || 'U'}
                     </div>
-                    <div style={{ textAlign: 'right' }}>
+                    <div style={{ textAlign: 'left' }}>
                       <div style={{ fontSize: '0.88rem', fontWeight: 700, color: C.text, lineHeight: 1.2 }}>
                         {user?.username}
                       </div>
@@ -457,7 +489,7 @@ export default function Header() {
                         >
                           {/* User info inside dropdown */}
                           <div style={{ padding: '14px 16px', borderBottom: `1px solid ${C.border}` }}>
-                            <div style={{ fontSize: '0.8rem', color: C.muted }}>وارد شده به عنوان</div>
+                            <div style={{ fontSize: '0.8rem', color: C.muted }}>{t('header.userAs')}</div>
                             <div style={{ fontWeight: 700, color: C.text, marginTop: '2px' }}>{user?.username}</div>
                           </div>
                           {/* Logout */}
@@ -467,13 +499,13 @@ export default function Header() {
                               width: '100%', display: 'flex', alignItems: 'center', gap: '10px',
                               padding: '13px 16px', background: 'transparent', border: 'none',
                               cursor: 'pointer', fontSize: '0.95rem', fontWeight: 600,
-                              color: C.danger, textAlign: 'right', transition: 'background 0.15s',
+                              color: C.danger, textAlign: 'left', transition: 'background 0.15s',
                             }}
                             onMouseEnter={e => e.currentTarget.style.background = C.dangerLow}
                             onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                           >
                             <LogOut size={17} />
-                            خروج از حساب
+                            {t('header.logout')}
                           </button>
                         </Motion.div>
                       </>
@@ -488,7 +520,7 @@ export default function Header() {
                     border: `1.5px solid ${C.accentMid}`, background: C.accentLow,
                     transition: 'all 0.2s',
                   }}>
-                    ورود
+                    {t('header.login')}
                   </Link>
                   <Link to="/signup" style={{
                     padding: '8px 20px', minWidth: '120px', justifyContent: 'center', display: 'inline-flex', borderRadius: '10px', textDecoration: 'none',
@@ -497,7 +529,7 @@ export default function Header() {
                     boxShadow: '0 4px 14px rgba(124,58,237,0.3)',
                     transition: 'all 0.2s',
                   }}>
-                    ثبت‌نام
+                    {t('header.signup')}
                   </Link>
                 </div>
               )}
@@ -577,7 +609,7 @@ export default function Header() {
                     <Scissors size={17} />
                   </div>
                   <span style={{ fontWeight: 800, fontSize: '1.1rem', background: C.brand, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
-                    سالنیفای
+                    {t('header.brandTitle')}
                   </span>
                 </Link>
                 <button
@@ -619,23 +651,73 @@ export default function Header() {
               {/* Nav links */}
               <div style={{ flex: 1, overflowY: 'auto', padding: '8px 12px' }}>
                 <MobileNavItem to="/" icon={<Home size={18} />} active={is('/')} onClick={close}>
-                  صفحه اصلی
+                  {t('header.home')}
                 </MobileNavItem>
 
                 {isAuthenticated && !isOwnerOrStaff && (
-                  <MobileNavItem to="/my-bookings" icon={<Calendar size={18} />} active={is('/my-bookings')} onClick={close}>
-                    نوبت‌های من
-                  </MobileNavItem>
+                  <>
+                    <MobileNavItem to="/my-bookings" icon={<Calendar size={18} />} active={is('/my-bookings')} onClick={close}>
+                      {t('header.myBookings')}
+                    </MobileNavItem>
+                    {/* Language toggle for customers */}
+                    <button
+                      onClick={() => setLanguage(language === 'en' ? 'fa' : 'en')}
+                      style={{
+                        width: '100%', display: 'flex', alignItems: 'center', gap: '12px',
+                        padding: '14px 16px', borderRadius: '12px',
+                        textDecoration: 'none', fontSize: '1rem', fontWeight: 600,
+                        color: 'var(--text-primary)', background: 'var(--card-hover)', transition: 'all 0.2s',
+                        border: '1px solid var(--border)', cursor: 'pointer', marginTop: '4px',
+                      }}
+                    >
+                      <span style={{ fontWeight: 700 }}>{language === 'en' ? 'FA' : 'EN'}</span>
+                      <span>{language === 'en' ? t('header.switchToPersian') : t('header.switchToEnglish')}</span>
+                    </button>
+                  </>
                 )}
                 {isAuthenticated && isOwnerOrStaff && (
-                  <MobileNavItem to="/owner-bookings" icon={<Calendar size={18} />} active={is('/owner-bookings')} onClick={close}>
-                    رزروهای سالن
-                  </MobileNavItem>
-                )}
-                {isAuthenticated && user?.role === 'owner' && (
-                  <MobileNavItem to="/admin" icon={<Settings size={18} />} active={is('/admin')} onClick={close}>
-                    پنل مدیریت
-                  </MobileNavItem>
+                  <>
+                    <MobileNavItem to="/owner-bookings" icon={<Calendar size={18} />} active={is('/owner-bookings')} onClick={close}>
+                      {t('header.ownerBookings')}
+                    </MobileNavItem>
+                    {user?.role === 'owner' && (
+                      <>
+                        <MobileNavItem to="/admin" icon={<Settings size={18} />} active={is('/admin')} onClick={close}>
+                          {t('header.admin')}
+                        </MobileNavItem>
+                        {/* Language toggle for owners - below admin */}
+                        <button
+                          onClick={() => setLanguage(language === 'en' ? 'fa' : 'en')}
+                          style={{
+                            width: '100%', display: 'flex', alignItems: 'center', gap: '12px',
+                            padding: '14px 16px', borderRadius: '12px',
+                            textDecoration: 'none', fontSize: '1rem', fontWeight: 600,
+                            color: 'var(--text-primary)', background: 'var(--card-hover)', transition: 'all 0.2s',
+                            border: '1px solid var(--border)', cursor: 'pointer', marginTop: '4px',
+                          }}
+                        >
+                          <span style={{ fontWeight: 700 }}>{language === 'en' ? 'FA' : 'EN'}</span>
+                          <span>{language === 'en' ? t('header.switchToPersian') : t('header.switchToEnglish')}</span>
+                        </button>
+                      </>
+                    )}
+                    {user?.role !== 'owner' && (
+                      /* Language toggle for staff */
+                      <button
+                        onClick={() => setLanguage(language === 'en' ? 'fa' : 'en')}
+                        style={{
+                          width: '100%', display: 'flex', alignItems: 'center', gap: '12px',
+                          padding: '14px 16px', borderRadius: '12px',
+                          textDecoration: 'none', fontSize: '1rem', fontWeight: 600,
+                          color: 'var(--text-primary)', background: 'var(--card-hover)', transition: 'all 0.2s',
+                          border: '1px solid var(--border)', cursor: 'pointer', marginTop: '4px',
+                        }}
+                      >
+                        <span style={{ fontWeight: 700 }}>{language === 'en' ? 'FA' : 'EN'}</span>
+                        <span>{language === 'en' ? t('header.switchToPersian') : t('header.switchToEnglish')}</span>
+                      </button>
+                    )}
+                  </>
                 )}
 
                 {/* Divider */}
@@ -654,9 +736,9 @@ export default function Header() {
                   }}
                 >
                   <MessageCircle size={18} />
-                  پشتیبانی تلگرام
+                  {t('header.supportTelegram')}
                 </a>
-                <div style={{ display: 'flex', justifyContent: 'center', paddingTop: '4px' }}>
+                <div style={{ display: 'flex', justifyContent: 'center', paddingTop: '4px', gap: '8px', flexWrap: 'wrap' }}>
                   <ThemeToggle theme={theme} onClick={toggleTheme} mobile />
                 </div>
               </div>
@@ -676,7 +758,7 @@ export default function Header() {
                     }}
                   >
                     <LogOut size={18} />
-                    خروج از حساب
+                    {t('header.logout')}
                   </button>
                 ) : (
                   <div style={{ display: 'flex', gap: '10px' }}>
@@ -691,7 +773,7 @@ export default function Header() {
                         border: `1.5px solid ${C.accentMid}`,
                       }}
                     >
-                      ورود
+                      {t('header.login')}
                     </Link>
                     <Link
                       to="/signup"
@@ -704,7 +786,7 @@ export default function Header() {
                         boxShadow: '0 4px 14px rgba(124,58,237,0.3)',
                       }}
                     >
-                      ثبت‌نام
+                      {t('header.signup')}
                     </Link>
                   </div>
                 )}

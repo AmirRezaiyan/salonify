@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { api } from '../api/client';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 
 /* ── tokens ─────────────────────────────────────────────────────────────── */
 const T = {
@@ -41,7 +42,7 @@ const MAX_CATEGORY_NAME_LENGTH = 50;
 const MAX_CATEGORIES = 10;
 
 /* ── SuccessModal (دیالوگ موفقیت) ──────────────────────────────────────── */
-function SuccessModal({ open, title, message, onClose }) {
+function SuccessModal({ open, title, message, onClose, t }) {
   return (
     <AnimatePresence>
       {open && (
@@ -78,7 +79,7 @@ function SuccessModal({ open, title, message, onClose }) {
               border: '1px solid var(--border)',
               overflow: 'hidden',
               textAlign: 'center',
-              direction: 'rtl',
+              direction: 'ltr',
             }}
           >
             <div style={{
@@ -105,7 +106,7 @@ function SuccessModal({ open, title, message, onClose }) {
                 fontWeight: 800,
                 margin: '0 0 0.6rem',
               }}>
-                {title || 'موفقیت'}
+                {title || t('common.success', 'Success')}
               </h3>
               <p style={{
                 color: "var(--text-secondary)",
@@ -136,7 +137,7 @@ function SuccessModal({ open, title, message, onClose }) {
                 onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.9')}
                 onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
               >
-                متوجه شدم
+                {t('portfolioManager.modalOk', 'Got it')}
               </button>
             </div>
           </motion.div>
@@ -147,7 +148,7 @@ function SuccessModal({ open, title, message, onClose }) {
 }
 
 /* ── ErrorModal (دیالوگ خطا) ───────────────────────────────────────────── */
-function ErrorModal({ open, title, message, onClose }) {
+function ErrorModal({ open, title, message, onClose, t }) {
   return (
     <AnimatePresence>
       {open && (
@@ -184,7 +185,7 @@ function ErrorModal({ open, title, message, onClose }) {
               border: '1px solid var(--border)',
               overflow: 'hidden',
               textAlign: 'center',
-              direction: 'rtl',
+              direction: 'ltr',
             }}
           >
             <div style={{
@@ -211,7 +212,7 @@ function ErrorModal({ open, title, message, onClose }) {
                 fontWeight: 800,
                 margin: '0 0 0.6rem',
               }}>
-                {title || 'خطا'}
+                {title || t('common.error', 'Error')}
               </h3>
               <p style={{
                 color: "var(--text-secondary)",
@@ -242,7 +243,7 @@ function ErrorModal({ open, title, message, onClose }) {
                 onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.9')}
                 onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
               >
-                متوجه شدم
+                {t('portfolioManager.modalOk', 'Got it')}
               </button>
             </div>
           </motion.div>
@@ -253,7 +254,7 @@ function ErrorModal({ open, title, message, onClose }) {
 }
 
 /* ── ConfirmDialog ───────────────────────────────────────────────────────── */
-function ConfirmDialog({ message, onConfirm, onCancel }) {
+function ConfirmDialog({ message, onConfirm, onCancel, t }) {
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -276,7 +277,7 @@ function ConfirmDialog({ message, onConfirm, onCancel }) {
           padding: '1.75rem', maxWidth: '380px', width: '100%',
           boxSizing: 'border-box',
           boxShadow: '0 20px 60px rgba(0,0,0,0.2)',
-          direction: 'rtl',
+          direction: 'ltr',
         }}
       >
         <p style={{ color: T.ink, fontWeight: 600, fontSize: '0.95rem', margin: '0 0 1.25rem', lineHeight: 1.6 }}>
@@ -288,7 +289,7 @@ function ConfirmDialog({ message, onConfirm, onCancel }) {
             border: `1.5px solid ${T.border}`, background: T.surface,
             color: T.inkMid, fontWeight: 600, fontSize: '0.88rem', cursor: 'pointer',
           }}>
-            انصراف
+            {t('portfolioManager.modalCancel', 'Cancel')}
           </button>
           <motion.button
             whileTap={{ scale: 0.96 }}
@@ -299,7 +300,7 @@ function ConfirmDialog({ message, onConfirm, onCancel }) {
               color: '#fff', fontWeight: 700, fontSize: '0.88rem', cursor: 'pointer',
             }}
           >
-            حذف
+            {t('portfolioManager.modalDelete', 'Delete')}
           </motion.button>
         </div>
       </motion.div>
@@ -308,7 +309,7 @@ function ConfirmDialog({ message, onConfirm, onCancel }) {
 }
 
 /* ── ImageModal ──────────────────────────────────────────────────────────── */
-function ImageModal({ image, title, onClose }) {
+function ImageModal({ image, title, onClose, t }) {
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -342,7 +343,7 @@ function ImageModal({ image, title, onClose }) {
       >
         <img
           src={image}
-          alt={title || 'نمونه کار'}
+          alt={title || t('portfolioManager.title', 'Portfolio')}
           style={{
             display: 'block',
             width: '100%',
@@ -390,7 +391,7 @@ function ImageModal({ image, title, onClose }) {
 }
 
 /* ── ImageCard ───────────────────────────────────────────────────────────── */
-function ImageCard({ item, onDelete, index }) {
+function ImageCard({ item, onDelete, index, t }) {
   const [showModal, setShowModal] = useState(false);
 
   return (
@@ -483,7 +484,7 @@ function ImageCard({ item, onDelete, index }) {
               backdropFilter: 'blur(2px)',
             }}
             className="delete-btn-always"
-            title="حذف عکس"
+            title={t('portfolioManager.deleteItem', 'Delete image')}
           >
             <Trash2 size={16} color="#fff" />
           </motion.button>
@@ -502,7 +503,7 @@ function ImageCard({ item, onDelete, index }) {
             minWidth: 0,
           }}
         >
-          {item.title || 'بدون عنوان'}
+          {item.title || t('portfolioManager.emptyTitle', 'Untitled')}
         </div>
       </motion.div>
 
@@ -512,6 +513,7 @@ function ImageCard({ item, onDelete, index }) {
             image={item.image}
             title={item.title}
             onClose={() => setShowModal(false)}
+            t={t}
           />
         )}
       </AnimatePresence>
@@ -520,7 +522,7 @@ function ImageCard({ item, onDelete, index }) {
 }
 
 /* ── UploadZone ──────────────────────────────────────────────────────────── */
-function UploadZone({ categoryId, onUpload, uploading, itemCount }) {
+function UploadZone({ categoryId, onUpload, uploading, itemCount, t, isEnglish }) {
   const fileRef = useRef(null);
   const [title, setTitle] = useState('');
   const [desc, setDesc] = useState('');
@@ -531,17 +533,17 @@ function UploadZone({ categoryId, onUpload, uploading, itemCount }) {
   const isFull = itemCount >= 5;
 
   const validate = (file) => {
-    if (!ALLOWED_TYPES.includes(file.type)) return 'فقط JPG، PNG، WebP و GIF پذیرفته می‌شوند';
-    if (file.size > MAX_FILE_SIZE) return 'حداکثر حجم: ۵ مگابایت';
-    if (!title.trim()) return 'عنوان عکس را وارد کنید';
-    if (title.trim().length > MAX_TITLE_LENGTH) return `عنوان نباید بیشتر از ${MAX_TITLE_LENGTH} کاراکتر باشد`;
-    if (desc.length > MAX_DESCRIPTION_LENGTH) return `توضیحات نباید بیشتر از ${MAX_DESCRIPTION_LENGTH} کاراکتر باشد`;
+    if (!ALLOWED_TYPES.includes(file.type)) return t('portfolioManager.allowedTypes', 'Only JPG, PNG, WebP and GIF files are accepted');
+    if (file.size > MAX_FILE_SIZE) return t('portfolioManager.maxSize', 'Maximum 5 MB');
+    if (!title.trim()) return t('portfolioManager.titleRequired', 'Please enter an image title');
+    if (title.trim().length > MAX_TITLE_LENGTH) return t('portfolioManager.titleTooLong', 'Title must not exceed {max} characters', { max: MAX_TITLE_LENGTH });
+    if (desc.length > MAX_DESCRIPTION_LENGTH) return t('portfolioManager.descTooLong', 'Description must not exceed {max} characters', { max: MAX_DESCRIPTION_LENGTH });
     return null;
   };
 
   const submit = async (file) => {
     if (isFull) {
-      setLocalError('تعداد عکس‌های این دسته به حداکثر (۵ عدد) رسیده است.');
+      setLocalError(t('portfolioManager.imageLimit', 'This category has reached the maximum of 5 images.'));
       return;
     }
     const err = validate(file);
@@ -575,7 +577,7 @@ function UploadZone({ categoryId, onUpload, uploading, itemCount }) {
   };
 
   return (
-    <div className="portfolio-upload-shell" style={{ marginBottom: '1.5rem', direction: 'rtl', width: '100%', maxWidth: '100%', minWidth: 0 }}>
+    <div className="portfolio-upload-shell" style={{ marginBottom: '1.5rem', direction: isEnglish ? 'ltr' : 'rtl', width: '100%', maxWidth: '100%', minWidth: 0 }}>
       <button
         onClick={() => setOpen(v => !v)}
         disabled={isFull}
@@ -594,8 +596,8 @@ function UploadZone({ categoryId, onUpload, uploading, itemCount }) {
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Plus size={16} />
-          افزودن عکس جدید
-          {isFull && <span style={{ fontSize: '0.75rem', color: T.red, marginRight: '8px' }}>(تکمیل شده)</span>}
+          {t('portfolioManager.addCategory', 'Add category')}
+          {isFull && <span style={{ fontSize: '0.75rem', color: T.red, marginRight: '8px' }}>{t('portfolioManager.categoryFullText', 'Full')}</span>}
         </div>
         {open ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
       </button>
@@ -622,9 +624,9 @@ function UploadZone({ categoryId, onUpload, uploading, itemCount }) {
             }}>
               <div style={{ marginBottom: '0.75rem' }}>
                 <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: T.inkMid, marginBottom: '5px' }}>
-                  عنوان عکس <span style={{ color: T.red }}>*</span>
+                  {t('portfolioManager.uploadTitle', 'Image title')} <span style={{ color: T.red }}>*</span>
                   <span style={{ color: T.inkLight, fontWeight: 400, marginRight: '8px' }}>
-                    (حداکثر {MAX_TITLE_LENGTH} کاراکتر)
+                    ({t('portfolioManager.maxTitle', 'Maximum {max} characters', { max: MAX_TITLE_LENGTH })})
                   </span>
                 </label>
                 <input
@@ -634,7 +636,7 @@ function UploadZone({ categoryId, onUpload, uploading, itemCount }) {
                     const val = e.target.value.slice(0, MAX_TITLE_LENGTH);
                     setTitle(val);
                   }}
-                  placeholder="مثال: اصلاح مو کوتاه"
+                  placeholder={t('portfolioManager.uploadTitle', 'Image title')}
                   maxLength={MAX_TITLE_LENGTH}
                   style={{
                     width: '100%', boxSizing: 'border-box',
@@ -653,7 +655,7 @@ function UploadZone({ categoryId, onUpload, uploading, itemCount }) {
 
               <div style={{ marginBottom: '1rem' }}>
                 <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: T.inkMid, marginBottom: '5px' }}>
-                  توضیح <span style={{ color: T.inkLight, fontWeight: 400 }}>(اختیاری، حداکثر {MAX_DESCRIPTION_LENGTH} کاراکتر)</span>
+                  {t('portfolioManager.uploadDescription', 'Description')} <span style={{ color: T.inkLight, fontWeight: 400 }}>({t('portfolioManager.optional', 'Optional')}, {t('portfolioManager.maxTitle', 'Maximum {max} characters', { max: MAX_DESCRIPTION_LENGTH })})</span>
                 </label>
                 <textarea
                   value={desc}
@@ -662,7 +664,7 @@ function UploadZone({ categoryId, onUpload, uploading, itemCount }) {
                     setDesc(val);
                   }}
                   rows={2}
-                  placeholder="توضیح کوتاه..."
+                  placeholder={t('portfolioManager.uploadDescription', 'Description')}
                   maxLength={MAX_DESCRIPTION_LENGTH}
                   style={{
                     width: '100%', boxSizing: 'border-box',
@@ -715,10 +717,10 @@ function UploadZone({ categoryId, onUpload, uploading, itemCount }) {
                   : <Upload size={28} style={{ color: T.purple, marginBottom: '8px' }} />
                 }
                 <p style={{ margin: '0 0 4px', fontWeight: 700, color: T.purpleDark, fontSize: '0.88rem' }}>
-                  {uploading ? 'در حال آپلود...' : 'کلیک کنید یا فایل را اینجا بکشید'}
+                  {uploading ? t('portfolioManager.uploadButton', 'Uploading...') : t('portfolioManager.uploadHint', 'Click or drop files here')}
                 </p>
                 <p style={{ margin: 0, color: T.inkLight, fontSize: '0.78rem' }}>
-                  JPG, PNG, WebP, GIF — حداکثر ۵ مگابایت
+                  JPG, PNG, WebP, GIF — {t('portfolioManager.maxSize', 'Maximum 5 MB')}
                 </p>
               </div>
 
@@ -743,7 +745,7 @@ function UploadZone({ categoryId, onUpload, uploading, itemCount }) {
 }
 
 /* ── CategoryCard ────────────────────────────────────────────────────────── */
-function CategoryCard({ category, onDelete, onUpload, uploadingId, onDeleteItem, index }) {
+function CategoryCard({ category, onDelete, onUpload, uploadingId, onDeleteItem, index, t, isEnglish }) {
   const [expanded, setExpanded] = useState(true);
   const itemCount = category.items?.length || 0;
 
@@ -761,7 +763,7 @@ function CategoryCard({ category, onDelete, onUpload, uploadingId, onDeleteItem,
         border: `1.5px solid ${T.border}`,
         boxShadow: T.shadow,
         overflow: 'hidden',
-        direction: 'rtl',
+        direction: isEnglish ? 'ltr' : 'rtl',
         width: '100%',
         maxWidth: '100%',
         minWidth: 0,
@@ -785,7 +787,7 @@ function CategoryCard({ category, onDelete, onUpload, uploadingId, onDeleteItem,
           style={{
             display: 'flex', alignItems: 'center', gap: '10px',
             background: 'none', border: 'none', cursor: 'pointer',
-            textAlign: 'right', flex: '1 1 280px',
+            textAlign: isEnglish ? 'left' : 'right', flex: '1 1 280px',
             minWidth: 0,
             maxWidth: '100%',
             width: '100%',
@@ -834,7 +836,7 @@ function CategoryCard({ category, onDelete, onUpload, uploadingId, onDeleteItem,
               fontSize: '0.75rem', fontWeight: 700, padding: '2px 9px',
               borderRadius: '999px',
             }}>
-              {itemCount}/۵ عکس
+              {t('portfolioManager.categoryCountLabel', '{count}/{max} images', { count: itemCount, max: 5 })}
             </span>
             {expanded ? <ChevronUp size={16} style={{ color: T.inkLight }} /> : <ChevronDown size={16} style={{ color: T.inkLight }} />}
           </div>
@@ -857,7 +859,7 @@ function CategoryCard({ category, onDelete, onUpload, uploadingId, onDeleteItem,
           onMouseLeave={e => { e.currentTarget.style.background = T.surface; }}
         >
           <Trash2 size={13} />
-          حذف دسته
+          {t('portfolioManager.deleteCategory', 'Delete category')}
         </motion.button>
       </div>
 
@@ -877,6 +879,8 @@ function CategoryCard({ category, onDelete, onUpload, uploadingId, onDeleteItem,
                 onUpload={onUpload}
                 uploading={uploadingId === category.id}
                 itemCount={itemCount}
+                t={t}
+                isEnglish={isEnglish}
               />
 
               {itemCount > 0 ? (
@@ -892,7 +896,7 @@ function CategoryCard({ category, onDelete, onUpload, uploadingId, onDeleteItem,
                     className="portfolio-grid"
                   >
                     {category.items.map((item, i) => (
-                      <ImageCard key={item.id} item={item} onDelete={onDeleteItem} index={i} />
+                      <ImageCard key={item.id} item={item} onDelete={onDeleteItem} index={i} t={t} />
                     ))}
                   </div>
                 </AnimatePresence>
@@ -907,8 +911,8 @@ function CategoryCard({ category, onDelete, onUpload, uploadingId, onDeleteItem,
                   }}
                 >
                   <ImageIcon size={36} style={{ color: T.purpleMid, marginBottom: '8px' }} />
-                  <p style={{ color: T.inkMid, fontWeight: 600, margin: '0 0 3px', fontSize: '0.88rem' }}>هنوز عکسی اضافه نشده</p>
-                  <p style={{ color: T.inkLight, margin: 0, fontSize: '0.8rem' }}>از فرم بالا عکس اضافه کنید</p>
+                  <p style={{ color: T.inkMid, fontWeight: 600, margin: '0 0 3px', fontSize: '0.88rem' }}>{t('portfolioManager.noItems', 'No images added yet')}</p>
+                  <p style={{ color: T.inkLight, margin: 0, fontSize: '0.8rem' }}>{t('portfolioManager.noItemsHint', 'Add images from the form above')}</p>
                 </motion.div>
               )}
             </div>
@@ -922,6 +926,10 @@ function CategoryCard({ category, onDelete, onUpload, uploadingId, onDeleteItem,
 /* ── Main ────────────────────────────────────────────────────────────────── */
 export default function PortfolioManager({ salonId }) {
   const { user } = useAuth();
+  const { t, language } = useLanguage();
+  const isEnglish = language === 'en';
+  const dir = isEnglish ? 'ltr' : 'rtl';
+  const textAlign = isEnglish ? 'left' : 'right';
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [uploadingId, setUploadingId] = useState(null);
@@ -953,7 +961,7 @@ export default function PortfolioManager({ salonId }) {
       const res = await api.getPortfolioCategories(actualSalonId);
       setCategories(res.data || []);
     } catch (err) {
-      showErrorModal('خطا در بارگذاری', err.response?.status === 401 ? 'احراز هویت ناموفق' : 'خطا در دریافت اطلاعات');
+      showErrorModal(t('portfolioManager.loadError', 'Error loading data'), err.response?.status === 401 ? t('portfolioManager.authFailed', 'Authentication failed') : t('portfolioManager.fetchError', 'Error loading information'));
     } finally {
       setLoading(false);
     }
@@ -964,20 +972,20 @@ export default function PortfolioManager({ salonId }) {
 
     const trimmedName = newName.trim();
     if (!trimmedName) {
-      showErrorModal('خطا', 'لطفاً نام دسته‌بندی را وارد کنید');
+      showErrorModal(t('common.error', 'Error'), t('portfolioManager.categoryNameRequired', 'Please enter a category name'));
       return;
     }
     if (trimmedName.length > MAX_CATEGORY_NAME_LENGTH) {
-      showErrorModal('خطا', `نام دسته‌بندی نباید بیشتر از ${MAX_CATEGORY_NAME_LENGTH} کاراکتر باشد`);
+      showErrorModal(t('common.error', 'Error'), t('portfolioManager.categoryNameTooLong', `Category name must not exceed ${MAX_CATEGORY_NAME_LENGTH} characters`));
       return;
     }
     if (newDesc.length > MAX_DESCRIPTION_LENGTH) {
-      showErrorModal('خطا', `توضیحات نباید بیشتر از ${MAX_DESCRIPTION_LENGTH} کاراکتر باشد`);
+      showErrorModal(t('common.error', 'Error'), t('portfolioManager.descriptionTooLong', `Description must not exceed ${MAX_DESCRIPTION_LENGTH} characters`));
       return;
     }
 
     if (categories.length >= MAX_CATEGORIES) {
-      showErrorModal('خطا', `حداکثر ${MAX_CATEGORIES} دسته‌بندی مجاز است.`);
+      showErrorModal(t('common.error', 'Error'), t('portfolioManager.categoryLimit', `A maximum of ${MAX_CATEGORIES} categories is allowed.`));
       return;
     }
 
@@ -989,10 +997,10 @@ export default function PortfolioManager({ salonId }) {
       });
       setNewName('');
       setNewDesc('');
-      showSuccessModal('موفقیت', 'دسته‌بندی با موفقیت ایجاد شد');
+      showSuccessModal(t('common.success', 'Success'), t('portfolioManager.categoryCreateSuccess', 'Category created successfully'));
       fetchCategories();
     } catch (err) {
-      let errorMessage = 'خطا در ایجاد دسته‌بندی';
+      let errorMessage = t('portfolioManager.categoryCreateError', 'Error creating category');
 
       if (err.response) {
         const data = err.response.data;
@@ -1013,7 +1021,7 @@ export default function PortfolioManager({ salonId }) {
         errorMessage = err.message;
       }
 
-      showErrorModal('خطا در ایجاد دسته‌بندی', errorMessage);
+      showErrorModal(t('portfolioManager.categoryCreateErrorTitle', 'Error creating category'), errorMessage);
     } finally {
       setSubmitting(false);
     }
@@ -1021,18 +1029,18 @@ export default function PortfolioManager({ salonId }) {
 
   const handleDeleteCategory = (id) => {
     setConfirm({
-      message: 'دسته‌بندی و تمام عکس‌های آن حذف خواهند شد. مطمئنید؟',
+      message: t('portfolioManager.confirmDeleteCategory', 'This category and all its images will be deleted. Are you sure?'),
       onConfirm: async () => {
         setConfirm(null);
         try {
           await api.deletePortfolioCategory(id);
-          showSuccessModal('موفقیت', 'دسته‌بندی با موفقیت حذف شد');
+          showSuccessModal(t('common.success', 'Success'), t('portfolioManager.categoryDeleteSuccess', 'Category deleted successfully'));
           fetchCategories();
         } catch (err) {
-          let msg = 'خطا در حذف دسته‌بندی';
+          let msg = t('portfolioManager.categoryDeleteError', 'Error deleting category');
           if (err.response?.data?.detail) msg = err.response.data.detail;
           else if (err.response?.data?.message) msg = err.response.data.message;
-          showErrorModal('خطا', msg);
+          showErrorModal(t('common.error', 'Error'), msg);
         }
       },
     });
@@ -1042,11 +1050,11 @@ export default function PortfolioManager({ salonId }) {
     setUploadingId(categoryId);
     try {
       await api.createPortfolioItem(categoryId, formData);
-      showSuccessModal('موفقیت', 'عکس با موفقیت آپلود شد');
+      showSuccessModal(t('common.success', 'Success'), t('portfolioManager.imageUploadSuccess', 'Image uploaded successfully'));
       fetchCategories();
       return true;
     } catch (err) {
-      let msg = 'خطا در آپلود عکس';
+      let msg = t('portfolioManager.imageUploadError', 'Error uploading image');
       if (err.response?.data) {
         const data = err.response.data;
         if (typeof data === 'string') msg = data;
@@ -1058,7 +1066,7 @@ export default function PortfolioManager({ salonId }) {
       } else if (err.message) {
         msg = err.message;
       }
-      showErrorModal('خطا در آپلود عکس', msg);
+      showErrorModal(t('portfolioManager.imageUploadErrorTitle', 'Error uploading image'), msg);
       return false;
     } finally {
       setUploadingId(null);
@@ -1067,25 +1075,25 @@ export default function PortfolioManager({ salonId }) {
 
   const handleDeleteItem = (itemId) => {
     setConfirm({
-      message: 'این عکس حذف خواهد شد. مطمئنید؟',
+      message: t('portfolioManager.confirmDeleteItem', 'This image will be deleted. Are you sure?'),
       onConfirm: async () => {
         setConfirm(null);
         try {
           await api.deletePortfolioItem(itemId);
-          showSuccessModal('موفقیت', 'عکس با موفقیت حذف شد');
+          showSuccessModal(t('common.success', 'Success'), t('portfolioManager.imageDeleteSuccess', 'Image deleted successfully'));
           fetchCategories();
         } catch (err) {
-          let msg = 'خطا در حذف عکس';
+          let msg = t('portfolioManager.imageDeleteError', 'Error deleting image');
           if (err.response?.data?.detail) msg = err.response.data.detail;
           else if (err.response?.data?.message) msg = err.response.data.message;
-          showErrorModal('خطا', msg);
+          showErrorModal(t('common.error', 'Error'), msg);
         }
       },
     });
   };
 
   return (
-    <div className="portfolio-manager-root" style={{ direction: 'rtl', minHeight: '200px', width: '100%', maxWidth: '100%', minWidth: 0, boxSizing: 'border-box', overflowX: 'hidden' }}>
+    <div className="portfolio-manager-root" style={{ direction: isEnglish ? 'ltr' : 'rtl', minHeight: '200px', width: '100%', maxWidth: '100%', minWidth: 0, boxSizing: 'border-box', overflowX: 'hidden' }}>
       <style>{`
         .portfolio-manager-root * { box-sizing: border-box; }
         .portfolio-manager-root {
@@ -1177,6 +1185,7 @@ export default function PortfolioManager({ salonId }) {
         title={successModal.title}
         message={successModal.message}
         onClose={() => setSuccessModal({ open: false, title: '', message: '' })}
+        t={t}
       />
 
       {/* دیالوگ خطا */}
@@ -1185,6 +1194,7 @@ export default function PortfolioManager({ salonId }) {
         title={errorModal.title}
         message={errorModal.message}
         onClose={() => setErrorModal({ open: false, title: '', message: '' })}
+        t={t}
       />
 
       {/* دیالوگ تایید حذف */}
@@ -1194,6 +1204,7 @@ export default function PortfolioManager({ salonId }) {
             message={confirm.message}
             onConfirm={confirm.onConfirm}
             onCancel={() => setConfirm(null)}
+            t={t}
           />
         )}
       </AnimatePresence>
@@ -1207,7 +1218,7 @@ export default function PortfolioManager({ salonId }) {
           >
             <ImageIcon size={32} style={{ color: T.purpleMid }} />
           </motion.div>
-          <p style={{ margin: 0, fontSize: '0.9rem' }}>در حال بارگذاری...</p>
+          <p style={{ margin: 0, fontSize: '0.9rem' }}>{t('portfolioManager.loading', 'Loading...')}</p>
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -1231,7 +1242,7 @@ export default function PortfolioManager({ salonId }) {
                   <Plus size={18} style={{ color: T.purple }} />
                 </div>
                 <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 700, color: T.ink }}>
-                  دسته‌بندی جدید {categories.length >= MAX_CATEGORIES && <span style={{ color: T.red, fontSize: '0.8rem' }}>(تکمیل شده)</span>}
+                  {t('portfolioManager.newCategory', 'New category')} {categories.length >= MAX_CATEGORIES && <span style={{ color: T.red, fontSize: '0.8rem' }}>{t('portfolioManager.categoryFullText', 'Full')}</span>}
                 </h3>
                 <span style={{ fontSize: '0.8rem', color: T.inkLight, marginRight: 'auto' }}>
                   {categories.length}/{MAX_CATEGORIES}
@@ -1241,9 +1252,9 @@ export default function PortfolioManager({ salonId }) {
               <form onSubmit={handleAddCategory} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: T.inkMid, marginBottom: '5px' }}>
-                    نام دسته‌بندی <span style={{ color: T.red }}>*</span>
+                    {t('portfolioManager.categoryName', 'Category name')} <span style={{ color: T.red }}>*</span>
                     <span style={{ color: T.inkLight, fontWeight: 400, marginRight: '8px' }}>
-                      (حداکثر {MAX_CATEGORY_NAME_LENGTH} کاراکتر)
+                      ({t('portfolioManager.maxTitle', 'Maximum {max} characters', { max: MAX_CATEGORY_NAME_LENGTH })})
                     </span>
                   </label>
                   <input
@@ -1253,7 +1264,7 @@ export default function PortfolioManager({ salonId }) {
                       const val = e.target.value.slice(0, MAX_CATEGORY_NAME_LENGTH);
                       setNewName(val);
                     }}
-                    placeholder="مثال: اصلاح مو، رنگ مو، ..."
+                    placeholder={t('portfolioManager.categoryName', 'Category name')}
                     maxLength={MAX_CATEGORY_NAME_LENGTH}
                     disabled={categories.length >= MAX_CATEGORIES}
                     style={{
@@ -1273,7 +1284,7 @@ export default function PortfolioManager({ salonId }) {
 
                 <div>
                   <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: T.inkMid, marginBottom: '5px' }}>
-                    توضیح <span style={{ color: T.inkLight, fontWeight: 400 }}>(اختیاری، حداکثر {MAX_DESCRIPTION_LENGTH} کاراکتر)</span>
+                    {t('portfolioManager.categoryDescription', 'Description')} <span style={{ color: T.inkLight, fontWeight: 400 }}>({t('portfolioManager.optional', 'Optional')}, {t('portfolioManager.maxTitle', 'Maximum {max} characters', { max: MAX_DESCRIPTION_LENGTH })})</span>
                   </label>
                   <textarea
                     value={newDesc}
@@ -1281,7 +1292,7 @@ export default function PortfolioManager({ salonId }) {
                       const val = e.target.value.slice(0, MAX_DESCRIPTION_LENGTH);
                       setNewDesc(val);
                     }}
-                    placeholder="توضیح کوتاه..."
+                    placeholder={t('portfolioManager.categoryDescription', 'Description')}
                     rows={2}
                     maxLength={MAX_DESCRIPTION_LENGTH}
                     disabled={categories.length >= MAX_CATEGORIES}
@@ -1319,7 +1330,7 @@ export default function PortfolioManager({ salonId }) {
                   }}
                 >
                   <Plus size={16} />
-                  {submitting ? 'در حال ایجاد...' : 'افزودن دسته‌بندی'}
+                  {submitting ? t('portfolioManager.addCategoryLoading', 'Creating...') : t('portfolioManager.addCategory', 'Add category')}
                 </motion.button>
               </form>
             </div>
@@ -1341,9 +1352,9 @@ export default function PortfolioManager({ salonId }) {
               >
                 <ImageIcon size={48} style={{ color: T.purpleMid, marginBottom: '1rem' }} />
               </motion.div>
-              <h3 style={{ color: T.inkMid, fontWeight: 700, margin: '0 0 6px' }}>هیچ دسته‌بندی وجود ندارد</h3>
+              <h3 style={{ color: T.inkMid, fontWeight: 700, margin: '0 0 6px' }}>{t('portfolioManager.noCategories', 'No categories yet')}</h3>
               <p style={{ color: T.inkLight, margin: 0, fontSize: '0.88rem' }}>
-                ابتدا یک دسته‌بندی بسازید و سپس عکس اضافه کنید
+                {t('portfolioManager.noCategoriesHint', 'Create a category first, then add images')}
               </p>
             </motion.div>
           ) : (
@@ -1357,6 +1368,8 @@ export default function PortfolioManager({ salonId }) {
                   onUpload={handleUpload}
                   uploadingId={uploadingId}
                   onDeleteItem={handleDeleteItem}
+                  t={t}
+                  isEnglish={isEnglish}
                 />
               ))}
             </AnimatePresence>

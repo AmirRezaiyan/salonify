@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
+import { useLanguage } from '../context/LanguageContext';
 import { motion } from 'framer-motion';
 import { Button } from '../components/Button';
 import { Alert } from '../components/Alert';
@@ -9,6 +10,7 @@ import { Eye, EyeOff, LockKeyhole, Sparkles } from 'lucide-react';
 export default function ResetPassword() {
   const { uid, token } = useParams();
   const navigate = useNavigate();
+  const { t, language } = useLanguage();
 
   const [formData, setFormData] = useState({ password: '', confirmPassword: '' });
   const [errors, setErrors] = useState({ password: '', confirmPassword: '', general: '' });
@@ -23,7 +25,7 @@ export default function ResetPassword() {
 
   useEffect(() => {
     if (!isLinkValid) {
-      setErrors(prev => ({ ...prev, general: 'لینک بازیابی نامعتبر است.' }));
+      setErrors(prev => ({ ...prev, general: t('resetPassword.invalidLink') }));
     }
   }, [isLinkValid]);
 
@@ -45,15 +47,15 @@ export default function ResetPassword() {
     let hasError = false;
 
     if (!formData.password) {
-      newErrors.password = 'رمز عبور جدید را وارد کنید';
+      newErrors.password = t('resetPassword.passwordRequired');
       hasError = true;
     }
     if (!formData.confirmPassword) {
-      newErrors.confirmPassword = 'تکرار رمز عبور را وارد کنید';
+      newErrors.confirmPassword = t('resetPassword.confirmRequired');
       hasError = true;
     }
     if (formData.password && formData.confirmPassword && formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'رمزهای عبور با هم مطابقت ندارند';
+      newErrors.confirmPassword = t('resetPassword.mismatch');
       hasError = true;
     }
 
@@ -83,7 +85,7 @@ export default function ResetPassword() {
       const data = await response.json().catch(() => ({}));
 
       if (response.ok) {
-        setSuccessMessage(data.message || 'رمز عبور با موفقیت تغییر کرد.');
+        setSuccessMessage(data.message || t('resetPassword.successMessage'));
         setTimeout(() => {
           navigate('/login', { replace: true });
         }, 1600);
@@ -91,11 +93,11 @@ export default function ResetPassword() {
         setErrors({
           password: data.password || '',
           confirmPassword: data.password_confirm || '',
-          general: data.detail || data.message || data.error || 'تغییر رمز عبور ناموفق بود.',
+          general: data.detail || data.message || data.error || t('resetPassword.changeFailed'),
         });
       }
     } catch (error) {
-      setErrors(prev => ({ ...prev, general: 'خطای شبکه. لطفاً دوباره تلاش کنید.' }));
+      setErrors(prev => ({ ...prev, general: t('resetPassword.networkError') }));
     } finally {
       setLoading(false);
     }
@@ -142,7 +144,9 @@ export default function ResetPassword() {
         alignItems: 'center',
         justifyContent: 'center',
         padding: '1rem',
-        boxSizing: 'border-box'
+        boxSizing: 'border-box',
+        direction: language === 'en' ? 'ltr' : 'rtl',
+        textAlign: language === 'en' ? 'left' : 'right'
       }}
     >
       <div style={{
@@ -219,14 +223,14 @@ export default function ResetPassword() {
             margin: '0 0 0.4rem 0',
             textShadow: '0 2px 10px rgba(0,0,0,0.15)'
           }}>
-            تعیین رمز عبور جدید
+            {t('resetPassword.title')}
           </h1>
           <p style={{
             color: 'var(--text-light)',
             margin: 0,
             fontSize: '0.95rem'
           }}>
-            رمز عبور تازه را برای حساب خود انتخاب کنید
+            {t('resetPassword.subtitle')}
           </p>
         </div>
 
@@ -257,7 +261,7 @@ export default function ResetPassword() {
             }}>
               {successMessage}
               <div style={{ marginTop: 8, fontSize: '0.85rem', color: '#047857' }}>
-                در حال انتقال به صفحه ورود...
+                {t('resetPassword.successRedirect')}
               </div>
             </div>
           </motion.div>
@@ -272,12 +276,12 @@ export default function ResetPassword() {
               fontWeight: 600,
               fontSize: '0.95rem'
             }}>
-              رمز عبور جدید
+              {t('resetPassword.newPassword')}
             </label>
             <div style={{ position: 'relative' }}>
               <input
                 type={showPassword ? 'text' : 'password'}
-                placeholder="رمز عبور جدید"
+                placeholder={t('resetPassword.newPassword')}
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
@@ -303,7 +307,7 @@ export default function ResetPassword() {
                   color: "var(--text-muted)"
                 }}
                 tabIndex={-1}
-                aria-label={showPassword ? 'مخفی کردن رمز عبور' : 'نمایش رمز عبور'}
+                aria-label={showPassword ? t('auth.hidePassword') : t('auth.showPassword')}
               >
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
@@ -319,12 +323,12 @@ export default function ResetPassword() {
               fontWeight: 600,
               fontSize: '0.95rem'
             }}>
-              تکرار رمز عبور
+              {t('resetPassword.confirmPassword')}
             </label>
             <div style={{ position: 'relative' }}>
               <input
                 type={showConfirmPassword ? 'text' : 'password'}
-                placeholder="تکرار رمز عبور جدید"
+                placeholder={t('resetPassword.confirmPassword')}
                 name="confirmPassword"
                 value={formData.confirmPassword}
                 onChange={handleChange}
@@ -350,7 +354,7 @@ export default function ResetPassword() {
                   color: "var(--text-muted)"
                 }}
                 tabIndex={-1}
-                aria-label={showConfirmPassword ? 'مخفی کردن تکرار رمز' : 'نمایش تکرار رمز'}
+                aria-label={showConfirmPassword ? t('auth.hidePassword') : t('auth.showPassword')}
               >
                 {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
@@ -380,10 +384,10 @@ export default function ResetPassword() {
               transition: 'all 0.3s ease'
             }}
           >
-            {loading ? 'در حال ذخیره...' : (
+            {loading ? t('resetPassword.loading') : (
               <>
                 <Sparkles size={18} />
-                تغییر رمز عبور
+                {t('resetPassword.submit')}
               </>
             )}
           </Button>
@@ -396,7 +400,7 @@ export default function ResetPassword() {
           color: "var(--text-secondary)"
         }}>
           <Link to="/login" style={{ color: '#667eea', fontWeight: 700, textDecoration: 'none' }}>
-            بازگشت به صفحه ورود
+            {t('auth.loginTitle')}
           </Link>
         </div>
       </motion.div>

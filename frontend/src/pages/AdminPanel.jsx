@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import { useLanguage } from '../context/LanguageContext';
 import { api } from '../api/client';
 import QRCode from 'qrcode';
 import { Button } from '../components/Button';
@@ -51,31 +52,34 @@ import PortfolioManager from '../components/PortfolioManager';
 
 
 const WEEK_DAY_OPTIONS = [
-  { value: '0', label: 'شنبه' },
-  { value: '1', label: 'یکشنبه' },
-  { value: '2', label: 'دوشنبه' },
-  { value: '3', label: 'سه‌شنبه' },
-  { value: '4', label: 'چهارشنبه' },
-  { value: '5', label: 'پنج‌شنبه' },
-  { value: '6', label: 'جمعه' },
+  { value: '0', labelKey: 'admin.weekDay0', defaultLabel: 'Saturday' },
+  { value: '1', labelKey: 'admin.weekDay1', defaultLabel: 'Sunday' },
+  { value: '2', labelKey: 'admin.weekDay2', defaultLabel: 'Monday' },
+  { value: '3', labelKey: 'admin.weekDay3', defaultLabel: 'Tuesday' },
+  { value: '4', labelKey: 'admin.weekDay4', defaultLabel: 'Wednesday' },
+  { value: '5', labelKey: 'admin.weekDay5', defaultLabel: 'Thursday' },
+  { value: '6', labelKey: 'admin.weekDay6', defaultLabel: 'Friday' },
 ];
 
 const WORKING_HOUR_PRESETS = [
   {
     key: 'morning',
-    label: 'صبح کاری',
+    labelKey: 'admin.presetMorning',
+    defaultLabel: 'Morning shift',
     icon: '☀️',
     shifts: [{ start_time: '09:00', end_time: '13:00' }],
   },
   {
     key: 'afternoon',
-    label: 'بعدازظهر',
+    labelKey: 'admin.presetAfternoon',
+    defaultLabel: 'Afternoon',
     icon: '🌤️',
     shifts: [{ start_time: '13:00', end_time: '17:00' }],
   },
   {
     key: 'split',
-    label: 'صبح / عصر',
+    labelKey: 'admin.presetSplit',
+    defaultLabel: 'Morning / evening',
     icon: '✨',
     shifts: [
       { start_time: '09:00', end_time: '13:00' },
@@ -84,7 +88,8 @@ const WORKING_HOUR_PRESETS = [
   },
   {
     key: 'full',
-    label: 'تمام روز',
+    labelKey: 'admin.presetFull',
+    defaultLabel: 'Full day',
     icon: '⏰',
     shifts: [{ start_time: '09:00', end_time: '18:00' }],
   },
@@ -146,6 +151,11 @@ function formatPriceInput(value) {
   return digitsOnly.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
 
+function formatAdminNumber(value, isEnglish = false) {
+  if (value === undefined || value === null) return value;
+  return isEnglish ? String(value) : toPersianNumber(value);
+}
+
 // Convert Persian digits to ASCII and extract only digits
 function parsePriceInput(value) {
   if (!value) return '';
@@ -184,8 +194,8 @@ function formatWorkingRange(start_time, end_time) {
   return `${normalizeTimeText(start_time)} - ${normalizeTimeText(end_time)}`;
 }
 
-function getDayIndexFromValue(dayValue) {
-  const index = WEEK_DAY_OPTIONS.findIndex((day) => String(day.value) === String(dayValue));
+function getDayIndexFromValue(dayValue, weekDayOptions = WEEK_DAY_OPTIONS) {
+  const index = weekDayOptions.findIndex((day) => String(day.value) === String(dayValue));
   return index >= 0 ? index : 0;
 }
 
@@ -206,8 +216,8 @@ function loadSavedShiftsForDay(workingHours, dayValue) {
   return saved.map((wh) => createShift(normalizeTimeText(wh.start_time), normalizeTimeText(wh.end_time), wh.id));
 }
 
-function groupWorkingHoursByDay(workingHours) {
-  return WEEK_DAY_OPTIONS.map((day) => {
+function groupWorkingHoursByDay(workingHours, weekDayOptions = WEEK_DAY_OPTIONS) {
+  return weekDayOptions.map((day) => {
     const shifts = workingHours
       .filter((item) => String(item.day_of_week) === String(day.value))
       .slice()
@@ -228,10 +238,10 @@ function groupWorkingHoursByDay(workingHours) {
 }
 
 const BOOKING_STATUS_FILTERS = [
-  { value: 'all', label: 'همه' },
-  { value: 'pending', label: 'در انتظار تأیید' },
-  { value: 'confirmed', label: 'تأیید شده' },
-  { value: 'cancelled', label: 'لغو شده' },
+  { value: 'all', labelKey: 'admin.filterAll', defaultLabel: 'All' },
+  { value: 'pending', labelKey: 'admin.filterPending', defaultLabel: 'Pending approval' },
+  { value: 'confirmed', labelKey: 'admin.filterConfirmed', defaultLabel: 'Confirmed' },
+  { value: 'cancelled', labelKey: 'admin.filterCancelled', defaultLabel: 'Cancelled' },
 ];
 
 const BOOKINGS_PER_PAGE = 8;
@@ -254,7 +264,9 @@ function sortBookingsForDisplay(bookings = []) {
 export default function AdminPanel() {
   const { theme, toggleTheme } = useTheme();
   const { isAuthenticated, user, logout } = useAuth();
+  const { t, language } = useLanguage();
   const navigate = useNavigate();
+  const isEnglish = language === 'en';
   const [salon, setSalon] = useState(null);
   const [services, setServices] = useState([]);
   const [bookings, setBookings] = useState([]);
@@ -271,17 +283,32 @@ export default function AdminPanel() {
     setMobileMenuOpen(false);
   };
 
-  const TAB_META = {
-    'overview': { label: 'خلاصه آماری', icon: <BarChart3 size={18} /> },
-    'services': { label: 'خدمات', icon: <Scissors size={18} /> },
-    'working-hours': { label: 'ساعات کاری', icon: <Clock size={18} /> },
-    'bookings': { label: 'رزروها', icon: <Calendar size={18} /> },
-    'reviews': { label: 'نظرات مشتریان', icon: <Star size={18} /> },
-    'portfolio': { label: 'نمونه کارها', icon: <Sparkles size={18} /> },
-    'owner-info': { label: 'مشخصات مالک', icon: <Users size={18} /> },
-    'qr-code': { label: 'QR کد سالن', icon: <QrCode size={18} /> },
-    'settings': { label: 'تنظیمات سالن', icon: <Building2 size={18} /> }
-  };
+  const TAB_META = useMemo(() => ({
+    overview: { label: t('admin.overview', 'Overview'), icon: <BarChart3 size={18} /> },
+    services: { label: t('admin.services', 'Services'), icon: <Scissors size={18} /> },
+    'working-hours': { label: t('admin.workingHours', 'Working hours'), icon: <Clock size={18} /> },
+    bookings: { label: t('admin.bookings', 'Bookings'), icon: <Calendar size={18} /> },
+    reviews: { label: t('admin.reviews', 'Customer reviews'), icon: <Star size={18} /> },
+    portfolio: { label: t('admin.portfolio', 'Portfolio'), icon: <Sparkles size={18} /> },
+    'owner-info': { label: t('admin.ownerInfo', 'Owner info'), icon: <Users size={18} /> },
+    'qr-code': { label: t('admin.qrCode', 'Salon QR code'), icon: <QrCode size={18} /> },
+    settings: { label: t('admin.settings', 'Salon settings'), icon: <Building2 size={18} /> }
+  }), [t]);
+
+  const weekDayOptions = useMemo(() => WEEK_DAY_OPTIONS.map((day) => ({
+    ...day,
+    label: t(day.labelKey, day.defaultLabel),
+  })), [t]);
+
+  const workingHourPresets = useMemo(() => WORKING_HOUR_PRESETS.map((preset) => ({
+    ...preset,
+    label: t(preset.labelKey, preset.defaultLabel),
+  })), [t]);
+
+  const bookingStatusFilters = useMemo(() => BOOKING_STATUS_FILTERS.map((option) => ({
+    ...option,
+    label: t(option.labelKey, option.defaultLabel),
+  })), [t]);
   const [newService, setNewService] = useState({
     name: '',
     price: '',
@@ -369,7 +396,7 @@ export default function AdminPanel() {
 
         // اعتبارسنجی داده‌های دریافتی قبل از تولید QR
         if (!qr_url || typeof qr_url !== 'string' || qr_url.trim() === '') {
-          throw new Error('آدرس QR Code معتبر نیست');
+          throw new Error(t('admin.qrCodeInvalidError', 'The QR code address is invalid'));
         }
 
         setQrCode(qr_code);
@@ -394,14 +421,13 @@ export default function AdminPanel() {
 
         setQrDataUrl(dataUrl);
       } catch (err) {
-        console.error('خطا در دریافت QR Code:', err);
-        // پیام خطای واضح‌تر بر اساس نوع خطا
+        console.error('Error loading QR code:', err);
         if (err.response?.status === 403) {
-          setQrError('فقط مالک سالن می‌تواند QR Code را ببیند');
+          setQrError(t('admin.qrCodeErrorOwner', 'Only the salon owner can view the QR code'));
         } else if (err.response?.status === 401) {
-          setQrError('لطفاً وارد حساب کاربری خود شوید');
+          setQrError(t('admin.qrCodeErrorAuth', 'Please log in to your account'));
         } else {
-          setQrError(err.message || 'خطا در دریافت QR Code');
+          setQrError(err.message || t('admin.qrCodeErrorGeneric', 'Error loading QR code'));
         }
       } finally {
         setQrLoading(false);
@@ -493,7 +519,7 @@ export default function AdminPanel() {
       setError('');
     } catch (err) {
       console.error('Error loading admin data:', err);
-      setError('خطا در بارگذاری اطلاعات');
+      setError(t('admin.salonLoadError', 'Error loading salon information'));
     } finally {
       setLoading(false);
     }
@@ -502,13 +528,13 @@ export default function AdminPanel() {
   const handleAddService = async (e) => {
     e.preventDefault();
     if (!newService.name.trim()) {
-      setErrorModal({ open: true, title: 'نام خدمت', message: 'لطفاً نام خدمت را وارد کنید' });
+      setErrorModal({ open: true, title: t('admin.serviceNameLabel', 'Service name'), message: t('admin.serviceNameRequired', 'Please enter a service name') });
       return;
     }
 
     const parsedPrice = parseFloat(newService.price);
     if (!Number.isFinite(parsedPrice) || parsedPrice <= 0) {
-      setErrorModal({ open: true, title: 'قیمت خدمت', message: 'قیمت این سرویس باید بیشتر از صفر باشد' });
+      setErrorModal({ open: true, title: t('admin.servicePriceLabel', 'Service price'), message: t('admin.servicePriceRequired', 'This service price must be greater than zero') });
       return;
     }
 
@@ -530,17 +556,17 @@ export default function AdminPanel() {
       if (nameError) {
         setErrorModal({
           open: true,
-          title: 'خدمت تکراری',
+          title: t('admin.serviceDuplicate', 'Duplicate service'),
           message: nameError
         });
       } else {
         const fallbackMessage =
           err.response?.data?.detail ||
           err.response?.data?.non_field_errors?.[0] ||
-          'خطا در اضافه کردن خدمت';
+          t('admin.serviceAddError', 'Error adding service');
         setErrorModal({
           open: true,
-          title: 'خطا',
+          title: t('admin.errorTitle', 'Error'),
           message: fallbackMessage
         });
       }
@@ -563,13 +589,13 @@ export default function AdminPanel() {
 
   const handleUpdateService = async () => {
     if (!editingService.name.trim()) {
-      setErrorModal({ open: true, title: 'نام خدمت', message: 'لطفاً نام خدمت را وارد کنید' });
+      setErrorModal({ open: true, title: t('admin.serviceNameLabel', 'Service name'), message: t('admin.serviceNameRequired', 'Please enter a service name') });
       return;
     }
 
     const parsedPrice = parseFloat(editingService.price);
     if (!Number.isFinite(parsedPrice) || parsedPrice <= 0) {
-      setErrorModal({ open: true, title: 'قیمت خدمت', message: 'قیمت این سرویس باید بیشتر از صفر باشد' });
+      setErrorModal({ open: true, title: t('admin.servicePriceLabel', 'Service price'), message: t('admin.servicePriceRequired', 'This service price must be greater than zero') });
       return;
     }
 
@@ -599,26 +625,26 @@ export default function AdminPanel() {
       if (nameError) {
         setErrorModal({
           open: true,
-          title: 'خطا در نام خدمت',
+          title: t('admin.serviceNameLabel', 'Service name'),
           message: nameError
         });
       } else if (priceError) {
         setErrorModal({
           open: true,
-          title: 'خطا در قیمت',
+          title: t('admin.servicePriceLabel', 'Service price'),
           message: priceError
         });
       } else if (durationError) {
         setErrorModal({
           open: true,
-          title: 'خطا در مدت زمان',
+          title: t('admin.serviceDurationLabel', 'Duration (minutes)'),
           message: durationError
         });
       } else {
-        const fallbackMessage = detailError || nonFieldError || 'خطا در بروزرسانی خدمت';
+        const fallbackMessage = detailError || nonFieldError || t('admin.serviceUpdateError', 'Error updating service');
         setErrorModal({
           open: true,
-          title: 'خطا',
+          title: t('admin.errorTitle', 'Error'),
           message: fallbackMessage
         });
       }
@@ -638,8 +664,8 @@ export default function AdminPanel() {
     if (!service.is_active && !hasValidPrice) {
       setErrorModal({
         open: true,
-        title: 'قیمت سرویس',
-        message: 'برای فعال‌سازی این سرویس، ابتدا قیمت آن را بیشتر از صفر وارد کنید.'
+        title: t('admin.servicePriceLabel', 'Service price'),
+        message: t('admin.servicePriceHint', 'To activate this service, first enter a price greater than zero.')
       });
       return;
     }
@@ -657,14 +683,14 @@ export default function AdminPanel() {
       setSuccessModal({
         open: true,
         message: nextStatus
-          ? `خدمت "${service.name}" فعال شد. اکنون برای مشتریان نمایش داده می‌شود.`
-          : `خدمت "${service.name}" غیرفعال شد. دیگر برای مشتریان نمایش داده نمی‌شود.`
+          ? t('admin.serviceEnableSuccess', 'Service enabled. It is now visible to customers.', { name: service.name })
+          : t('admin.serviceDisableSuccess', 'Service disabled. It is no longer visible to customers.', { name: service.name })
       });
     } catch (err) {
       console.error('Error updating service status:', err);
       console.error('Error response:', err.response);
       setServices((prev) => prev.map((item) => item.id === service.id ? { ...item, is_active: service.is_active } : item));
-      setError('خطا در بروزرسانی وضعیت خدمت');
+      setError(t('admin.serviceUpdateError', 'Error updating service'));
     } finally {
       setLoading(false);
     }
@@ -730,17 +756,17 @@ export default function AdminPanel() {
     const nextDay = WEEK_DAY_OPTIONS[currentDayIndex + 1] || null;
 
     if (selectedDayValue === undefined || selectedDayValue === null) {
-      setError('لطفاً یک روز را انتخاب کنید');
+      setError(t('admin.workingHourSelectDay', 'Please select a day'));
       return;
     }
 
     if (!shifts.length) {
-      setError('لطفاً حداقل یک شیفت اضافه کنید');
+      setError(t('admin.workingHourSelectShift', 'Please add at least one shift'));
       return;
     }
 
     if (shifts.length > 2) {
-      setError('حداکثر ۲ شیفت برای هر روز مجاز است');
+      setError(t('admin.workingHourMaxShifts', 'A maximum of 2 shifts per day is allowed'));
       return;
     }
 
@@ -749,7 +775,7 @@ export default function AdminPanel() {
     );
 
     if (invalidShift) {
-      setError('ساعت شروع باید قبل از ساعت پایان باشد');
+      setError(t('admin.workingHourTimeOrder', 'The start time must be before the end time'));
       return;
     }
 
@@ -803,11 +829,11 @@ export default function AdminPanel() {
           shifts: loadSavedShiftsForDay(workingHours, nextDay.value),
         });
         setShowWorkingHourForm(true);
-        setSuccess(`روز ${currentDay.label} ذخیره شد. حالا ${nextDay.label} را تنظیم کن.`);
+        setSuccess(t('admin.workingHourSaveSuccessNext', 'Day {day} saved. Now set {nextDay}.', { day: currentDay.label, nextDay: nextDay.label }));
       } else {
         setNewWorkingHour(createWorkingHourFormState());
         setShowWorkingHourForm(false);
-        setSuccess(`ساعات کاری ${currentDay.label} با موفقیت ذخیره شد`);
+        setSuccess(t('admin.workingHourSaveSuccessEnd', 'Working hours for {day} saved successfully', { day: currentDay.label }));
       }
 
       setDraggedShiftIndex(null);
@@ -834,7 +860,7 @@ export default function AdminPanel() {
       await loadData();
     } catch (err) {
       console.error('Error deleting working hour', err);
-      setError('خطا در حذف ساعات کاری');
+      setError(t('admin.workingHourDeleteError', 'Error deleting working hours'));
     } finally {
       setLoading(false);
       setConfirmModal({ open: false, title: '', message: '', onConfirm: null });
@@ -844,8 +870,10 @@ export default function AdminPanel() {
   const handleDeleteWorkingHour = (id) => {
     setConfirmModal({
       open: true,
-      title: 'حذف شیفت کاری',
-      message: 'آیا مطمئنی که می‌خوای این شیفت رو حذف کنی؟',
+      title: t('admin.workingHourDeleteConfirmTitle', 'Delete work shift'),
+      message: t('admin.workingHourDeleteConfirmMessage', 'Are you sure you want to delete this shift?'),
+      cancelText: t('admin.workingHoursDeleteConfirmationCancel', 'Cancel'),
+      confirmText: t('admin.workingHoursDeleteConfirmationSubmit', 'Yes, delete it'),
       onConfirm: () => performDeleteWorkingHour(id)
     });
   };
@@ -853,8 +881,8 @@ export default function AdminPanel() {
   const handleToggleSalonStatus = async () => {
     const newStatus = !salon?.is_active;
     const confirmMessage = newStatus
-      ? 'آیا می‌خواهید سالن را فعال کنید؟'
-      : 'آیا می‌خواهید سالن را غیرفعال کنید؟';
+      ? t('admin.activateSalonConfirm', 'Do you want to activate the salon?')
+      : t('admin.deactivateSalonConfirm', 'Do you want to deactivate the salon?');
 
     if (!window.confirm(confirmMessage)) return;
 
@@ -866,7 +894,7 @@ export default function AdminPanel() {
       setShowDisableSalonForm(false);
     } catch (err) {
       console.error('Error toggling salon status:', err);
-      setError(err.response?.data?.message || 'خطا در تغییر وضعیت سالن');
+      setError(err.response?.data?.message || t('admin.salonStatusUpdateError', 'Error updating salon status'));
     } finally {
       setToggleSalonLoading(false);
     }
@@ -874,7 +902,7 @@ export default function AdminPanel() {
 
   const handleDisableSalon = async (e) => {
     e.preventDefault();
-    if (!window.confirm('آیا از غیرفعال کردن سالن مطمئن هستید؟')) return;
+    if (!window.confirm(t('admin.confirmDisableSalon', 'Are you sure you want to disable the salon?'))) return;
 
     try {
       setToggleSalonLoading(true);
@@ -886,7 +914,7 @@ export default function AdminPanel() {
       setDisableSalonForm({ days: '', reason: '' });
     } catch (err) {
       console.error('Error disabling salon:', err);
-      setError(err.response?.data?.message || 'خطا در غیرفعال کردن سالن');
+      setError(err.response?.data?.message || t('admin.salonDisableError', 'Error disabling salon'));
     } finally {
       setToggleSalonLoading(false);
     }
@@ -897,14 +925,14 @@ export default function AdminPanel() {
     if (file) {
       // Validate file size (5MB max)
       if (file.size > 5 * 1024 * 1024) {
-        setError('سایز عکس نباید از 5 مگابایت بیشتر باشد');
+        setError(t('admin.imageSizeError', 'Image size must not exceed 5MB'));
         return;
       }
 
       // Validate file type
       const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
       if (!validTypes.includes(file.type)) {
-        setError('فقط عکس های JPEG, PNG, WebP و GIF پذیرفتنی هستند');
+        setError(t('admin.imageTypeError', 'Only JPEG, PNG, WebP, and GIF images are accepted'));
         return;
       }
 
@@ -955,8 +983,8 @@ export default function AdminPanel() {
     if (ownerDescription?.length > 500) {
       setErrorModal({
         open: true,
-        title: 'خطا در ذخیره مشخصات',
-        message: 'توضیح درباره خود نباید بیشتر از ۵۰۰ کاراکتر باشد.'
+        title: t('admin.ownerInfoSaveErrorTitle', 'Error saving information'),
+        message: t('admin.ownerInfoDescriptionTooLong', 'Your description must not exceed 500 characters.')
       });
       return;
     }
@@ -964,8 +992,8 @@ export default function AdminPanel() {
     if (!ownerDescription?.trim() && !ownerImage) {
       setErrorModal({
         open: true,
-        title: 'خطا در ذخیره مشخصات',
-        message: 'لطفا حداقل یک مورد (عکس یا توضیح) را وارد کنید.'
+        title: t('admin.ownerInfoSaveErrorTitle', 'Error saving information'),
+        message: t('admin.ownerInfoRequired', 'Please enter at least one item (image or description).')
       });
       return;
     }
@@ -1000,14 +1028,14 @@ export default function AdminPanel() {
       // نمایش مودال موفقیت
       setSuccessModal({
         open: true,
-        message: 'مشخصات مالک با موفقیت ذخیره شد'
+        message: t('admin.ownerInfoSaveSuccess', 'Owner information saved successfully')
       });
     } catch (err) {
       console.error('Error saving owner info:', err);
       setErrorModal({
         open: true,
-        title: 'خطا در ذخیره مشخصات',
-        message: err.response?.data?.message || 'خطا در ذخیره اطلاعات مالک'
+        title: t('admin.ownerInfoSaveErrorTitle', 'Error saving information'),
+        message: err.response?.data?.message || t('admin.ownerInfoSaveErrorMessage', 'Error saving owner information')
       });
     } finally {
       setSavingOwnerInfo(false);
@@ -1021,11 +1049,11 @@ export default function AdminPanel() {
     const trimmedMobile = contactForm.mobile.trim();
 
     if (!trimmedMobile) {
-      setContactInfoError('شماره موبایل الزامی است');
+      setContactInfoError(t('admin.contactMobileRequiredTitle', 'Mobile number is required'));
       setErrorModal({
         open: true,
-        title: 'شماره موبایل الزامی است',
-        message: 'برای ذخیره اطلاعات، وارد کردن شماره موبایل الزامی است.'
+        title: t('admin.contactMobileRequiredTitle', 'Mobile number is required'),
+        message: t('admin.contactMobileRequiredMessage', 'To save the information, you must enter a mobile number.')
       });
       return;
     }
@@ -1046,7 +1074,7 @@ export default function AdminPanel() {
       });
       setShowContactEditForm(false);
       setError('');
-      setSuccess('شماره‌های تماس با موفقیت ذخیره شد');
+      setSuccess(t('admin.contactSaveSuccess', 'Contact details saved successfully'));
       setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
       console.error('Error saving contact info:', err);
@@ -1055,12 +1083,12 @@ export default function AdminPanel() {
         err.response?.data?.phone?.[0] ||
         err.response?.data?.detail ||
         err.response?.data?.message ||
-        'شماره وارد شده قبلاً برای سالن دیگری ثبت شده است یا معتبر نیست.';
+        t('admin.contactValidationError', 'The phone number is invalid or already registered for another salon.');
 
       setContactInfoError(apiError);
       setErrorModal({
         open: true,
-        title: 'خطا در ذخیره شماره تماس',
+        title: t('admin.contactSaveErrorTitle', 'Error saving contact information'),
         message: apiError,
       });
     } finally {
@@ -1082,13 +1110,13 @@ export default function AdminPanel() {
   };
 
   const stats = getStats();
-  const workingHoursByDay = groupWorkingHoursByDay(workingHours);
+  const workingHoursByDay = groupWorkingHoursByDay(workingHours, weekDayOptions);
   const activeWorkingDays = workingHoursByDay.filter((day) => day.shifts.length > 0).length;
   const multiShiftDays = workingHoursByDay.filter((day) => day.shifts.length > 1).length;
-  const currentWizardDayValue = newWorkingHour.selectedDays?.[0] || WEEK_DAY_OPTIONS[0].value;
-  const currentWizardDayIndex = getDayIndexFromValue(currentWizardDayValue);
-  const currentWizardDay = WEEK_DAY_OPTIONS[currentWizardDayIndex] || WEEK_DAY_OPTIONS[0];
-  const nextWizardDay = WEEK_DAY_OPTIONS[currentWizardDayIndex + 1] || null;
+  const currentWizardDayValue = newWorkingHour.selectedDays?.[0] || weekDayOptions[0]?.value || WEEK_DAY_OPTIONS[0].value;
+  const currentWizardDayIndex = getDayIndexFromValue(currentWizardDayValue, weekDayOptions);
+  const currentWizardDay = weekDayOptions[currentWizardDayIndex] || weekDayOptions[0] || WEEK_DAY_OPTIONS[0];
+  const nextWizardDay = weekDayOptions[currentWizardDayIndex + 1] || null;
   const currentWizardShifts = Array.isArray(newWorkingHour.shifts) ? newWorkingHour.shifts : [];
 
   if (!isAuthenticated) return <Loading />;
@@ -1117,7 +1145,7 @@ export default function AdminPanel() {
             border: "1px solid var(--border)"
           }}
         >
-          <Alert type="error" message="دسترسی رد شد. فقط مالک و کارمند می‌توانند وارد شوند." />
+          <Alert type="error" message={t('admin.accessDenied', 'Access denied. Only owners and staff can access this area.')} />
           <Button
             onClick={() => navigate('/')}
             style={{
@@ -1132,7 +1160,7 @@ export default function AdminPanel() {
               fontWeight: 600
             }}
           >
-            بازگشت به صفحه اصلی
+            {t('common.back', 'Back')}
           </Button>
         </motion.div>
       </div>
@@ -1140,6 +1168,8 @@ export default function AdminPanel() {
   }
 
   if (loading && !services.length && !bookings.length) return <Loading />;
+
+  const adminDirection = isEnglish ? 'ltr' : 'rtl';
 
   return (
     <motion.div
@@ -1149,7 +1179,7 @@ export default function AdminPanel() {
       style={{
         minHeight: '100vh',
         background: 'var(--background)',
-        direction: 'rtl'
+        direction: adminDirection
       }}
     >
       <style>{`
@@ -1350,7 +1380,7 @@ export default function AdminPanel() {
                   textShadow: '0 4px 20px rgba(0,0,0,0.2)'
                 }}
               >
-                پنل مدیریت
+                {t('header.admin', 'Admin Panel')}
               </motion.h1>
               <motion.p
                 initial={{ opacity: 0, x: -20 }}
@@ -1362,7 +1392,7 @@ export default function AdminPanel() {
                   margin: '4px 0 0 0'
                 }}
               >
-                خوش آمدید، {user?.username}
+                {t('admin.welcomeUser', 'Welcome, {username}', { username: user?.username || '' })}
               </motion.p>
             </div>
           </div>
@@ -1404,7 +1434,7 @@ export default function AdminPanel() {
               }}
             >
               <LogOut size={18} />
-              خروج
+              {t('header.logout', 'Log out')}
             </button>
           </motion.div>
         </div>
@@ -1496,60 +1526,69 @@ export default function AdminPanel() {
             <nav style={{ overflowY: 'auto', maxHeight: 'calc(100vh - 200px)' }}>
               <TabButton
                 icon={<BarChart3 size={20} />}
-                label="خلاصه آماری"
+                label={t('admin.overview', 'Overview')}
                 active={activeTab === 'overview'}
                 onClick={() => handleTabClick('overview')}
+                isEnglish={isEnglish}
               />
               <TabButton
                 icon={<Scissors size={20} />}
-                label="خدمات"
-                badge={toPersianNumber(services.length)}
+                label={t('admin.services', 'Services')}
+                badge={formatAdminNumber(services.length, isEnglish)}
                 active={activeTab === 'services'}
                 onClick={() => handleTabClick('services')}
+                isEnglish={isEnglish}
               />
               <TabButton
                 icon={<Clock size={20} />}
-                label="ساعات کاری"
-                badge={toPersianNumber(workingHours.length)}
+                label={t('admin.workingHours', 'Working hours')}
+                badge={formatAdminNumber(workingHours.length, isEnglish)}
                 active={activeTab === 'working-hours'}
                 onClick={() => handleTabClick('working-hours')}
+                isEnglish={isEnglish}
               />
               <TabButton
                 icon={<Calendar size={20} />}
-                label="رزروها"
-                badge={toPersianNumber(bookings.length)}
+                label={t('admin.bookings', 'Bookings')}
+                badge={formatAdminNumber(bookings.length, isEnglish)}
                 active={activeTab === 'bookings'}
                 onClick={() => handleTabClick('bookings')}
+                isEnglish={isEnglish}
               />
               <TabButton
                 icon={<Star size={20} />}
-                label="نظرات مشتریان"
+                label={t('admin.reviews', 'Customer reviews')}
                 active={activeTab === 'reviews'}
                 onClick={() => handleTabClick('reviews')}
+                isEnglish={isEnglish}
               />
               <TabButton
                 icon={<Sparkles size={20} />}
-                label="نمونه کارها"
+                label={t('admin.portfolio', 'Portfolio')}
                 active={activeTab === 'portfolio'}
                 onClick={() => handleTabClick('portfolio')}
+                isEnglish={isEnglish}
               />
               <TabButton
                 icon={<Users size={20} />}
-                label="مشخصات مالک"
+                label={t('admin.ownerInfo', 'Owner info')}
                 active={activeTab === 'owner-info'}
                 onClick={() => handleTabClick('owner-info')}
+                isEnglish={isEnglish}
               />
               <TabButton
                 icon={<QrCode size={20} />}
-                label="QR کد سالن"
+                label={t('admin.qrCode', 'Salon QR code')}
                 active={activeTab === 'qr-code'}
                 onClick={() => handleTabClick('qr-code')}
+                isEnglish={isEnglish}
               />
               <TabButton
                 icon={<Building2 size={20} />}
-                label="تنظیمات سالن"
+                label={t('admin.settings', 'Salon settings')}
                 active={activeTab === 'settings'}
                 onClick={() => handleTabClick('settings')}
+                isEnglish={isEnglish}
               />
             </nav>
           </div>
@@ -1588,30 +1627,34 @@ export default function AdminPanel() {
                 <StatCard
                   icon={<Scissors size={24} />}
                   value={stats.totalServices}
-                  label="کل خدمات"
+                  label={t('admin.overviewServices', 'Total services')}
                   gradient="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
                   color="#667eea"
+                  isEnglish={isEnglish}
                 />
                 <StatCard
                   icon={<CheckCircle size={24} />}
                   value={stats.activeServices}
-                  label="خدمات فعال"
+                  label={t('admin.activeServices', 'Active services')}
                   gradient="linear-gradient(135deg, #10b981 0%, #059669 100%)"
                   color="#10b981"
+                  isEnglish={isEnglish}
                 />
                 <StatCard
                   icon={<Calendar size={24} />}
                   value={stats.totalBookings}
-                  label="کل رزروها"
+                  label={t('admin.totalBookings', 'Total bookings')}
                   gradient="linear-gradient(135deg, #f093fb 0%, #f5576c 100%)"
                   color="#f093fb"
+                  isEnglish={isEnglish}
                 />
                 <StatCard
                   icon={<TrendingUp size={24} />}
                   value={stats.todayBookings}
-                  label="رزروهای امروز"
+                  label={t('admin.todayBookings', 'Today\'s bookings')}
                   gradient="linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)"
                   color="#fbbf24"
+                  isEnglish={isEnglish}
                 />
               </div>
 
@@ -1665,7 +1708,7 @@ export default function AdminPanel() {
                     fontWeight: 700,
                     margin: 0
                   }}>
-                    اطلاعات سالن
+                    {t('admin.overviewSalonInfoTitle', 'Salon information')}
                   </h2>
                 </div>
 
@@ -1676,27 +1719,31 @@ export default function AdminPanel() {
                 }} className="admin-info-grid">
                   <InfoItem
                     icon={<Scissors size={20} />}
-                    label="نام سالن"
+                    label={t('admin.salonNameLabel', 'Salon name')}
                     value={salon?.name || '—'}
                     gradient="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+                    isEnglish={isEnglish}
                   />
                   <InfoItem
                     icon={<MapPin size={20} />}
-                    label="شهر"
+                    label={t('admin.cityLabel', 'City')}
                     value={salon?.city || '—'}
                     gradient="linear-gradient(135deg, #f093fb 0%, #f5576c 100%)"
+                    isEnglish={isEnglish}
                   />
                   <InfoItem
                     icon={<Phone size={20} />}
-                    label="تلفن"
+                    label={t('admin.phoneLabel', 'Phone')}
                     value={salon?.phone || '—'}
                     gradient="linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)"
+                    isEnglish={isEnglish}
                   />
                   <InfoItem
                     icon={<Phone size={20} />}
-                    label="موبایل"
+                    label={t('admin.mobileLabel', 'Mobile')}
                     value={salon?.mobile || '—'}
                     gradient="linear-gradient(135deg, #34d399 0%, #10b981 100%)"
+                    isEnglish={isEnglish}
                   />
                 </div>
               </motion.div>
@@ -1737,14 +1784,14 @@ export default function AdminPanel() {
                       fontWeight: 700,
                       margin: 0
                     }}>
-                      مدیریت خدمات
+                      {t('admin.manageServicesTitle', 'Manage services')}
                     </h2>
                     <p style={{
                       margin: '4px 0 0 0',
                       color: "var(--text-secondary)",
                       fontSize: 'clamp(0.75rem, 1.5vw, 0.9rem)'
                     }}>
-                      خدمات سالن رو ببین، ویرایش کن یا فعال/غیرفعال کن.
+                      {t('admin.manageServicesSubtitle', 'See, edit, or enable and disable salon services.')}
                     </p>
                   </div>
                 </div>
@@ -1778,7 +1825,7 @@ export default function AdminPanel() {
                   }}
                 >
                   <Plus size={18} />
-                  خدمت جدید
+                  {t('admin.manageServicesAddButton', 'New service')}
                 </Button>
               </div>
 
@@ -1796,8 +1843,8 @@ export default function AdminPanel() {
                   border: '1px solid var(--border)',
                   boxShadow: '0 8px 24px rgba(15, 23, 42, 0.06)'
                 }}>
-                  <div style={{ color: "var(--text-secondary)", fontSize: '0.82rem', marginBottom: '0.35rem' }}>تعداد خدمات</div>
-                  <div style={{ fontSize: '1.5rem', fontWeight: 800, color: "var(--text-primary)" }}>{toPersianNumber(services.length)}</div>
+                  <div style={{ color: "var(--text-secondary)", fontSize: '0.82rem', marginBottom: '0.35rem' }}>{t('admin.servicesCountLabel', 'Total services')}</div>
+                  <div style={{ fontSize: '1.5rem', fontWeight: 800, color: "var(--text-primary)" }}>{formatAdminNumber(services.length, isEnglish)}</div>
                 </div>
                 <div style={{
                   background: 'var(--card)',
@@ -1806,9 +1853,9 @@ export default function AdminPanel() {
                   border: '1px solid var(--border)',
                   boxShadow: '0 8px 24px rgba(15, 23, 42, 0.06)'
                 }}>
-                  <div style={{ color: "var(--text-secondary)", fontSize: '0.82rem', marginBottom: '0.35rem' }}>خدمات فعال</div>
+                  <div style={{ color: "var(--text-secondary)", fontSize: '0.82rem', marginBottom: '0.35rem' }}>{t('admin.activeServicesLabel', 'Active services')}</div>
                   <div style={{ fontSize: '1.5rem', fontWeight: 800, color: "var(--text-primary)" }}>
-                    {toPersianNumber(services.filter((s) => s.is_active).length)}
+                    {formatAdminNumber(services.filter((s) => s.is_active).length, isEnglish)}
                   </div>
                 </div>
                 <div style={{
@@ -1818,9 +1865,9 @@ export default function AdminPanel() {
                   border: '1px solid var(--border)',
                   boxShadow: '0 8px 24px rgba(15, 23, 42, 0.06)'
                 }}>
-                  <div style={{ color: "var(--text-secondary)", fontSize: '0.82rem', marginBottom: '0.35rem' }}>خدمات غیرفعال</div>
+                  <div style={{ color: "var(--text-secondary)", fontSize: '0.82rem', marginBottom: '0.35rem' }}>{t('admin.inactiveServicesLabel', 'Inactive services')}</div>
                   <div style={{ fontSize: '1.5rem', fontWeight: 800, color: "var(--text-primary)" }}>
-                    {toPersianNumber(services.filter((s) => !s.is_active).length)}
+                    {formatAdminNumber(services.filter((s) => !s.is_active).length, isEnglish)}
                   </div>
                 </div>
               </div>
@@ -1863,7 +1910,7 @@ export default function AdminPanel() {
                     lineHeight: 1.6,
                     fontWeight: 600
                   }}>
-                    🔔 <strong>وقتی روی دکمه فعال/غیرفعال کلیک کنید:</strong>
+                    🔔 <strong>{t('admin.manageServicesInfoTitle', 'When you click the active/inactive button:')}</strong>
                   </p>
                   <p style={{
                     margin: '0.5rem 0 0 0',
@@ -1871,9 +1918,9 @@ export default function AdminPanel() {
                     fontSize: '0.85rem',
                     lineHeight: 1.5
                   }}>
-                    • اگر خدمت <strong>فعال</strong> است: برای مشتریان <strong>نمایش داده می‌شود</strong> و می‌توانند نوبت بگیرند<br/>
-                    • اگر خدمت <strong>غیرفعال</strong> است: برای مشتریان <strong>نمایش داده نمی‌شود</strong> و نمی‌توانند نوبت بگیرند<br/>
-                    • خدمت <strong>حذف نمی‌شود</strong> - فقط وضعیتش تغییر می‌کند
+                    • {t('admin.manageServicesInfoActive', 'If the service is active, customers can see it and book it')}<br/>
+                    • {t('admin.manageServicesInfoInactive', 'If the service is inactive, customers cannot see or book it')}<br/>
+                    • {t('admin.manageServicesInfoNoDelete', 'The service is not deleted; only its status changes')}
                   </p>
                 </div>
               </motion.div>
@@ -1947,7 +1994,7 @@ export default function AdminPanel() {
                             fontWeight: 800,
                             margin: 0
                           }}>
-                            افزودن خدمت جدید
+                            {t('admin.manageServicesAddModalTitle', 'Add new service')}
                           </h3>
                         </div>
 
@@ -1959,11 +2006,11 @@ export default function AdminPanel() {
                             marginBottom: '1.5rem'
                           }}>
                             <FormField
-                              label="نام خدمت"
+                              label={t('admin.serviceNameLabel', 'Service name')}
                               type="text"
                               value={newService.name}
                               onChange={(e) => setNewService({ ...newService, name: e.target.value })}
-                              placeholder="مثال: اصلاح مو"
+                              placeholder={t('admin.serviceNamePlaceholder', 'Example: haircut')}
                               required
                             />
                             <div style={{
@@ -1972,18 +2019,18 @@ export default function AdminPanel() {
                               gap: '1rem'
                             }} className="admin-form-grid">
                               <PriceField
-                                label="قیمت"
+                                label={t('admin.servicePriceLabel', 'Price')}
                                 value={newService.price}
                                 onChange={(val) => setNewService({ ...newService, price: val })}
-                                placeholder="مثال: 500,000"
+                                placeholder={t('admin.servicePricePlaceholder', 'Example: 500,000')}
                                 required
                               />
                               <FormField
-                                label="مدت زمان (دقیقه)"
+                                label={t('admin.serviceDurationLabel', 'Duration (minutes)')}
                                 type="number"
                                 value={newService.duration_minutes}
                                 onChange={(e) => setNewService({ ...newService, duration_minutes: e.target.value })}
-                                placeholder="مثال: 30"
+                                placeholder={t('admin.serviceDurationPlaceholder', 'Example: 30')}
                                 required
                               />
                             </div>
@@ -2015,7 +2062,7 @@ export default function AdminPanel() {
                                 e.currentTarget.style.borderColor = '#e2e8f0';
                               }}
                             >
-                              انصراف
+                              {t('admin.manageServicesCancel', 'Cancel')}
                             </Button>
                             <Button
                               type="submit"
@@ -2034,7 +2081,7 @@ export default function AdminPanel() {
                                 transition: 'all 0.3s ease'
                               }}
                             >
-                              {loading ? 'در حال ذخیره...' : 'ذخیره خدمت'}
+                              {loading ? t('admin.manageServicesSaving', 'Saving...') : t('admin.manageServicesSave', 'Save service')}
                             </Button>
                           </div>
                         </form>
@@ -2110,7 +2157,7 @@ export default function AdminPanel() {
                             fontWeight: 800,
                             margin: 0
                           }}>
-                            ویرایش خدمت
+                            {t('admin.manageServicesEditModalTitle', 'Edit service')}
                           </h3>
                         </div>
 
@@ -2121,11 +2168,11 @@ export default function AdminPanel() {
                           marginBottom: '1.5rem'
                         }}>
                           <FormField
-                            label="نام خدمت"
+                            label={t('admin.serviceNameLabel', 'Service name')}
                             type="text"
                             value={editingService.name}
                             onChange={(e) => setEditingService({ ...editingService, name: e.target.value })}
-                            placeholder="مثال: اصلاح مو"
+                            placeholder={t('admin.serviceNamePlaceholder', 'Example: haircut')}
                             required
                           />
                           <div style={{
@@ -2134,18 +2181,18 @@ export default function AdminPanel() {
                             gap: '1rem'
                           }} className="admin-form-grid">
                             <PriceField
-                              label="قیمت"
+                              label={t('admin.servicePriceLabel', 'Price')}
                               value={editingService.price}
                               onChange={(val) => setEditingService({ ...editingService, price: val })}
-                              placeholder="مثال: 500,000"
+                              placeholder={t('admin.servicePricePlaceholder', 'Example: 500,000')}
                               required
                             />
                             <FormField
-                              label="مدت زمان (دقیقه)"
+                              label={t('admin.serviceDurationLabel', 'Duration (minutes)')}
                               type="number"
                               value={editingService.duration_minutes}
                               onChange={(e) => setEditingService({ ...editingService, duration_minutes: e.target.value })}
-                              placeholder="مثال: 30"
+                              placeholder={t('admin.serviceDurationPlaceholder', 'Example: 30')}
                               required
                             />
                           </div>
@@ -2174,7 +2221,7 @@ export default function AdminPanel() {
                               e.currentTarget.style.borderColor = '#e2e8f0';
                             }}
                           >
-                            انصراف
+                            {t('admin.manageServicesCancel', 'Cancel')}
                           </Button>
                           <Button
                             type="button"
@@ -2194,7 +2241,7 @@ export default function AdminPanel() {
                               transition: 'all 0.3s ease'
                             }}
                           >
-                            {loading ? 'در حال ذخیره...' : 'ذخیره تغییرات'}
+                            {loading ? t('admin.manageServicesSaving', 'Saving...') : t('admin.manageServicesUpdate', 'Save changes')}
                           </Button>
                         </div>
                       </div>
@@ -2227,10 +2274,10 @@ export default function AdminPanel() {
                     color: "var(--text-secondary)",
                     marginBottom: '0.5rem'
                   }}>
-                    هنوز خدمتی ثبت نشده است
+                    {t('admin.manageServicesEmptyTitle', 'No service has been added yet')}
                   </p>
                   <p style={{ fontSize: '0.95rem' }}>
-                    برای شروع، خدمت جدیدی اضافه کنید
+                    {t('admin.manageServicesEmptySubtitle', 'Start by adding a new service')}
                   </p>
                 </motion.div>
               ) : (
@@ -2245,6 +2292,7 @@ export default function AdminPanel() {
                       service={service}
                       onToggleStatus={handleToggleServiceStatus}
                       onEdit={() => handleEditService(service)}
+                      isEnglish={isEnglish}
                     />
                   ))}
                 </div>
@@ -2286,14 +2334,14 @@ export default function AdminPanel() {
                       fontWeight: 700,
                       margin: 0
                     }}>
-                      مدیریت ساعات کاری
+                      {t('admin.workingHoursTitle', 'Manage working hours')}
                     </h2>
                     <p style={{
                       margin: '4px 0 0 0',
                       color: "var(--text-secondary)",
                       fontSize: 'clamp(0.75rem, 1.5vw, 0.9rem)'
                     }}>
-                      روزها را کارت‌محور ببین، شیفت‌ها را با drag & drop بچین و فقط با یک لمس روی چند روز اعمال کن.
+                      {t('admin.workingHoursSubtitle', 'Review days visually, arrange shifts with drag and drop, and apply them to multiple days in one step.')}
                     </p>
                   </div>
                 </div>
@@ -2337,7 +2385,7 @@ export default function AdminPanel() {
                   }}
                 >
                   <Plus size={18} />
-                  {showWorkingHourForm ? 'بستن' : 'افزودن زمان‌بندی'}
+                  {showWorkingHourForm ? t('admin.workingHoursCloseButton', 'Close') : t('admin.workingHoursAddButton', 'Add schedule')}
                 </Button>
               </div>
 
@@ -2354,7 +2402,7 @@ export default function AdminPanel() {
                   border: '1px solid var(--border)',
                   boxShadow: '0 8px 24px rgba(15, 23, 42, 0.06)'
                 }}>
-                  <div style={{ color: "var(--text-secondary)", fontSize: '0.82rem', marginBottom: '0.35rem' }}>روزهای فعال</div>
+                  <div style={{ color: "var(--text-secondary)", fontSize: '0.82rem', marginBottom: '0.35rem' }}>{t('admin.activeDaysLabel', 'Active days')}</div>
                   <div style={{ fontSize: '1.5rem', fontWeight: 800, color: "var(--text-primary)" }}>{activeWorkingDays}</div>
                 </div>
                 <div style={{
@@ -2364,8 +2412,8 @@ export default function AdminPanel() {
                   border: '1px solid var(--border)',
                   boxShadow: '0 8px 24px rgba(15, 23, 42, 0.06)'
                 }}>
-                  <div style={{ color: "var(--text-secondary)", fontSize: '0.82rem', marginBottom: '0.35rem' }}>کل شیفت‌ها</div>
-                  <div style={{ fontSize: '1.5rem', fontWeight: 800, color: "var(--text-primary)" }}>{toPersianNumber(workingHours.length)}</div>
+                  <div style={{ color: "var(--text-secondary)", fontSize: '0.82rem', marginBottom: '0.35rem' }}>{t('admin.totalShiftsLabel', 'Total shifts')}</div>
+                  <div style={{ fontSize: '1.5rem', fontWeight: 800, color: "var(--text-primary)" }}>{formatAdminNumber(workingHours.length, isEnglish)}</div>
                 </div>
                 <div style={{
                   background: 'var(--card)',
@@ -2374,8 +2422,8 @@ export default function AdminPanel() {
                   border: '1px solid var(--border)',
                   boxShadow: '0 8px 24px rgba(15, 23, 42, 0.06)'
                 }}>
-                  <div style={{ color: "var(--text-secondary)", fontSize: '0.82rem', marginBottom: '0.35rem' }}>روزهای چندشیفته</div>
-                  <div style={{ fontSize: '1.5rem', fontWeight: 800, color: "var(--text-primary)" }}>{toPersianNumber(multiShiftDays)}</div>
+                  <div style={{ color: "var(--text-secondary)", fontSize: '0.82rem', marginBottom: '0.35rem' }}>{t('admin.multiShiftDaysLabel', 'Multi-shift days')}</div>
+                  <div style={{ fontSize: '1.5rem', fontWeight: 800, color: "var(--text-primary)" }}>{formatAdminNumber(multiShiftDays, isEnglish)}</div>
                 </div>
               </div>
 
@@ -2447,7 +2495,7 @@ export default function AdminPanel() {
                               fontWeight: 800,
                               margin: 0
                             }}>
-                              تنظیم روز به روز ساعات کاری
+                              {t('admin.workingHoursFormTitle', 'Set working hours day by day')}
                             </h3>
                             <p style={{
                               margin: '0.35rem 0 0 0',
@@ -2455,7 +2503,7 @@ export default function AdminPanel() {
                               fontSize: '0.92rem',
                               lineHeight: 1.7
                             }}>
-                              هر روز را جداگانه تنظیم کن، ذخیره کن و با دکمه روز بعدی برو سراغ روز بعدی. پنج‌شنبه و جمعه هم می‌توانند ساعت متفاوت داشته باشند.
+                              {t('admin.workingHoursFormSubtitle', 'Set each day separately, save it, and use the next-day button to continue. Thursday and Friday can also have different hours.')}
                             </p>
                           </div>
 
@@ -2505,7 +2553,7 @@ export default function AdminPanel() {
                             }}>
                               <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
                                 <CalendarDays size={18} color="var(--primary)" />
-                                <span style={{ fontWeight: 800, color: "var(--text-primary)" }}>روز فعلی</span>
+                                <span style={{ fontWeight: 800, color: "var(--text-primary)" }}>{t('admin.workingHoursCurrentDay', 'Current day')}</span>
                                 <span style={{
                                   padding: '0.35rem 0.7rem',
                                   borderRadius: '999px',
@@ -2514,7 +2562,7 @@ export default function AdminPanel() {
                                   fontSize: '0.78rem',
                                   fontWeight: 700
                                 }}>
-                                  {toPersianNumber(currentWizardDayIndex + 1)} از 7
+                                  {formatAdminNumber(currentWizardDayIndex + 1, isEnglish)} از 7
                                 </span>
                               </div>
 
@@ -2542,7 +2590,7 @@ export default function AdminPanel() {
                                     cursor: currentWizardDayIndex === 0 ? 'not-allowed' : 'pointer'
                                   }}
                                 >
-                                  قبلی
+                                  {t('admin.workingHoursPrevDay', 'Previous')}
                                 </button>
                                 <button
                                   type="button"
@@ -2567,7 +2615,7 @@ export default function AdminPanel() {
                                     cursor: !nextWizardDay ? 'not-allowed' : 'pointer'
                                   }}
                                 >
-                                  روز بعدی
+                                  {t('admin.workingHoursNextDay', 'Next day')}
                                 </button>
                               </div>
                             </div>
@@ -2578,7 +2626,7 @@ export default function AdminPanel() {
                               gap: '0.5rem',
                               marginBottom: '0.9rem'
                             }}>
-                              {WEEK_DAY_OPTIONS.map((day, index) => {
+                              {weekDayOptions.map((day, index) => {
                                 const isSelected = String(currentWizardDayValue) === String(day.value);
                                 const hasSaved = (workingHoursByDay[index]?.shifts || []).length > 0;
                                 return (
@@ -2609,10 +2657,10 @@ export default function AdminPanel() {
                                       fontWeight: 800
                                     }}
                                   >
-                                    <span style={{ fontSize: '0.95rem' }}>{toPersianNumber(index + 1)}</span>
+                                    <span style={{ fontSize: '0.95rem' }}>{formatAdminNumber(index + 1, isEnglish)}</span>
                                     <span style={{ fontSize: '0.82rem' }}>{day.label}</span>
                                     <span style={{ fontSize: '0.72rem', opacity: 0.85 }}>
-                                      {hasSaved ? 'ثبت شده' : 'آزاد'}
+                                      {hasSaved ? t('admin.workingHoursSavedStatus', 'Saved') : t('admin.workingHoursFreeStatus', 'Free')}
                                     </span>
                                   </button>
                                 );
@@ -2638,14 +2686,14 @@ export default function AdminPanel() {
                                   color: 'white',
                                   fontWeight: 900
                                 }}>
-                                  {toPersianNumber(currentWizardDayIndex + 1)}
+                                  {formatAdminNumber(currentWizardDayIndex + 1, isEnglish)}
                                 </div>
                                 <div>
                                   <div style={{ fontWeight: 800, color: "var(--text-primary)" }}>
                                     {currentWizardDay.label}
                                   </div>
                                   <div style={{ color: "var(--text-secondary)", fontSize: '0.84rem' }}>
-                                    {nextWizardDay ? `بعدی: ${nextWizardDay.label}` : 'آخرین روز هفته'}
+                                    {nextWizardDay ? t('admin.workingHoursNextDayHint', 'Next: {day}', { day: nextWizardDay.label }) : t('admin.workingHoursLastDayHint', 'Last day of the week')}
                                   </div>
                                 </div>
                               </div>
@@ -2657,7 +2705,7 @@ export default function AdminPanel() {
                                 fontWeight: 800,
                                 fontSize: '0.82rem'
                               }}>
-                                تنها این روز ذخیره می‌شود
+                                {t('admin.workingHoursDaySummary', 'Only this day will be saved')}
                               </div>
                             </div>
                           </div>
@@ -2682,7 +2730,7 @@ export default function AdminPanel() {
                               fontWeight: 700
                             }}>
                               <Sparkles size={16} />
-                              preset آماده برای همین روز
+                              {t('admin.workingHoursPresetReady', 'Preset ready for this day')}
                             </div>
 
                             <button
@@ -2703,7 +2751,7 @@ export default function AdminPanel() {
                               }}
                             >
                               <RotateCcw size={14} style={{ marginLeft: '0.35rem', verticalAlign: '-2px' }} />
-                              بازنشانی شیفت‌های روز
+                              {t('admin.workingHoursResetDay', 'Reset this day\'s shifts')}
                             </button>
                           </div>
 
@@ -2724,7 +2772,7 @@ export default function AdminPanel() {
                                   borderRadius: '18px',
                                   padding: '0.9rem 1rem',
                                   cursor: 'pointer',
-                                  textAlign: 'right',
+                                  textAlign: isEnglish ? 'left' : 'right',
                                   boxShadow: 'var(--shadow-sm)'
                                 }}
                               >
@@ -2782,7 +2830,7 @@ export default function AdminPanel() {
                                       {index + 1}
                                     </span>
                                     <strong style={{ color: "var(--text-primary)", fontSize: '0.95rem' }}>
-                                      شیفت {toPersianNumber(index + 1)}
+                                      {t('admin.workingHoursShiftLabel', 'Shift {number}', { number: formatAdminNumber(index + 1, isEnglish) })}
                                     </strong>
                                   </div>
 
@@ -2807,7 +2855,7 @@ export default function AdminPanel() {
                                           cursor: 'pointer'
                                         }}
                                       >
-                                        حذف
+                                        {t('admin.workingHoursDeleteButton', 'Delete')}
                                       </button>
                                     )}
                                     <span style={{
@@ -2822,7 +2870,7 @@ export default function AdminPanel() {
                                       fontWeight: 700
                                     }}>
                                       <GripVertical size={14} />
-                                      جابه‌جایی
+                                      {t('admin.workingHoursMoveButton', 'Move')}
                                     </span>
                                   </div>
                                 </div>
@@ -2844,7 +2892,7 @@ export default function AdminPanel() {
                                       color: "var(--text-secondary)",
                                       fontWeight: 700
                                     }}>
-                                      ساعت شروع
+                                      {t('admin.workingHoursStartTimeLabel', 'Start time')}
                                     </label>
                                     <select
                                       value={shift.start_time}
@@ -2889,7 +2937,7 @@ export default function AdminPanel() {
                                       color: "var(--text-secondary)",
                                       fontWeight: 700
                                     }}>
-                                      ساعت پایان
+                                      {t('admin.workingHoursEndTimeLabel', 'End time')}
                                     </label>
                                     <select
                                       value={shift.end_time}
@@ -2948,7 +2996,7 @@ export default function AdminPanel() {
                                           cursor: 'pointer'
                                         }}
                                       >
-                                        + افزودن شیفت دوم
+                                        {t('admin.workingHoursAddShift', '+ Add second shift')}
                                       </button>
                                     ) : (
                                       <div style={{
@@ -2962,7 +3010,7 @@ export default function AdminPanel() {
                                         fontWeight: 700,
                                         textAlign: 'center'
                                       }}>
-                                        حداکثر ۲ شیفت در هر روز
+                                        {t('admin.workingHoursMaxShifts', 'A maximum of 2 shifts per day is allowed')}
                                       </div>
                                     )}
                                   </div>
@@ -2986,7 +3034,7 @@ export default function AdminPanel() {
                             fontSize: '0.85rem',
                             lineHeight: 1.7
                           }}>
-                            هر بار فقط همان روزی که بالای فرم انتخاب شده ذخیره می‌شود. بعد از ذخیره، به روز بعدی می‌رویم.
+                            {t('admin.workingHoursSaveCurrentDay', 'Only the day selected above is saved each time. After saving, you continue with the next day.')}
                           </p>
 
                           <div style={{
@@ -3011,7 +3059,7 @@ export default function AdminPanel() {
                                 cursor: 'pointer'
                               }}
                             >
-                              بازنشانی روز فعلی
+                              {t('admin.workingHoursResetCurrent', 'Reset current day')}
                             </button>
                           </div>
                         </div>
@@ -3040,7 +3088,7 @@ export default function AdminPanel() {
                               transition: 'all 0.3s ease'
                             }}
                           >
-                            {loading ? 'در حال ذخیره...' : (nextWizardDay ? `ثبت این روز و رفتن به ${nextWizardDay.label}` : 'ثبت و پایان')}
+                            {loading ? t('admin.manageServicesSaving', 'Saving...') : (nextWizardDay ? t('admin.workingHoursSaveAndNext', 'Save this day and go to {nextDay}', { nextDay: nextWizardDay.label }) : t('admin.workingHoursSaveAndEnd', 'Save and finish'))}
                           </Button>
                           <Button
                             type="button"
@@ -3069,7 +3117,7 @@ export default function AdminPanel() {
                               e.currentTarget.style.borderColor = '#e2e8f0';
                             }}
                           >
-                            انصراف
+                            {t('admin.manageServicesCancel', 'Cancel')}
                           </Button>
                         </div>
                       </form>
@@ -3089,6 +3137,8 @@ export default function AdminPanel() {
                     key={day.value}
                     day={day}
                     onDelete={handleDeleteWorkingHour}
+                    t={t}
+                    isEnglish={isEnglish}
                   />
                 ))}
               </div>
@@ -3124,7 +3174,7 @@ export default function AdminPanel() {
                   fontWeight: 700,
                   margin: 0
                 }}>
-                  مدیریت رزروها
+                  {t('admin.bookingsTitle', 'Manage bookings')}
                 </h2>
               </div>
 
@@ -3163,10 +3213,10 @@ export default function AdminPanel() {
                       color: "var(--text-secondary)",
                       marginBottom: '0.5rem'
                     }}>
-                      هنوز رزروی ثبت نشده است
+                      {t('admin.bookingsEmptyTitle', 'No bookings have been made yet')}
                     </p>
                     <p style={{ fontSize: 'clamp(0.75rem, 1.5vw, 0.95rem)' }}>
-                      مشتریان هنوز نوبت‌گیری نکرده‌اند
+                      {t('admin.bookingsEmptySubtitle', 'Customers have not booked any appointments yet')}
                     </p>
                   </div>
                 ) : (
@@ -3181,7 +3231,7 @@ export default function AdminPanel() {
                     }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                         <label htmlFor="booking-status-filter" style={{ fontSize: '0.92rem', fontWeight: 700, color: 'var(--text-secondary)' }}>
-                          فیلتر وضعیت
+                          {t('admin.bookingsFilterLabel', 'Status filter')}
                         </label>
                         <select
                           id="booking-status-filter"
@@ -3197,7 +3247,7 @@ export default function AdminPanel() {
                             minWidth: '180px'
                           }}
                         >
-                          {BOOKING_STATUS_FILTERS.map((option) => (
+                          {bookingStatusFilters.map((option) => (
                             <option key={option.value} value={option.value}>
                               {option.label}
                             </option>
@@ -3205,7 +3255,7 @@ export default function AdminPanel() {
                         </select>
                       </div>
                       <div style={{ fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 600 }}>
-                        {toPersianNumber(filteredBookings.length)} رزرو
+                        {t('admin.bookingsCountLabel', '{count} bookings', { count: formatAdminNumber(filteredBookings.length, isEnglish) })}
                       </div>
                     </div>
 
@@ -3217,7 +3267,7 @@ export default function AdminPanel() {
                       }}>
                         <Calendar size={40} style={{ marginBottom: '0.75rem', opacity: 0.35 }} />
                         <div style={{ fontWeight: 600, color: 'var(--text-secondary)' }}>
-                          هیچ رزروی با این وضعیت وجود ندارد
+                          {t('admin.bookingsNoMatchTitle', 'No booking exists with this status')}
                         </div>
                       </div>
                     ) : (
@@ -3234,16 +3284,16 @@ export default function AdminPanel() {
                                 background: 'var(--background-secondary)',
                                 borderBottom: '1px solid #e2e8f0'
                               }}>
-                                <TableHeader>مشتری</TableHeader>
-                                <TableHeader>خدمت</TableHeader>
-                                <TableHeader>تاریخ و ساعت</TableHeader>
-                                <TableHeader>وضعیت</TableHeader>
-                                <TableHeader>اطلاعات تماس</TableHeader>
+                                <TableHeader>{t('admin.bookingTableCustomer', 'Customer')}</TableHeader>
+                                <TableHeader>{t('admin.bookingTableService', 'Service')}</TableHeader>
+                                <TableHeader>{t('admin.bookingTableDateTime', 'Date and time')}</TableHeader>
+                                <TableHeader>{t('admin.bookingTableStatus', 'Status')}</TableHeader>
+                                <TableHeader>{t('admin.bookingTableContact', 'Contact info')}</TableHeader>
                               </tr>
                             </thead>
                             <tbody>
                               {paginatedBookings.map(booking => (
-                                <BookingRow key={booking.id} booking={booking} />
+                                <BookingRow key={booking.id} booking={booking} t={t} isEnglish={isEnglish} />
                               ))}
                             </tbody>
                           </table>
@@ -3294,7 +3344,7 @@ export default function AdminPanel() {
                                     cursor: 'pointer'
                                   }}
                                 >
-                                  {toPersianNumber(page)}
+                                  {formatAdminNumber(page, isEnglish)}
                                 </button>
                               );
                             })}
@@ -3354,7 +3404,7 @@ export default function AdminPanel() {
                   fontWeight: 700,
                   margin: 0
                 }}>
-                  نظرات مشتریان
+                  {t('admin.reviewsTitle', 'Customer reviews')}
                 </h2>
               </div>
 
@@ -3464,7 +3514,7 @@ export default function AdminPanel() {
                   fontWeight: 700,
                   margin: 0
                 }}>
-                  مشخصات مالک
+                  {t('admin.ownerInfoTitle', 'Owner information')}
                 </h2>
               </div>
 
@@ -3490,7 +3540,7 @@ export default function AdminPanel() {
                       color: "var(--text-primary)",
                       fontSize: '0.95rem'
                     }}>
-                      عکس مالک (دایره‌ای)
+                      {t('admin.ownerImageLabel', 'Owner image (circle)')}
                     </label>
 
                     <div style={{
@@ -3536,7 +3586,7 @@ export default function AdminPanel() {
                           )}
                         </div>
                         <span style={{ fontSize: '0.8rem', color: "var(--text-secondary)", textAlign: 'center' }}>
-                          پیش‌نمایش نهایی
+                          {t('admin.ownerPreviewLabel', 'Final preview')}
                         </span>
 
                         {ownerImagePreview && (
@@ -3554,7 +3604,7 @@ export default function AdminPanel() {
                             onMouseLeave={e => { e.currentTarget.style.background = 'var(--surface)'; e.currentTarget.style.color = 'var(--primary)'; }}
                           >
                             <Edit2 size={13} />
-                            تنظیم موقعیت
+                            {t('admin.ownerPositionButton', 'Adjust position')}
                           </button>
                         )}
                       </div>
@@ -3569,10 +3619,10 @@ export default function AdminPanel() {
                         }}>
                           <div style={{ fontWeight: 600, color: "var(--text-primary)", fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
                             <Edit2 size={15} color="#8b5cf6" />
-                            موقعیت عکس را تنظیم کنید
+                            {t('admin.ownerPositionHelpTitle', 'Adjust image position')}
                           </div>
                           <div style={{ fontSize: '0.8rem', color: "var(--text-secondary)" }}>
-                            عکس را در کادر زیر بکشید تا بهترین قاب دایره‌ای رو انتخاب کنید
+                            {t('admin.ownerPositionHelpText', 'Drag the image inside the frame to choose the best circular crop')}
                           </div>
 
                           {/* Drag Area */}
@@ -3635,7 +3685,7 @@ export default function AdminPanel() {
                                 color: "var(--text-secondary)", fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer'
                               }}
                             >
-                              بازنشانی مرکز
+                              {t('admin.ownerPositionReset', 'Reset center')}
                             </button>
                             <button
                               type="button"
@@ -3646,7 +3696,7 @@ export default function AdminPanel() {
                                 color: 'white', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer'
                               }}
                             >
-                              تأیید موقعیت ✓
+                              {t('admin.ownerPositionConfirm', 'Confirm position ✓')}
                             </button>
                           </div>
                         </div>
@@ -3682,10 +3732,10 @@ export default function AdminPanel() {
                               color: "var(--text-primary)",
                               marginBottom: '0.25rem'
                             }}>
-                              {ownerImagePreview ? 'تغییر عکس' : 'عکس را انتخاب کنید'}
+                              {ownerImagePreview ? t('admin.ownerImageChangeLabel', 'Change image') : t('admin.ownerImageSelectLabel', 'Choose image')}
                             </div>
                             <div style={{ fontSize: '0.85rem', color: "var(--text-secondary)" }}>
-                              JPEG, PNG, WebP یا GIF (حداکثر 5 مگابایت)
+                              {t('admin.ownerImageHint', 'JPEG, PNG, WebP, or GIF (max 5MB)')}
                             </div>
                           </label>
                           <input
@@ -3709,12 +3759,12 @@ export default function AdminPanel() {
                       color: "var(--text-primary)",
                       fontSize: '0.95rem'
                     }}>
-                      توضیح درباره خود (حداکثر ۵۰۰ کاراکتر)
+                      {t('admin.ownerDescriptionLabel', 'About yourself (max 500 characters)')}
                     </label>
                     <textarea
                       value={ownerDescription}
                       onChange={(e) => setOwnerDescription(e.target.value)}
-                      placeholder="درباره خود و تخصص‌های خود را بنویسید..."
+                      placeholder={t('admin.ownerDescriptionPlaceholder', 'Write about yourself and your expertise...')}
                       maxLength={500}
                       style={{
                         width: '100%',
@@ -3734,7 +3784,7 @@ export default function AdminPanel() {
                       color: "var(--text-secondary)",
                       marginTop: '0.5rem'
                     }}>
-                      {ownerDescription.length} / ۵۰۰ کاراکتر
+                      {t('admin.ownerDescriptionCount', '{count} / 500 characters', { count: ownerDescription.length })}
                     </div>
                   </div>
 
@@ -3757,7 +3807,7 @@ export default function AdminPanel() {
                       transition: 'all 0.3s ease'
                     }}
                   >
-                    {savingOwnerInfo ? 'در حال ذخیره‌سازی...' : 'ذخیره مشخصات'}
+                    {savingOwnerInfo ? t('admin.ownerSavingState', 'Saving...') : t('admin.ownerSaveButton', 'Save details')}
                   </button>
                 </form>
               </motion.div>
@@ -3847,14 +3897,14 @@ export default function AdminPanel() {
                       fontWeight: 700,
                       margin: 0
                     }}>
-                      QR کد منحصربه‌فرد سالن
+                      {t('admin.qrCodeTitle', 'Salon QR code')}
                     </h2>
                     <p style={{
                       color: "var(--text-secondary)",
                       fontSize: 'clamp(0.8rem, 2vw, 0.95rem)',
                       margin: '4px 0 0 0'
                     }}>
-                      مشتریان با اسکن این QR کد می‌توانند رزرو نوبت کنند
+                      {t('admin.qrCodeSubtitle', 'Customers can book appointments by scanning this QR code')}
                     </p>
                   </div>
                 </div>
@@ -3873,7 +3923,7 @@ export default function AdminPanel() {
                   }}>
                     <QrCode size={64} style={{ opacity: 0.3 }} />
                     <p style={{ fontSize: '1.1rem', fontWeight: 600, margin: 0 }}>
-                      QR Code فقط برای مالک سالن قابل مشاهده است
+                      {t('admin.ownerAccessDenied', 'QR Code is only visible to the salon owner')}
                     </p>
                   </div>
                 ) : (
@@ -3950,7 +4000,7 @@ export default function AdminPanel() {
                               fontSize: '0.82rem'
                             }}
                           >
-                            تلاش مجدد
+                            {t('admin.qrRetryButton', 'Try again')}
                           </button>
                         </div>
                       ) : qrDataUrl ? (
@@ -4009,7 +4059,7 @@ export default function AdminPanel() {
                           }}
                         >
                           <Download size={16} />
-                          دانلود
+                          {t('admin.qrDownloadButton', 'Download')}
                         </motion.button>
 
                         <motion.button
@@ -4024,7 +4074,7 @@ export default function AdminPanel() {
                                   <div>
                                     <h2 style="margin-bottom:16px">${salon?.name}</h2>
                                     <img src="${qrDataUrl}" style="width:280px;height:280px;border:2px solid #667eea;padding:10px;" />
-                                    <p style="margin-top:16px;color:#555">برای رزرو نوبت اسکن کنید</p>
+                                    <p style="margin-top:16px;color:#555">{t('admin.qrPrintHint', 'Scan to book an appointment')}</p>
                                   </div>
                                 </body>
                               </html>
@@ -4052,7 +4102,7 @@ export default function AdminPanel() {
                           }}
                         >
                           <Printer size={16} />
-                          چاپ
+                          {t('admin.qrPrintButton', 'Print')}
                         </motion.button>
                       </div>
                     </div>
@@ -4071,7 +4121,7 @@ export default function AdminPanel() {
                         border: '1px solid var(--border)'
                       }}>
                         <p style={{ fontSize: '0.8rem', color: "var(--text-secondary)", margin: '0 0 0.5rem 0', fontWeight: 600 }}>
-                          شناسه QR Code:
+                          {t('admin.qrIdLabel', 'QR Code ID:')}
                         </p>
                         <div style={{
                           background: 'var(--card)',
@@ -4097,7 +4147,7 @@ export default function AdminPanel() {
                         borderRight: '4px solid #667eea'
                       }}>
                         <p style={{ fontSize: '0.8rem', color: '#1e40af', margin: '0 0 0.5rem 0', fontWeight: 600 }}>
-                          لینک QR Code:
+                          {t('admin.qrLinkLabel', 'QR Code link:')}
                         </p>
                         <div style={{
                           background: 'var(--card)',
@@ -4123,7 +4173,7 @@ export default function AdminPanel() {
                         borderRight: '4px solid #10b981'
                       }}>
                         <h3 style={{ color: '#10b981', fontSize: '0.95rem', fontWeight: 700, margin: '0 0 0.75rem 0' }}>
-                          🎯 نحوه استفاده:
+                          {t('admin.qrHowToUseTitle', '🎯 How to use:')}
                         </h3>
                         <ol style={{
                           margin: 0,
@@ -4132,11 +4182,11 @@ export default function AdminPanel() {
                           lineHeight: '1.9',
                           fontSize: 'clamp(0.8rem, 2vw, 0.9rem)'
                         }}>
-                          <li>تصویر QR کد را دانلود کنید</li>
-                          <li>آن را چاپ کرده و در مغازه قرار دهید</li>
-                          <li>مشتریان با دوربین گوشی اسکن می‌کنند</li>
-                          <li>صفحه سالن شما باز می‌شود</li>
-                          <li>مشتری نوبت رزرو می‌کند</li>
+                          <li>{t('admin.qrHowToUseStep1', 'Download the QR code image')}</li>
+                          <li>{t('admin.qrHowToUseStep2', 'Print it and place it in your shop')}</li>
+                          <li>{t('admin.qrHowToUseStep3', 'Customers scan it with their phone camera')}</li>
+                          <li>{t('admin.qrHowToUseStep4', 'Your salon page opens')}</li>
+                          <li>{t('admin.qrHowToUseStep5', 'The customer books an appointment')}</li>
                         </ol>
                       </div>
                     </div>
@@ -4176,7 +4226,7 @@ export default function AdminPanel() {
                   fontWeight: 700,
                   margin: 0
                 }}>
-                  تنظیمات سالن
+                  {t('admin.settingsTitle', 'Salon settings')}
                 </h2>
               </div>
 
@@ -4219,7 +4269,7 @@ export default function AdminPanel() {
                     fontWeight: 600,
                     margin: 0
                   }}>
-                    اطلاعات سالن
+                    {t('admin.salonInfoTitle', 'Salon information')}
                   </h3>
                 </div>
 
@@ -4240,7 +4290,7 @@ export default function AdminPanel() {
                       margin: '0 0 0.5rem 0',
                       fontWeight: 600
                     }}>
-                      نام سالن
+                      {t('admin.salonNameLabel', 'Salon name')}
                     </p>
                     <p style={{
                       fontSize: 'clamp(0.85rem, 1.5vw, 1rem)',
@@ -4264,7 +4314,7 @@ export default function AdminPanel() {
                       margin: '0 0 0.5rem 0',
                       fontWeight: 600
                     }}>
-                      شهر
+                      {t('admin.cityLabel', 'City')}
                     </p>
                     <p style={{
                       fontSize: 'clamp(0.85rem, 1.5vw, 1rem)',
@@ -4288,7 +4338,7 @@ export default function AdminPanel() {
                       margin: '0 0 0.5rem 0',
                       fontWeight: 600
                     }}>
-                      تلفن
+                      {t('admin.phoneLabel', 'Phone')}
                     </p>
                     <p style={{
                       fontSize: 'clamp(0.85rem, 1.5vw, 1rem)',
@@ -4313,7 +4363,7 @@ export default function AdminPanel() {
                       margin: '0 0 0.5rem 0',
                       fontWeight: 600
                     }}>
-                      آدرس
+                      {t('admin.addressLabel', 'Address')}
                     </p>
                     <p style={{
                       fontSize: 'clamp(0.8rem, 1.3vw, 0.95rem)',
@@ -4339,7 +4389,7 @@ export default function AdminPanel() {
                       margin: '0 0 0.5rem 0',
                       fontWeight: 600
                     }}>
-                      موبایل
+                      {t('admin.mobileLabel', 'Mobile')}
                     </p>
                     <p style={{
                       fontSize: 'clamp(0.85rem, 1.5vw, 1rem)',
@@ -4376,7 +4426,7 @@ export default function AdminPanel() {
                         cursor: 'pointer'
                       }}
                     >
-                      ویرایش شماره تلفن و موبایل
+                      {t('admin.contactEditButton', 'Edit phone numbers')}
                     </button>
                   ) : (
                     <form
@@ -4401,13 +4451,13 @@ export default function AdminPanel() {
                             color: "var(--text-primary)",
                             fontSize: '0.85rem'
                           }}>
-                            تلفن ثابت (اختیاری)
+                            {t('admin.contactPhoneLabel', 'Landline (optional)')}
                           </label>
                           <input
                             type="text"
                             value={contactForm.phone}
                             onChange={(e) => setContactForm((f) => ({ ...f, phone: e.target.value }))}
-                            placeholder="مثلاً 02112345678"
+                            placeholder={t('admin.contactPhonePlaceholder', 'Example: 02112345678')}
                             style={{
                               width: '100%',
                               padding: '0.75rem',
@@ -4428,13 +4478,13 @@ export default function AdminPanel() {
                             color: "var(--text-primary)",
                             fontSize: '0.85rem'
                           }}>
-                            موبایل (الزامی)
+                            {t('admin.contactMobileLabel', 'Mobile (required)')}
                           </label>
                           <input
                             type="text"
                             value={contactForm.mobile}
                             onChange={(e) => setContactForm((f) => ({ ...f, mobile: e.target.value }))}
-                            placeholder="مثلاً 09123456789"
+                            placeholder={t('admin.contactMobilePlaceholder', 'Example: 09123456789')}
                             required
                             style={{
                               width: '100%',
@@ -4467,7 +4517,7 @@ export default function AdminPanel() {
                             fontSize: '0.9rem'
                           }}
                         >
-                          {savingContactInfo ? 'در حال ذخیره‌سازی...' : 'ذخیره'}
+                          {savingContactInfo ? t('admin.ownerSavingState', 'Saving...') : t('admin.ownerContactSaveButton', 'Save')}
                         </button>
                         <button
                           type="button"
@@ -4487,7 +4537,7 @@ export default function AdminPanel() {
                             fontSize: '0.9rem'
                           }}
                         >
-                          انصراف
+                          {t('admin.ownerContactCancelButton', 'Cancel')}
                         </button>
                       </div>
                     </form>
@@ -4527,7 +4577,7 @@ export default function AdminPanel() {
                     fontWeight: 600,
                     marginBottom: 'clamp(0.75rem, 1.5vw, 1rem)'
                   }}>
-                    وضعیت سالن
+                    {t('admin.salonStatusTitle', 'Salon status')}
                   </h3>
 
                   <div style={{
@@ -4551,7 +4601,7 @@ export default function AdminPanel() {
                             color: '#991b1b',
                             fontSize: 'clamp(0.85rem, 1.5vw, 1rem)'
                           }}>
-                            سالن در حاضر غیرفعال است
+                            {t('admin.salonDisabledStatus', 'The salon is currently disabled')}
                           </p>
                           {salon?.disabled_until && (
                             <p style={{
@@ -4559,7 +4609,7 @@ export default function AdminPanel() {
                               color: '#7f1d1d',
                               fontSize: 'clamp(0.7rem, 1.2vw, 0.9rem)'
                             }}>
-                              تا {new Date(salon.disabled_until).toLocaleDateString('fa-IR')}
+                              {t('admin.salonDisabledUntil', 'Until {date}', { date: new Date(salon.disabled_until).toLocaleDateString(language === 'en' ? 'en-US' : 'fa-IR') })}
                             </p>
                           )}
                         </div>
@@ -4574,7 +4624,7 @@ export default function AdminPanel() {
                             color: '#065f46',
                             fontSize: 'clamp(0.85rem, 1.5vw, 1rem)'
                           }}>
-                            سالن فعال است
+                            {t('admin.salonActiveStatus', 'The salon is active')}
                           </p>
                         </div>
                       </>
@@ -4606,7 +4656,7 @@ export default function AdminPanel() {
                         }}
                       >
                         <Power size={18} />
-                        فعال کردن سالن
+                        {t('admin.activateSalonButton', 'Activate salon')}
                       </motion.button>
                     ) : (
                       <motion.button
@@ -4632,7 +4682,7 @@ export default function AdminPanel() {
                         }}
                       >
                         <Power size={18} />
-                        غیرفعال کردن سالن
+                        {t('admin.deactivateSalonButton', 'Deactivate salon')}
                       </motion.button>
                     )}
                   </div>
@@ -4670,7 +4720,7 @@ export default function AdminPanel() {
                     fontWeight: 600,
                     marginBottom: 'clamp(0.75rem, 1.5vw, 1.5rem)'
                   }}>
-                    غیرفعال کردن سالن
+                    {t('admin.disableSalonTitle', 'Disable salon')}
                   </h3>
 
                   <form onSubmit={handleDisableSalon}>
@@ -4682,13 +4732,13 @@ export default function AdminPanel() {
                         color: "var(--text-secondary)",
                         fontSize: 'clamp(0.75rem, 1.5vw, 0.95rem)'
                       }}>
-                        مدت زمان غیرفعال بودن (روز) - اختیاری
+                        {t('admin.disableSalonDurationLabel', 'Disable duration (days) - optional')}
                       </label>
                       <input
                         type="number"
                         min="1"
                         max="365"
-                        placeholder="مثال: 7 (برای یک هفته)"
+                        placeholder={t('admin.disableSalonDurationPlaceholder', 'Example: 7 (for one week)')}
                         value={disableSalonForm.days}
                         onChange={(e) => setDisableSalonForm({ ...disableSalonForm, days: e.target.value })}
                         style={{
@@ -4698,8 +4748,8 @@ export default function AdminPanel() {
                           border: '1px solid var(--border)',
                           fontSize: 'clamp(0.75rem, 1.5vw, 0.95rem)',
                           fontFamily: 'inherit',
-                          direction: 'rtl',
-                          textAlign: 'right',
+                          direction: isEnglish ? 'ltr' : 'rtl',
+                          textAlign: isEnglish ? 'left' : 'right',
                           boxSizing: 'border-box',
                           transition: 'all 0.2s'
                         }}
@@ -4711,7 +4761,7 @@ export default function AdminPanel() {
                         color: "var(--text-secondary)",
                         marginTop: '0.5rem'
                       }}>
-                        اگر خالی بگذارید، سالن تا زمانی که خودتان فعال نکنید غیرفعال می‌ماند
+                        {t('admin.disableSalonDurationHint', 'If left empty, the salon remains disabled until you activate it yourself')}
                       </p>
                     </div>
 
@@ -4723,10 +4773,10 @@ export default function AdminPanel() {
                         color: "var(--text-secondary)",
                         fontSize: 'clamp(0.75rem, 1.5vw, 0.95rem)'
                       }}>
-                        دلیل غیرفعال کردن - اختیاری
+                        {t('admin.disableSalonReasonLabel', 'Reason for disabling - optional')}
                       </label>
                       <textarea
-                        placeholder="مثال: تعطیلات، نوسازی..."
+                        placeholder={t('admin.disableSalonReasonPlaceholder', 'Example: holidays, renovation...')}
                         value={disableSalonForm.reason}
                         onChange={(e) => setDisableSalonForm({ ...disableSalonForm, reason: e.target.value })}
                         style={{
@@ -4736,8 +4786,8 @@ export default function AdminPanel() {
                           border: '1px solid var(--border)',
                           fontSize: 'clamp(0.75rem, 1.5vw, 0.95rem)',
                           fontFamily: 'inherit',
-                          direction: 'rtl',
-                          textAlign: 'right',
+                          direction: isEnglish ? 'ltr' : 'rtl',
+                          textAlign: isEnglish ? 'left' : 'right',
                           boxSizing: 'border-box',
                           minHeight: '100px',
                           resize: 'vertical',
@@ -4767,7 +4817,7 @@ export default function AdminPanel() {
                           opacity: toggleSalonLoading ? 0.7 : 1
                         }}
                       >
-                        {toggleSalonLoading ? 'در حال پردازش...' : 'غیرفعال کردن'}
+                        {toggleSalonLoading ? t('admin.disableSalonProcessing', 'Processing...') : t('admin.disableSalonSubmit', 'Disable')}
                       </motion.button>
                       <motion.button
                         whileHover={{ scale: 1.02 }}
@@ -4797,7 +4847,7 @@ export default function AdminPanel() {
                           e.currentTarget.style.background = 'var(--card)';
                         }}
                       >
-                        انصراف
+                        {t('admin.disableSalonCancel', 'Cancel')}
                       </motion.button>
                     </div>
                   </form>
@@ -4812,6 +4862,8 @@ export default function AdminPanel() {
         open={confirmModal.open}
         title={confirmModal.title}
         message={confirmModal.message}
+        cancelText={confirmModal.cancelText}
+        confirmText={confirmModal.confirmText}
         onConfirm={confirmModal.onConfirm}
         onCancel={() => setConfirmModal({ open: false, title: '', message: '', onConfirm: null })}
       />
@@ -4834,8 +4886,8 @@ export default function AdminPanel() {
 
 // کامپوننت‌های کمکی
 
-function TabButton({ icon, label, badge, active, onClick }) {
-  const badgeText = badge !== undefined && badge !== null ? toPersianNumber(badge) : null;
+function TabButton({ icon, label, badge, active, onClick, isEnglish = true }) {
+  const badgeText = badge !== undefined && badge !== null ? formatAdminNumber(badge, isEnglish) : null;
   return (
     <motion.button
       whileHover={active ? undefined : { y: -1 }}
@@ -4860,12 +4912,12 @@ function TabButton({ icon, label, badge, active, onClick }) {
         fontSize: 'clamp(0.8rem, 1.5vw, 0.95rem)',
         fontWeight: 600,
         cursor: 'pointer',
-        textAlign: 'right',
+        textAlign: isEnglish ? 'left' : 'right',
         transition: 'all 0.2s ease',
         boxShadow: active ? '0 4px 12px rgba(102, 126, 234, 0.3)' : 'none',
         boxSizing: 'border-box',
         overflow: 'hidden',
-        transformOrigin: 'center right'
+        transformOrigin: isEnglish ? 'center left' : 'center right'
       }}
       onMouseEnter={(e) => {
         if (!active) e.currentTarget.style.background = '#f1f5f9';
@@ -4894,8 +4946,8 @@ function TabButton({ icon, label, badge, active, onClick }) {
   );
 }
 
-function StatCard({ icon, value, label, gradient, color }) {
-  const valueText = value !== undefined && value !== null ? toPersianNumber(value) : value;
+function StatCard({ icon, value, label, gradient, color, isEnglish = true }) {
+  const valueText = value !== undefined && value !== null ? formatAdminNumber(value, isEnglish) : value;
   return (
     <motion.div
       whileHover={{ y: -8, scale: 1.02 }}
@@ -4921,7 +4973,8 @@ function StatCard({ icon, value, label, gradient, color }) {
       <div style={{
         display: 'flex',
         alignItems: 'center',
-        gap: 'clamp(0.75rem, 1.5vw, 1rem)'
+        gap: 'clamp(0.75rem, 1.5vw, 1rem)',
+        flexDirection: isEnglish ? 'row' : 'row'
       }}>
         <div style={{
           width: 'clamp(40px, 7vw, 56px)',
@@ -4959,7 +5012,7 @@ function StatCard({ icon, value, label, gradient, color }) {
   );
 }
 
-function InfoItem({ icon, label, value, gradient }) {
+function InfoItem({ icon, label, value, gradient, isEnglish = true }) {
   return (
     <motion.div
       whileHover={{ scale: 1.02, x: 5 }}
@@ -5009,8 +5062,10 @@ function InfoItem({ icon, label, value, gradient }) {
   );
 }
 
-function WorkingHoursDayCard({ day, onDelete }) {
+function WorkingHoursDayCard({ day, onDelete, t, isEnglish }) {
   const shifts = Array.isArray(day.shifts) ? day.shifts : [];
+  const shiftCount = formatAdminNumber(shifts.length, isEnglish);
+  const formatShiftNumber = (index) => formatAdminNumber(index + 1, isEnglish);
 
   return (
     <motion.div
@@ -5061,7 +5116,7 @@ function WorkingHoursDayCard({ day, onDelete }) {
                 {day.label}
               </div>
               <div style={{ color: "var(--text-secondary)", fontSize: '0.8rem', marginTop: '0.15rem' }}>
-                {shifts.length ? `${toPersianNumber(shifts.length)} شیفت` : 'تعطیل'}
+                {shifts.length ? t('admin.workingHoursShiftCount', '{count} shifts', { count: shiftCount }) : t('admin.workingHoursStatusRest', 'Rest')}
               </div>
             </div>
           </div>
@@ -5074,7 +5129,7 @@ function WorkingHoursDayCard({ day, onDelete }) {
             fontSize: '0.76rem',
             fontWeight: 700
           }}>
-            {shifts.length ? 'فعال' : 'استراحت'}
+            {shifts.length ? t('admin.workingHoursStatusActive', 'Active') : t('admin.workingHoursStatusRest', 'Rest')}
           </span>
         </div>
 
@@ -5089,7 +5144,7 @@ function WorkingHoursDayCard({ day, onDelete }) {
             gap: '0.65rem'
           }}>
             <Clock3 size={18} />
-            <span style={{ fontSize: '0.88rem' }}>برای این روز هنوز شیفتی ثبت نشده است.</span>
+            <span style={{ fontSize: '0.88rem' }}>{t('admin.noWorkingHoursForDay', 'No shifts have been saved for this day yet.')}</span>
           </div>
         ) : (
           <div style={{ display: 'grid', gap: '0.65rem' }}>
@@ -5113,7 +5168,7 @@ function WorkingHoursDayCard({ day, onDelete }) {
                     color: "var(--text-secondary)",
                     marginBottom: '0.25rem'
                   }}>
-                    شیفت {toPersianNumber(shift.sort_order !== undefined ? Number(shift.sort_order) + 1 : index + 1)}
+                    {t('admin.workingHoursShiftLabel', 'Shift {number}', { number: formatShiftNumber(index) })}
                   </div>
                   <div style={{
                     fontWeight: 800,
@@ -5140,7 +5195,7 @@ function WorkingHoursDayCard({ day, onDelete }) {
                     flexShrink: 0
                   }}
                 >
-                  حذف
+                  {t('admin.workingHoursDeleteButton', 'Delete')}
                 </button>
               </div>
             ))}
@@ -5254,11 +5309,11 @@ function PriceField({ label, value, onChange, placeholder, required }) {
   );
 }
 
-function TableHeader({ children }) {
+function TableHeader({ children, isEnglish = true }) {
   return (
     <th style={{
       padding: 'clamp(0.5rem, 1.5vw, 1rem) clamp(0.5rem, 1.5vw, 1.5rem)',
-      textAlign: 'right',
+      textAlign: isEnglish ? 'left' : 'right',
       fontSize: 'clamp(0.7rem, 1.2vw, 0.9rem)',
       fontWeight: 700,
       color: "var(--text-secondary)",
@@ -5269,7 +5324,7 @@ function TableHeader({ children }) {
   );
 }
 
-function ServiceCard({ service, onToggleStatus, onEdit }) {
+function ServiceCard({ service, onToggleStatus, onEdit, isEnglish = true }) {
   const isActivationBlocked = !service.is_active && Number(service?.price) <= 0;
 
   return (
@@ -5334,7 +5389,7 @@ function ServiceCard({ service, onToggleStatus, onEdit }) {
                 marginTop: '0.15rem'
               }}>
                 <Clock size={13} color="#f093fb" />
-                {toPersianNumber(service.duration_minutes)} دقیقه
+                {formatAdminNumber(service.duration_minutes, isEnglish)} min
               </div>
             </div>
           </div>
@@ -5361,7 +5416,7 @@ function ServiceCard({ service, onToggleStatus, onEdit }) {
             onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.9')}
             onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
           >
-            {service.is_active ? 'فعال' : 'غیرفعال'}
+            {service.is_active ? (isEnglish ? 'Active' : 'فعال') : (isEnglish ? 'Inactive' : 'غیرفعال')}
           </button>
         </div>
 
@@ -5423,7 +5478,7 @@ function ServiceCard({ service, onToggleStatus, onEdit }) {
   );
 }
 
-function ConfirmModal({ open, title, message, onConfirm, onCancel }) {
+function ConfirmModal({ open, title, message, onConfirm, onCancel, cancelText = 'Cancel', confirmText = 'Confirm' }) {
   return (
     <AnimatePresence>
       {open && (
@@ -5520,7 +5575,7 @@ function ConfirmModal({ open, title, message, onConfirm, onCancel }) {
                     e.currentTarget.style.borderColor = '#e2e8f0';
                   }}
                 >
-                  خیر
+                  {cancelText}
                 </button>
                 <button
                   type="button"
@@ -5541,7 +5596,7 @@ function ConfirmModal({ open, title, message, onConfirm, onCancel }) {
                   onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.9')}
                   onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
                 >
-                  بله، حذف کن
+                  {confirmText}
                 </button>
               </div>
             </div>
@@ -5754,14 +5809,14 @@ function SuccessModal({ open, message, onClose }) {
   );
 }
 
-function BookingRow({ booking }) {
+function BookingRow({ booking, t, isEnglish = true }) {
   const [isHovered, setIsHovered] = useState(false);
 
   const getStatusStyle = (status) => {
     const styles = {
-      confirmed: { bg: '#d1fae5', text: '#065f46', label: 'تأیید شده', icon: CheckCircle },
-      pending: { bg: '#fef3c7', text: '#92400e', label: 'در انتظار', icon: AlertCircle },
-      cancelled: { bg: '#fee2e2', text: '#991b1b', label: 'لغو شده', icon: XCircle }
+      confirmed: { bg: '#d1fae5', text: '#065f46', label: t('admin.filterConfirmed', 'Confirmed'), icon: CheckCircle },
+      pending: { bg: '#fef3c7', text: '#92400e', label: t('admin.filterPending', 'Pending approval'), icon: AlertCircle },
+      cancelled: { bg: '#fee2e2', text: '#991b1b', label: t('admin.filterCancelled', 'Cancelled'), icon: XCircle }
     };
     return styles[status] || styles.pending;
   };
@@ -5836,7 +5891,7 @@ function BookingRow({ booking }) {
           fontSize: 'clamp(0.7rem, 1.2vw, 0.9rem)',
           color: "var(--text-secondary)",
           direction: 'ltr',
-          textAlign: 'right',
+          textAlign: isEnglish ? 'left' : 'right',
           wordBreak: 'break-word'
         }}>
           {booking.customer_phone}
@@ -5847,9 +5902,18 @@ function BookingRow({ booking }) {
 }
 
 function WorkingHourRow({ workingHour, onDelete }) {
+  const { t } = useLanguage();
   const [isHovered, setIsHovered] = useState(false);
 
-  const daysOfWeek = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'];
+  const daysOfWeek = [
+    t('admin.weekDay0', 'Saturday'),
+    t('admin.weekDay1', 'Sunday'),
+    t('admin.weekDay2', 'Monday'),
+    t('admin.weekDay3', 'Tuesday'),
+    t('admin.weekDay4', 'Wednesday'),
+    t('admin.weekDay5', 'Thursday'),
+    t('admin.weekDay6', 'Friday'),
+  ];
   const dayName = daysOfWeek[workingHour.day_of_week] || '—';
 
   const formatTime = (timeString) => {
@@ -5927,7 +5991,7 @@ function WorkingHourRow({ workingHour, onDelete }) {
           }}
         >
           <Trash2 size={14} />
-          حذف
+          {t('admin.workingHoursDeleteButton', 'Delete')}
         </motion.button>
       </td>
     </motion.tr>

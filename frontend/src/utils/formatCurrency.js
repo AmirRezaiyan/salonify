@@ -1,5 +1,15 @@
 const PERSIAN_DIGITS = ['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
 
+function getCurrentNumberLocale() {
+  if (typeof window === 'undefined') return 'fa-IR';
+
+  const storedLanguage = window.localStorage.getItem('salonify_language');
+  if (storedLanguage === 'en') return 'en-US';
+
+  const htmlLang = document.documentElement?.lang;
+  return htmlLang === 'en' ? 'en-US' : 'fa-IR';
+}
+
 export function persianizeNumbers(value) {
   if (value === null || value === undefined) return '';
   return String(value).replace(/[0-9]/g, (digit) => PERSIAN_DIGITS[Number(digit)]);
@@ -8,12 +18,13 @@ export function persianizeNumbers(value) {
 export function toPersianNumber(value, options = {}) {
   if (value === null || value === undefined || value === '') return '';
 
+  const locale = getCurrentNumberLocale();
   const num = Number(value);
   if (Number.isFinite(num)) {
-    return num.toLocaleString('fa-IR', options);
+    return num.toLocaleString(locale, options);
   }
 
-  return persianizeNumbers(value);
+  return locale === 'en-US' ? String(value) : persianizeNumbers(value);
 }
 
 export function formatNumberForToman(value) {

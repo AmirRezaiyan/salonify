@@ -9,6 +9,7 @@ import { Alert } from '../components/Alert';
 import { FieldErrorBox } from '../components/FieldErrorBox';
 import { Loading } from '../components/Loading';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { parseISO } from 'date-fns';
 import {
   ArrowRight,
@@ -312,7 +313,7 @@ function jalaliFirstWeekday(jy, jm) {
 
 // ─── کامپوننت تقویم شمسی ─────────────────────────────────────────────────────
 
-function JalaliCalendarPicker({ dateOptions, selectedDate, onDateChange, bookedDates, workingHours, onFullDayClick }) {
+function JalaliCalendarPicker({ dateOptions, selectedDate, onDateChange, bookedDates, workingHours, onFullDayClick, t }) {
   const jalaliMonthNames = ['فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان','آذر','دی','بهمن','اسفند'];
   const dayLabels = ['ش','ی','د','س','چ','پ','ج'];
 
@@ -525,7 +526,7 @@ function JalaliCalendarPicker({ dateOptions, selectedDate, onDateChange, bookedD
                 canClick && onDateChange(dateStr);
               }}
               disabled={!canClick && !isFull}
-              title={isFull ? 'تمام نوبت‌های این روز رزرو شده است' : (!isAvailable && !isPast ? 'سالن در این روز تعطیل است' : '')}
+              title={isFull ? t('booking.fullDayBooked') : (!isAvailable && !isPast ? t('booking.salonClosedToday') : '')}
               style={{
                 padding:'0',
                 width:'100%',
@@ -578,19 +579,19 @@ function JalaliCalendarPicker({ dateOptions, selectedDate, onDateChange, bookedD
       }}>
         <span style={{ display:'flex', alignItems:'center', gap:'5px' }}>
           <span style={{ display:'inline-block', width:'14px', height:'14px', borderRadius:'50%', background:'linear-gradient(135deg,var(--primary),var(--primary-hover))' }} />
-          انتخاب‌شده
+          {t('booking.selected')}
         </span>
         <span style={{ display:'flex', alignItems:'center', gap:'5px' }}>
           <span style={{ display:'inline-block', width:'14px', height:'14px', borderRadius:'4px', border: '2px solid var(--primary)', background:'var(--surface-accent)' }} />
-          امروز
+          {t('booking.today')}
         </span>
         <span style={{ display:'flex', alignItems:'center', gap:'5px' }}>
           <span style={{ display:'inline-block', width:'14px', height:'14px', borderRadius:'4px', background:'#fecaca' }} />
-          کامل
+          {t('booking.full')}
         </span>
         <span style={{ display:'flex', alignItems:'center', gap:'5px' }}>
           <span style={{ display:'inline-block', width:'14px', height:'14px', borderRadius:'4px', background:'var(--card-hover)', opacity:0.5 }} />
-          تعطیل
+          {t('booking.closed')}
         </span>
       </div>
     </div>
@@ -598,6 +599,7 @@ function JalaliCalendarPicker({ dateOptions, selectedDate, onDateChange, bookedD
 }
 
 export default function Booking() {
+  const { t } = useLanguage();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
@@ -637,9 +639,9 @@ export default function Booking() {
       console.warn('❌ هیچ سالونی انتخاب نشده است - لطفاً ابتدا یک سالون انتخاب کنید');
       showDialog(
         'warning',
-        'سالن انتخاب نشده',
-        'لطفاً ابتدا یک سالن را از صفحه خانه انتخاب کنید تا بتوانید نوبت رزرو کنید.',
-        { label: 'رفتن به صفحه خانه', action: () => navigate('/') }
+        t('booking.noSalonSelectedTitle'),
+        t('booking.noSalonSelectedMessage'),
+        { label: t('booking.goHome'), action: () => navigate('/') }
       );
       setLoading(false);
       return;
@@ -685,8 +687,8 @@ export default function Booking() {
         'error',
         'خطا در بارگذاری',
         'دریافت لیست سرویس‌ها با مشکل مواجه شد. لطفاً صفحه را مجدداً بارگذاری کنید.',
-        { label: 'تلاش مجدد', action: () => { closeDialog(); loadServices(); } },
-        { label: 'بازگشت', action: () => navigate('/') }
+        { label: t('booking.tryAgain'), action: () => { closeDialog(); loadServices(); } },
+        { label: t('booking.goBack'), action: () => navigate('/') }
       );
     } finally {
       setLoading(false);
@@ -800,9 +802,9 @@ export default function Booking() {
       setDateOptions([]);
       showDialog(
         'error',
-        'خطا در بارگذاری تقویم',
-        'دریافت تاریخ‌های در دسترس با مشکل مواجه شد. لطفاً اتصال اینترنت خود را بررسی کرده و دوباره تلاش کنید.',
-        { label: 'تلاش مجدد', action: () => { closeDialog(); buildDateOptions(); } }
+        t('booking.calendarErrorTitle'),
+        t('booking.calendarErrorMessage'),
+        { label: t('booking.tryAgain'), action: () => { closeDialog(); buildDateOptions(); } }
       );
     }
   };
@@ -1633,10 +1635,11 @@ export default function Booking() {
                       workingHours={workingHours}
                       onFullDayClick={() => showDialog(
                         'warning',
-                        'نوبت‌ها تکمیل شد',
-                        'متأسفانه تمام نوبت‌های این روز رزرو شده است. لطفاً روز دیگری را انتخاب کنید.',
-                        { label: 'باشه', action: closeDialog }
+                        t('booking.fullDayBookedTitle', 'Fully booked'),
+                        t('booking.fullDayBookedMessage', 'All slots for this day are already booked. Please choose another day.'),
+                        { label: t('common.ok', 'OK'), action: closeDialog }
                       )}
+                      t={t}
                     />
                   )}
                 </div>

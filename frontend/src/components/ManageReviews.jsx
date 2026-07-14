@@ -3,6 +3,7 @@ import { api } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import { Star, Send, X, MessageCircle, ChevronRight, ChevronLeft, CheckCircle, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLanguage } from '../context/LanguageContext';
 import { toPersianNumber } from '../utils/formatCurrency';
 
 /* ── tokens (هماهنگ با PortfolioManager) ──────────────────────────────── */
@@ -57,7 +58,8 @@ function Toast({ message, type, onClose }) {
         boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
         padding: '0.9rem 1.1rem',
         display: 'flex', alignItems: 'center', gap: '10px',
-        direction: 'rtl',
+        direction: 'ltr',
+        textAlign: 'left',
       }}
     >
       {isError
@@ -93,7 +95,7 @@ function StarRow({ rating, size = 16 }) {
 }
 
 /* ── SummaryBar: میانگین امتیاز + تعداد ──────────────────────────────── */
-function SummaryBar({ reviews }) {
+function SummaryBar({ reviews, isEnglish, t }) {
   const total = reviews.length;
   const avg = total > 0 ? reviews.reduce((s, r) => s + (r.rating || 0), 0) / total : 0;
 
@@ -130,7 +132,7 @@ function SummaryBar({ reviews }) {
             <StarRow rating={Math.round(avg)} size={15} />
           </div>
           <span style={{ fontSize: '0.85rem', color: T.inkLight, fontWeight: 600 }}>
-            میانگین امتیاز از {toPersianNumber(total)} نظر
+            {t('manageReviews.ratingSummary', 'Average rating from {count} reviews', { count: isEnglish ? total : toPersianNumber(total) })}
           </span>
         </div>
       </div>
@@ -139,7 +141,7 @@ function SummaryBar({ reviews }) {
 }
 
 /* ── ReplyBox ───────────────────────────────────────────────────────────── */
-function ReplyBox({ review, onCancel, onSend, sending }) {
+function ReplyBox({ review, onCancel, onSend, sending, t }) {
   const [text, setText] = useState('');
 
   return (
@@ -158,13 +160,13 @@ function ReplyBox({ review, onCancel, onSend, sending }) {
         marginTop: '0.9rem',
       }}>
         <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: T.inkMid, marginBottom: '6px' }}>
-          پیام پاسخ شما
+          {t('manageReviews.replyLabel', 'Your reply')}
         </label>
         <textarea
           autoFocus
           value={text}
           onChange={e => setText(e.target.value)}
-          placeholder="پاسخ خود را برای این نظر بنویسید..."
+          placeholder={t('manageReviews.replyPlaceholder', 'Write your reply to this review...')}
           rows={3}
           style={{
             width: '100%', boxSizing: 'border-box',
@@ -185,7 +187,7 @@ function ReplyBox({ review, onCancel, onSend, sending }) {
               color: T.inkMid, fontWeight: 600, fontSize: '0.86rem', cursor: 'pointer',
             }}
           >
-            انصراف
+            {t('manageReviews.cancel', 'Cancel')}
           </button>
               <motion.button
             whileTap={{ scale: 0.96 }}
@@ -202,7 +204,7 @@ function ReplyBox({ review, onCancel, onSend, sending }) {
             }}
           >
             <Send size={14} />
-            {sending ? 'در حال ارسال...' : 'ارسال پاسخ'}
+            {sending ? t('manageReviews.sending', 'Sending...') : t('manageReviews.send', 'Send reply')}
           </motion.button>
         </div>
       </div>
@@ -211,7 +213,7 @@ function ReplyBox({ review, onCancel, onSend, sending }) {
 }
 
 /* ── ReviewCard ─────────────────────────────────────────────────────────── */
-function ReviewCard({ review, index, onReply, replyOpen, onToggleReply, sending }) {
+function ReviewCard({ review, index, onReply, replyOpen, onToggleReply, sending, t }) {
   return (
     <motion.div
       layout
@@ -243,7 +245,7 @@ function ReviewCard({ review, index, onReply, replyOpen, onToggleReply, sending 
           </div>
           <div>
             <div style={{ fontWeight: 700, color: T.ink, fontSize: '0.95rem' }}>
-              {review.user_username || 'کاربر'}
+              {review.user_username || t('manageReviews.userFallback', 'User')}
             </div>
             <div style={{ color: T.inkLight, fontSize: '0.78rem', marginTop: '1px' }}>
               {new Date(review.created_at).toLocaleString('fa-IR')}
@@ -280,7 +282,7 @@ function ReviewCard({ review, index, onReply, replyOpen, onToggleReply, sending 
             fontWeight: 700, color: T.purpleDark, marginBottom: '5px', fontSize: '0.85rem',
           }}>
             <CheckCircle size={14} />
-            پاسخ شما
+            {t('manageReviews.send', 'Send reply')}
           </div>
           <div style={{ color: T.ink, fontSize: '0.9rem', lineHeight: 1.6 }}>
             {review.owner_reply}
@@ -305,7 +307,7 @@ function ReviewCard({ review, index, onReply, replyOpen, onToggleReply, sending 
               }}
             >
               <Send size={14} />
-              پاسخ دادن
+              {t('manageReviews.send', 'Send reply')}
             </motion.button>
           ) : (
             <ReplyBox
@@ -313,6 +315,7 @@ function ReviewCard({ review, index, onReply, replyOpen, onToggleReply, sending 
               onCancel={onToggleReply}
               onSend={onReply}
               sending={sending}
+              t={t}
             />
           )}
         </>
@@ -390,6 +393,8 @@ function Pagination({ page, totalPages, onChange }) {
 /* ── Main ───────────────────────────────────────────────────────────────── */
 export default function ManageReviews({ salonId }) {
   const { user } = useAuth();
+  const { t, language } = useLanguage();
+  const isEnglish = language === 'en';
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState(null);
@@ -411,7 +416,7 @@ export default function ManageReviews({ salonId }) {
       setReviews(res.data || []);
     } catch (e) {
       console.error('Failed to load reviews', e);
-      showToast('خطا در بارگذاری نظرات', 'error');
+      showToast(t('manageReviews.replyError', 'Failed to send reply'), 'error');
     } finally {
       setLoading(false);
     }
@@ -420,7 +425,7 @@ export default function ManageReviews({ salonId }) {
   const handleOwnerReply = async (reviewId, text) => {
     const rText = text?.trim();
     if (!rText) {
-      showToast('پیام پاسخ نمی‌تواند خالی باشد', 'error');
+      showToast(t('manageReviews.replyEmpty', 'Reply message cannot be empty'), 'error');
       return;
     }
 
@@ -428,11 +433,11 @@ export default function ManageReviews({ salonId }) {
     try {
       await api.ownerReply(salonId, reviewId, { owner_reply: rText });
       setReplyOpenId(null);
-      showToast('پاسخ شما با موفقیت ثبت شد');
+      showToast(t('manageReviews.replySuccess', 'Reply sent successfully'));
       await loadReviews();
     } catch (err) {
       console.error('reply error', err);
-      showToast('خطا در ثبت پاسخ: ' + (err.response?.data?.detail || 'خطای نامشخص'), 'error');
+      showToast(t('manageReviews.replyError', 'Failed to send reply') + ': ' + (err.response?.data?.detail || t('common.error', 'Error')), 'error');
     } finally {
       setSendingId(null);
     }
@@ -459,13 +464,13 @@ export default function ManageReviews({ salonId }) {
         >
           <MessageCircle size={32} style={{ color: T.purpleMid }} />
         </motion.div>
-        <p style={{ margin: 0, fontSize: '0.9rem' }}>در حال بارگذاری نظرات...</p>
+        <p style={{ margin: 0, fontSize: '0.9rem' }}>{t('common.loading', 'Loading...')}</p>
       </div>
     );
   }
 
   return (
-    <div style={{ direction: 'rtl' }}>
+    <div style={{ direction: isEnglish ? 'ltr' : 'rtl', textAlign: isEnglish ? 'left' : 'right' }}>
       <AnimatePresence>
         {toast && (
           <Toast key="toast" message={toast.message} type={toast.type} onClose={() => setToast(null)} />
@@ -489,15 +494,15 @@ export default function ManageReviews({ salonId }) {
             <Star size={48} style={{ color: T.purpleMid, marginBottom: '1rem' }} />
           </motion.div>
           <h3 style={{ color: T.inkMid, fontWeight: 700, margin: '0 0 6px' }}>
-            هنوز نظری ثبت نشده است
+            {t('manageReviews.empty', 'No reviews yet')}
           </h3>
           <p style={{ color: T.inkLight, margin: 0, fontSize: '0.88rem' }}>
-            هنگامی که مشتریان نظر خود را ثبت کنند، اینجا نمایش داده خواهند شد
+            {t('manageReviews.emptyHint', 'When customers leave a review, it will appear here')}
           </p>
         </motion.div>
       ) : (
         <>
-          <SummaryBar reviews={reviews} />
+          <SummaryBar reviews={reviews} isEnglish={isEnglish} t={t} />
 
           <AnimatePresence mode="wait">
             <motion.div
@@ -520,6 +525,7 @@ export default function ManageReviews({ salonId }) {
                       setReplyOpenId(prev => (prev === review.id ? null : review.id))
                     }
                     onReply={(text) => handleOwnerReply(review.id, text)}
+                    t={t}
                   />
                 ))}
               </AnimatePresence>

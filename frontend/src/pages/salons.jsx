@@ -2,6 +2,7 @@
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { api } from '../api/client';
 import { Loading } from '../components/Loading';
 import { toPersianNumber } from '../utils/formatCurrency';
@@ -14,11 +15,11 @@ import {
 /* ─── constants ─── */
 
 const SORT_OPTIONS = [
-  { value: 'smart',   label: 'پیشنهاد هوشمند',  icon: Sparkles,      desc: 'بر اساس موقعیت، امتیاز و نظرات' },
-  { value: 'rating',  label: 'بالاترین امتیاز',  icon: Star,          desc: 'آرایشگاه‌های با بیشترین ستاره' },
-  { value: 'newest',  label: 'جدیدترین',          icon: Clock,         desc: 'تازه‌ترین آرایشگاه‌های عضو' },
-  { value: 'reviews', label: 'بیشترین نظرات',     icon: MessageSquare, desc: 'محبوب‌ترین در میان مشتریان' },
-  { value: 'name',    label: 'نام (الفبا)',        icon: AlignLeft,     desc: 'مرتب‌سازی حروف الفبا' },
+  { value: 'smart',   labelKey: 'salons.sortSmart',  icon: Sparkles,      descKey: 'salons.sortSmartDesc' },
+  { value: 'rating',  labelKey: 'salons.sortRating', icon: Star,          descKey: 'salons.sortRatingDesc' },
+  { value: 'newest',  labelKey: 'salons.sortNewest', icon: Clock,         descKey: 'salons.sortNewestDesc' },
+  { value: 'reviews', labelKey: 'salons.sortReviews',icon: MessageSquare, descKey: 'salons.sortReviewsDesc' },
+  { value: 'name',    labelKey: 'salons.sortName',   icon: AlignLeft,     descKey: 'salons.sortNameDesc' },
 ];
 
 const PAGE_SIZE = 12;
@@ -35,10 +36,10 @@ const normalizeGender = (value) => {
   return raw;
 };
 
-const genderLabel = (value) => {
+const genderLabel = (value, language = 'fa') => {
   const n = normalizeGender(value);
-  if (n === 'female') return 'زنانه';
-  if (n === 'male')   return 'مردانه';
+  if (n === 'female') return language === 'en' ? 'Women' : 'زنانه';
+  if (n === 'male')   return language === 'en' ? 'Men' : 'مردانه';
   return '';
 };
 
@@ -71,7 +72,7 @@ const gradientPink = `linear-gradient(135deg, ${T.pink} 0%, #be185d 100%)`;
 
 /* ─────────────────────── Sort Dialog ─────────────────────── */
 
-function SortDialog({ open, onClose, value, onChange }) {
+function SortDialog({ open, onClose, value, onChange, t }) {
   if (!open) return null;
 
   return (
@@ -112,8 +113,8 @@ function SortDialog({ open, onClose, value, onChange }) {
           {/* Header */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem 0 1.25rem' }}>
             <div>
-              <h2 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: T.slate9 }}>مرتب‌سازی</h2>
-              <p style={{ margin: '2px 0 0', fontSize: '0.8rem', color: T.slate5 }}>نحوه نمایش آرایشگاه‌ها را انتخاب کنید</p>
+              <h2 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: T.slate9 }}>{t('salons.sortTitle')}</h2>
+              <p style={{ margin: '2px 0 0', fontSize: '0.8rem', color: T.slate5 }}>{t('salons.sortSubtitle')}</p>
             </div>
             <button
               onClick={onClose}
@@ -133,6 +134,8 @@ function SortDialog({ open, onClose, value, onChange }) {
             {SORT_OPTIONS.map(opt => {
               const Icon = opt.icon;
               const active = value === opt.value;
+              const label = t(opt.labelKey);
+              const desc = t(opt.descKey);
               return (
                 <motion.button
                   key={opt.value}
@@ -156,10 +159,10 @@ function SortDialog({ open, onClose, value, onChange }) {
                   </div>
                   <div style={{ flex: 1, textAlign: 'right' }}>
                     <div style={{ fontWeight: 700, color: active ? T.violet : T.slate9, fontSize: '0.93rem' }}>
-                      {opt.label}
+                      {label}
                     </div>
                     <div style={{ fontSize: '0.78rem', color: T.slate5, marginTop: '1px' }}>
-                      {opt.desc}
+                      {desc}
                     </div>
                   </div>
                   {active && (
@@ -182,7 +185,7 @@ function SortDialog({ open, onClose, value, onChange }) {
 
 /* ─────────────────────── SalonCard ─────────────────────── */
 
-function SalonCard({ salon, navigate }) {
+function SalonCard({ salon, navigate, t, isEnglish }) {
   const isMale = normalizeGender(salon.gender) === 'male';
   const cardGradient = isMale ? gradient : gradientPink;
   const accentColor  = isMale ? T.violet : T.pink;
@@ -268,7 +271,7 @@ function SalonCard({ salon, navigate }) {
             padding: '4px 10px', borderRadius: '20px',
             fontSize: '0.73rem', fontWeight: 800, zIndex: 2,
           }}>
-            {isMale ? '♂ مردانه' : '♀ زنانه'}
+            {isMale ? t('home.salonGenderMale') : t('home.salonGenderFemale')}
           </div>
         )}
       </div>
@@ -295,13 +298,15 @@ function SalonCard({ salon, navigate }) {
             <Star size={12} fill={T.gold} color={T.gold} />
             <span style={{ fontWeight: 800, color: '#b45309', fontSize: '0.85rem' }}>{salon.average_rating}</span>
             {salon.review_count > 0 && (
-              <span style={{ color: '#92400e', fontSize: '0.76rem' }}>({toPersianNumber(salon.review_count)} نظر)</span>
+              <span style={{ color: '#92400e', fontSize: '0.76rem' }}>
+                ({isEnglish ? `${salon.review_count} review${salon.review_count === 1 ? '' : 's'}` : `${toPersianNumber(salon.review_count)} نظر`})
+              </span>
             )}
           </div>
         ) : (
           <div style={{ fontSize: '0.78rem', color: T.slate5, display: 'flex', alignItems: 'center', gap: '4px' }}>
             <Star size={11} color={T.slate3} />
-            بدون امتیاز
+            {t('home.noRating')}
           </div>
         )}
 
@@ -325,7 +330,7 @@ function SalonCard({ salon, navigate }) {
           onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = `0 8px 22px ${accentColor}45`; }}
           onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = `0 4px 14px ${accentColor}35`; }}
         >
-          رزرو نوبت
+          {t('home.bookNow')}
           <ArrowRight size={14} />
         </button>
       </div>
@@ -372,8 +377,10 @@ export default function Salons() {
 
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t, language } = useLanguage();
+  const isEnglish = language === 'en';
   const viewerGender      = useMemo(() => normalizeGender(user?.gender), [user?.gender]);
-  const viewerGenderLabel = genderLabel(viewerGender);
+  const viewerGenderLabel = genderLabel(viewerGender, language);
   const viewerCity        = useMemo(() => String(user?.city || '').trim(), [user?.city]);
 
   useEffect(() => { loadSalons(); }, []);
@@ -390,7 +397,7 @@ export default function Salons() {
       setSalons(response.data || []);
       setError('');
     } catch {
-      setError('بارگذاری لیست سالن‌ها ناموفق بود.');
+      setError(t('home.salonsLoadError'));
     } finally {
       setLoading(false);
     }
@@ -427,6 +434,7 @@ export default function Salons() {
   const paginated  = filtered.slice((page-1)*PAGE_SIZE, page*PAGE_SIZE);
   const hasActiveFilters = searchQuery || (user?.role !== 'customer' && selectedGender) || sortBy !== 'smart';
   const currentSort = SORT_OPTIONS.find(o => o.value === sortBy);
+  const sortLabel = currentSort ? t(currentSort.labelKey) : '';
 
   const clearFilters = () => { setSearchQuery(''); setSelectedGender(''); setSortBy('smart'); };
 
@@ -435,7 +443,7 @@ export default function Salons() {
   if (loading) return <Loading />;
 
   return (
-    <div style={{ minHeight: '100vh', background: T.bg, direction: 'rtl' }}>
+    <div style={{ minHeight: '100vh', background: T.bg, direction: isEnglish ? 'ltr' : 'rtl' }}>
 
       {/* Dialogs */}
       <SortDialog
@@ -443,6 +451,7 @@ export default function Salons() {
         onClose={() => setSortOpen(false)}
         value={sortBy}
         onChange={setSortBy}
+        t={t}
       />
 
       {/* ── Header ── */}
@@ -482,7 +491,7 @@ export default function Salons() {
             onMouseLeave={e => { e.currentTarget.style.background = 'var(--surface-glass-muted)'; }}
           >
             <ArrowRight size={15} />
-            بازگشت
+            {t('salons.back')}
           </button>
 
           <motion.h1
@@ -495,7 +504,7 @@ export default function Salons() {
               letterSpacing: '-0.02em',
             }}
           >
-            آرایشگاه‌های سالنیفای
+            {t('salons.title')}
           </motion.h1>
 
           <motion.p
@@ -504,7 +513,7 @@ export default function Salons() {
             transition={{ delay: 0.08 }}
             style={{ color: 'rgba(255,255,255,0.82)', fontSize: '1rem', margin: '0 0 1.75rem' }}
           >
-            از میان <strong style={{ color: '#fff' }}>{toPersianNumber(salons.length)}</strong> آرایشگاه در شهر شما انتخاب کنید
+            {t('salons.subtitle').replace('{count}', isEnglish ? salons.length.toLocaleString('en-US') : toPersianNumber(salons.length))}
           </motion.p>
 
           {/* Gender badge for customer */}
@@ -523,7 +532,7 @@ export default function Salons() {
               }}
             >
               <Shield size={13} />
-              فقط آرایشگاه‌های {viewerGenderLabel} نمایش داده می‌شود
+              {t('salons.genderBadge').replace('{gender}', viewerGenderLabel)}
             </motion.div>
           )}
 
@@ -543,7 +552,7 @@ export default function Salons() {
               }}
             >
               <MapPin size={13} />
-              فقط آرایشگاه‌های شهر شما نمایش داده می‌شود
+              {t('salons.cityBadge')}
             </motion.div>
           )}
 
@@ -557,7 +566,7 @@ export default function Salons() {
             <input
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              placeholder="جستجوی نام آرایشگاه یا شهر..."
+              placeholder={t('salons.searchPlaceholder')}
               style={{
                 width: '100%', boxSizing: 'border-box',
                 padding: '16px 52px 16px 52px',
@@ -616,17 +625,17 @@ export default function Salons() {
               background: 'var(--info-surface)',
               color: 'var(--primary)', fontSize: '0.86rem', fontWeight: 700,
             }}>
-              {viewerGender === 'female' ? '♀ زنانه' : '♂ مردانه'}
+              {viewerGender === 'female' ? t('home.salonGenderFemale') : t('home.salonGenderMale')}
               <span style={{
                 padding: '2px 8px', borderRadius: '999px',
                 background: 'var(--info-surface)', color: 'var(--primary-dark)', fontSize: '0.72rem', fontWeight: 800,
               }}>
-                مخصوص شما
+                {t('salons.forYouBadge')}
               </span>
             </div>
           ) : (
             <div style={{ display: 'flex', gap: '6px' }}>
-              {[{v:'',l:'همه'},{v:'male',l:'♂ مردانه'},{v:'female',l:'♀ زنانه'}].map(g => (
+              {[{v:'',l:t('salons.filterAll')},{v:'male',l:t('home.salonGenderMale')},{v:'female',l:t('home.salonGenderFemale')}].map(g => (
                 <button
                   key={g.v}
                   onClick={() => setSelectedGender(g.v)}
@@ -650,18 +659,18 @@ export default function Salons() {
           <Chip
             active={sortBy !== 'smart'}
             icon={SortAsc}
-            label={currentSort?.label}
+            label={sortLabel}
             onClick={() => setSortOpen(true)}
           />
 
           {/* Clear */}
           {hasActiveFilters && (
-            <Chip danger icon={X} label="پاک کردن" onClick={clearFilters} />
+            <Chip danger icon={X} label={t('salons.clearFilters')} onClick={clearFilters} />
           )}
 
           {/* Count */}
           <div style={{ marginRight: 'auto', color: T.slate5, fontSize: '0.86rem', fontWeight: 500 }}>
-            <span style={{ color: T.violet, fontWeight: 800 }}>{toPersianNumber(filtered.length)}</span> آرایشگاه
+            <span style={{ color: T.violet, fontWeight: 800 }}>{isEnglish ? filtered.length.toLocaleString('en-US') : toPersianNumber(filtered.length)}</span> {t('salons.countLabel')}
           </div>
         </div>
 
@@ -693,7 +702,7 @@ export default function Salons() {
             }}
           >
             <Sparkles size={15} />
-            نتایج بر اساس موقعیت، امتیاز و محبوبیت مرتب شده‌اند
+            {t('salons.smartSortBanner')}
           </motion.div>
         )}
 
@@ -710,10 +719,10 @@ export default function Salons() {
           >
             <Search size={52} style={{ color: T.violetSoft, marginBottom: '1rem' }} />
             <h3 style={{ color: T.slate7, fontSize: '1.3rem', margin: '0 0 0.5rem', fontWeight: 700 }}>
-              {salons.length === 0 ? 'هنوز آرایشگاهی ثبت نشده' : 'آرایشگاهی یافت نشد'}
+              {salons.length === 0 ? t('home.noSalonsTitle') : t('home.noSalonsFound')}
             </h3>
             <p style={{ color: T.slate5, margin: '0 0 1.5rem', fontSize: '0.92rem' }}>
-              {hasActiveFilters ? 'فیلترها را تغییر دهید یا پاک کنید' : 'به زودی آرایشگاه‌های جدید اضافه می‌شوند'}
+              {hasActiveFilters ? t('salons.emptyFiltersHint') : t('home.noSalonsText')}
             </p>
             {hasActiveFilters && (
               <button
@@ -725,7 +734,7 @@ export default function Salons() {
                   cursor: 'pointer', fontFamily: 'inherit',
                 }}
               >
-                پاک کردن فیلترها
+                {t('salons.clearFilters')}
               </button>
             )}
           </motion.div>
@@ -737,7 +746,7 @@ export default function Salons() {
           }}>
             <AnimatePresence mode="popLayout">
               {paginated.map(salon => (
-                <SalonCard key={salon.id} salon={salon} navigate={navigate} />
+                <SalonCard key={salon.id} salon={salon} navigate={navigate} t={t} isEnglish={isEnglish} />
               ))}
             </AnimatePresence>
           </div>
