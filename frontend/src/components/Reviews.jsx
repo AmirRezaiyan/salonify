@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { api } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import { useLanguage } from '../context/LanguageContext';
 import { MessageSquare, Send, ChevronDown, ChevronUp, CheckCircle } from 'lucide-react';
 import { toPersianNumber } from '../utils/formatCurrency';
 
@@ -381,7 +382,9 @@ function ReviewForm({ onSubmit, loading }) {
 /* ── AlreadyReviewed ────────────────────────────────────────────────────────── */
 function AlreadyReviewed() {
   const { theme } = useTheme();
+  const { language } = useLanguage();
   const T = getThemeTokens(theme);
+  const isEnglish = language === 'en';
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
@@ -400,7 +403,7 @@ function AlreadyReviewed() {
       }}
     >
       <CheckCircle size={18} style={{ flexShrink: 0 }} />
-      شما قبلاً برای این سالن نظر ثبت کرده‌اید.
+      {isEnglish ? 'You have already submitted a review for this salon.' : 'شما قبلاً برای این سالن نظر ثبت کرده‌اید.'}
     </motion.div>
   );
 }
@@ -408,7 +411,9 @@ function AlreadyReviewed() {
 /* ── RatingSummary ──────────────────────────────────────────────────────────── */
 function RatingSummary({ reviews }) {
   const { theme } = useTheme();
+  const { language } = useLanguage();
   const T = getThemeTokens(theme);
+  const isEnglish = language === 'en';
   if (reviews.length === 0) return null;
   const avg = reviews.reduce((s, r) => s + r.rating, 0) / reviews.length;
   const dist = [5, 4, 3, 2, 1].map(s => ({
@@ -441,7 +446,7 @@ function RatingSummary({ reviews }) {
         </div>
         <StarRating value={Math.round(avg)} size={14} readonly />
         <div style={{ fontSize: '0.78rem', color: T.inkLight, marginTop: '4px' }}>
-          {toPersianNumber(reviews.length)} نظر
+          {isEnglish ? `${reviews.length} review${reviews.length === 1 ? '' : 's'}` : `${toPersianNumber(reviews.length)} نظر`}
         </div>
       </div>
 
@@ -459,7 +464,9 @@ function RatingSummary({ reviews }) {
 export default function Reviews({ salonId }) {
   const { isAuthenticated, user } = useAuth();
   const { theme } = useTheme();
+  const { language } = useLanguage();
   const T = getThemeTokens(theme);
+  const isEnglish = language === 'en';
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -503,7 +510,7 @@ export default function Reviews({ salonId }) {
   };
 
   return (
-    <div style={{ direction: 'rtl' }}>
+    <div style={{ direction: isEnglish ? 'ltr' : 'rtl', textAlign: isEnglish ? 'left' : 'right' }}>
       {/* summary */}
       {!loading && <RatingSummary reviews={reviews} />}
 
@@ -525,7 +532,7 @@ export default function Reviews({ salonId }) {
           marginBottom: '1.5rem',
           border: `1.5px solid ${T.purpleMid}`,
         }}>
-          برای ثبت نظر ابتدا وارد حساب کاربری خود شوید.
+          {isEnglish ? 'Please sign in to submit a review.' : 'برای ثبت نظر ابتدا وارد حساب کاربری خود شوید.'}
         </div>
       )}
 
@@ -545,8 +552,8 @@ export default function Reviews({ salonId }) {
           }}
         >
           <MessageSquare size={36} style={{ color: T.purpleMid, marginBottom: '0.75rem' }} />
-          <div style={{ color: T.inkMid, fontWeight: 600, marginBottom: '4px' }}>هنوز نظری ثبت نشده</div>
-          <div style={{ color: T.inkLight, fontSize: '0.85rem' }}>اولین نفری باشید که نظر می‌دهد</div>
+          <div style={{ color: T.inkMid, fontWeight: 600, marginBottom: '4px' }}>{isEnglish ? 'No reviews yet' : 'هنوز نظری ثبت نشده'}</div>
+          <div style={{ color: T.inkLight, fontSize: '0.85rem' }}>{isEnglish ? 'Be the first to leave a review.' : 'اولین نفری باشید که نظر می‌دهد'}</div>
         </motion.div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>

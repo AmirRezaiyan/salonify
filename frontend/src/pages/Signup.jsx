@@ -310,23 +310,26 @@ export default function Signup() {
   // ─── ترجمه خطا ──────────────────────────────────────────────────────────────
   function toErrorMessage(field, msg) {
     const m = String(msg).toLowerCase();
-    if (m.includes('already exists') || m.includes('قبلاً ثبت شده') || m.includes('duplicate')) {
+    // Remove Persian diacritics for better matching
+    const normalizedMsg = m.replace(/[\u064B-\u0652]/g, '');
+
+    if (m.includes('already exists') || normalizedMsg.includes('قبلا ثبت شده') || m.includes('duplicate')) {
       if (field === 'email') return t('signup.emailTaken');
       if (field === 'phone_number') return t('signup.phoneTaken');
       if (field === 'salon_phone') return t('signup.salonPhoneTaken');
       if (field === 'username') return t('signup.usernameTaken');
       return t('signup.fieldRequired');
     }
-    if (m.includes('too short') || m.includes('at least 8')) return t('signup.passwordTooShort');
-    if (m.includes('too common') || m.includes('common')) return t('signup.passwordTooCommon');
-    if (m.includes('entirely numeric') || m.includes('numeric')) return t('signup.passwordNumeric');
-    if (field === 'email' && (m.includes('invalid') || m.includes('enter a valid')))
+    if (m.includes('too short') || m.includes('at least 8') || normalizedMsg.includes('کاراکتر')) return t('signup.passwordTooShort');
+    if (m.includes('too common') || normalizedMsg.includes('شایع')) return t('signup.passwordTooCommon');
+    if (m.includes('entirely numeric') || m.includes('numeric') || normalizedMsg.includes('عددی')) return t('signup.passwordNumeric');
+    if (field === 'email' && (m.includes('invalid') || m.includes('enter a valid') || normalizedMsg.includes('معتبر')))
       return t('signup.emailFormat');
-    if (field === 'phone_number' && m.includes('invalid'))
+    if (field === 'phone_number' && (m.includes('invalid') || normalizedMsg.includes('معتبر')))
       return t('signup.phoneNumberInvalid');
-    if (field === 'salon_phone' && m.includes('invalid'))
+    if (field === 'salon_phone' && (m.includes('invalid') || normalizedMsg.includes('معتبر')))
       return t('signup.salonPhoneNumberInvalid');
-    if ((field === 'salon_name' || field === 'salon_city' || field === 'salon_gender' || field === 'salon_address') && m.includes('required'))
+    if ((field === 'salon_name' || field === 'salon_city' || field === 'salon_gender' || field === 'salon_address') && (m.includes('required') || normalizedMsg.includes('الزامی')))
       return t('signup.salonFieldRequired');
     return msg;
   }
@@ -594,7 +597,7 @@ export default function Signup() {
             </div>
 
             <div>
-              <label style={labelStyle}>{t('auth.username')}</label>
+              <label style={labelStyle}>{t('auth.email')}</label>
               <div style={{ position: 'relative' }}>
                 <input
                   type="email"
@@ -743,7 +746,7 @@ export default function Signup() {
                       placeholder={t('signup.salonNamePlaceholder')}
                       value={formData.salon_name}
                       onChange={handleChange}
-                    style={errors.salon_name ? (isEnglish ? inputLtrError : inputRtlError) : (isEnglish ? inputLtr : inputRtl)}
+                      style={errors.salon_name ? (isEnglish ? inputLtrError : inputRtlError) : (isEnglish ? inputLtr : inputRtl)}
                       onFocus={(e) => onFocus(e, !!errors.salon_name)}
                       onBlur={onBlur}
                     />
@@ -780,7 +783,7 @@ export default function Signup() {
                       placeholder={t('signup.salonPhonePlaceholder')}
                       value={formData.salon_phone}
                       onChange={handleChange}
-                    style={errors.salon_phone ? (isEnglish ? inputLtrError : inputRtlError) : (isEnglish ? inputLtr : inputRtl)}
+                      style={errors.salon_phone ? (isEnglish ? inputLtrError : inputRtlError) : (isEnglish ? inputLtr : inputRtl)}
                       onFocus={(e) => onFocus(e, !!errors.salon_phone)}
                       onBlur={onBlur}
                     />
@@ -810,6 +813,7 @@ export default function Signup() {
                       <option value="male">{t('signup.genderMale')}</option>
                       <option value="female">{t('signup.genderFemale')}</option>
                     </select>
+                    <Sparkles size={16} color={errors.salon_gender ? COLORS.danger : '#94a3b8'} style={iconStyle(isEnglish ? 'left' : 'right')} />
                     <ChevronDown size={16} color={errors.salon_gender ? '#f5576c' : '#94a3b8'} style={iconStyle(isEnglish ? 'right' : 'left')} />
                   </div>
                   <FieldError msg={errors.salon_gender} />
@@ -823,7 +827,11 @@ export default function Signup() {
                   placeholder={t('signup.salonAddressPlaceholder')}
                   value={formData.salon_address}
                   onChange={handleChange}
-                  style={errors.salon_address ? textareaErr : textareaBase}
+                  style={
+                    errors.salon_address
+                      ? (isEnglish ? textareaLtrErr : textareaRtlErr)
+                      : (isEnglish ? textareaLtr : textareaRtl)
+                  }
                   onFocus={(e) => onFocus(e, !!errors.salon_address)}
                   onBlur={onBlur}
                 />

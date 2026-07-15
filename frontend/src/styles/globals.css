@@ -64,7 +64,9 @@
   --info-border: #93c5fd;
 
   /* Typography */
-  --font-family: 'Vazirmatn', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  --font-family-fa: 'Vazirmatn', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  --font-family-en: 'Inter', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-family: var(--font-family-fa);
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.875rem;
   --font-size-base: 1rem;
@@ -159,18 +161,18 @@ body {
   background-color: var(--background);
   color: var(--text-primary);
   line-height: 1.6;
+  text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   transition: var(--transition);
 }
 
-#root {
-  min-height: 100vh;
-  background: var(--background);
+:where([dir="ltr"], [lang="en"], [lang="en-US"], .font-en, .english-text) {
+  font-family: var(--font-family-en);
 }
 
-* {
-  transition: var(--transition);
+:where([dir="rtl"], [lang="fa"], [lang="fa-IR"]) {
+  font-family: var(--font-family-fa);
 }
 
 html.dark,
@@ -183,7 +185,6 @@ html.dark,
     color-scheme: light;
   }
 }
-
 
 /* Container */
 .container {

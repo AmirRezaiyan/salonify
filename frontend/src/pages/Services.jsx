@@ -59,14 +59,15 @@ const cardVariant = {
 };
 
 /* ─── SalonBanner ─────────────────────────────────────────────────────────── */
-function SalonBanner({ salon, servicesCount, T, t }) {
+function SalonBanner({ salon, servicesCount, T, t, isEnglish }) {
   return (
     <div style={{
       background: `linear-gradient(135deg, ${T.purple} 0%, ${T.purpleDeep} 100%)`,
       padding: '3rem 1.5rem 4rem',
       position: 'relative',
       overflow: 'hidden',
-      direction: 'rtl',
+      direction: isEnglish ? 'ltr' : 'rtl',
+      textAlign: isEnglish ? 'left' : 'right',
     }}>
       {/* animated background circles */}
       {[
@@ -180,7 +181,7 @@ function SalonBanner({ salon, servicesCount, T, t }) {
 }
 
 /* ─── DisabledBanner ──────────────────────────────────────────────────────── */
-function DisabledBanner({ salon, T, t }) {
+function DisabledBanner({ salon, T, t, isEnglish }) {
   if (!salon?.is_currently_disabled) return null;
   return (
     <motion.div
@@ -191,8 +192,8 @@ function DisabledBanner({ salon, T, t }) {
         background: T.redBg, border: `1.5px solid #FECACA`,
         borderRadius: T.radius, padding: '1rem 1.25rem',
         display: 'flex', alignItems: 'flex-start', gap: '0.75rem',
-        color: T.redText, marginBottom: '1.5rem', direction: 'rtl',
-        overflow: 'hidden',
+        color: T.redText, marginBottom: '1.5rem', direction: isEnglish ? 'ltr' : 'rtl',
+        textAlign: isEnglish ? 'left' : 'right', overflow: 'hidden',
       }}
     >
       <Ban size={20} style={{ flexShrink: 0, marginTop: '2px' }} />
@@ -202,8 +203,12 @@ function DisabledBanner({ salon, T, t }) {
         </p>
         <p style={{ margin: 0, fontSize: '0.85rem', opacity: 0.85 }}>
           {salon?.disabled_until
-            ? `تا ${new Date(salon.disabled_until).toLocaleDateString('fa-IR')} غیرفعال است${salon?.disable_reason ? ` — ${salon.disable_reason}` : ''}.`
-            : 'تا اطلاع ثانوی غیرفعال است.'}
+            ? isEnglish
+              ? `Unavailable until ${new Date(salon.disabled_until).toLocaleDateString(isEnglish ? 'en-US' : 'fa-IR')}${salon?.disable_reason ? ` — ${salon.disable_reason}` : ''}.`
+              : `تا ${new Date(salon.disabled_until).toLocaleDateString('fa-IR')} غیرفعال است${salon?.disable_reason ? ` — ${salon.disable_reason}` : ''}.`
+            : isEnglish
+              ? 'Unavailable until further notice.'
+              : 'تا اطلاع ثانوی غیرفعال است.'}
         </p>
       </div>
     </motion.div>
@@ -211,7 +216,7 @@ function DisabledBanner({ salon, T, t }) {
 }
 
 /* ─── PriceNote ───────────────────────────────────────────────────────────── */
-function PriceNote({ T, t }) {
+function PriceNote({ T, t, isEnglish }) {
   return (
     <motion.div
       {...fadeUp(0.1)}
@@ -221,7 +226,8 @@ function PriceNote({ T, t }) {
         background: T.purpleLight,
         border: `1px solid ${T.purpleMid}`,
         color: T.purpleDark,
-        fontSize: '0.85rem', marginBottom: '2rem', direction: 'rtl',
+        fontSize: '0.85rem', marginBottom: '2rem', direction: isEnglish ? 'ltr' : 'rtl',
+        textAlign: isEnglish ? 'left' : 'right',
       }}
     >
       <AlertTriangle size={14} style={{ flexShrink: 0 }} />
@@ -231,7 +237,7 @@ function PriceNote({ T, t }) {
 }
 
 /* ─── AboutOwner ──────────────────────────────────────────────────────────── */
-function AboutOwner({ salon, T, t }) {
+function AboutOwner({ salon, T, t, isEnglish }) {
   if (!salon?.owner_image && !salon?.owner_description) return null;
 
   let imgPosition = { x: 50, y: 50 };
@@ -251,7 +257,8 @@ function AboutOwner({ salon, T, t }) {
         borderRadius: '24px',
         overflow: 'hidden',
         marginBottom: '2rem',
-        direction: 'rtl',
+        direction: isEnglish ? 'ltr' : 'rtl',
+        textAlign: isEnglish ? 'left' : 'right',
         background: `linear-gradient(135deg, ${T.purple} 0%, ${T.purpleDeep} 100%)`,
         boxShadow: '0 8px 32px rgba(124,92,252,0.22)',
       }}
@@ -355,7 +362,7 @@ function AboutOwner({ salon, T, t }) {
 }
 
 /* ─── SalonAddressCard ────────────────────────────────────────────────────── */
-function SalonAddressCard({ salon, T, t }) {
+function SalonAddressCard({ salon, T, t, isEnglish }) {
   const address = salon?.address?.trim();
   if (!address) return null;
 
@@ -372,7 +379,8 @@ function SalonAddressCard({ salon, T, t }) {
         boxShadow: T.shadow,
         padding: '1.25rem 1.5rem',
         marginBottom: '2rem',
-        direction: 'rtl',
+        direction: isEnglish ? 'ltr' : 'rtl',
+        textAlign: isEnglish ? 'left' : 'right',
       }}
     >
       <div style={{
@@ -390,7 +398,7 @@ function SalonAddressCard({ salon, T, t }) {
           color: T.ink, fontSize: '0.95rem', fontWeight: 800,
           letterSpacing: '-0.2px',
         }}>
-          آدرس سالن
+          {isEnglish ? 'Salon address' : 'آدرس سالن'}
         </h3>
         <p style={{
           margin: 0, color: T.inkMid,
@@ -426,7 +434,7 @@ function StatCell({ icon, label, value, highlight, T }) {
 }
 
 /* ─── BookButton ──────────────────────────────────────────────────────────── */
-function BookButton({ canBook, salonDisabled, onClick, T }) {
+function BookButton({ canBook, salonDisabled, onClick, T, isEnglish }) {
   if (salonDisabled) return (
     <div style={{
       width: '100%', padding: '10px', borderRadius: T.radiusSm,
@@ -435,7 +443,7 @@ function BookButton({ canBook, salonDisabled, onClick, T }) {
       display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
       cursor: 'not-allowed',
     }}>
-      <Ban size={15} /> سالن غیرفعال
+      <Ban size={15} /> {isEnglish ? 'Salon unavailable' : 'سالن غیرفعال'}
     </div>
   );
 
@@ -446,7 +454,7 @@ function BookButton({ canBook, salonDisabled, onClick, T }) {
       fontSize: '0.88rem', fontWeight: 600,
       display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
     }}>
-      <XCircle size={15} /> خدمت غیرفعال است
+      <XCircle size={15} /> {isEnglish ? 'Service unavailable' : 'خدمت غیرفعال است'}
     </div>
   );
 
@@ -465,13 +473,13 @@ function BookButton({ canBook, salonDisabled, onClick, T }) {
         letterSpacing: '0.2px',
       }}
     >
-      <Calendar size={15} /> رزرو نوبت
+      <Calendar size={15} /> {isEnglish ? 'Book appointment' : 'رزرو نوبت'}
     </motion.button>
   );
 }
 
 /* ─── ServiceCard ─────────────────────────────────────────────────────────── */
-function ServiceCard({ service, salonDisabled, onBook, index, T, t }) {
+function ServiceCard({ service, salonDisabled, onBook, index, T, t, isEnglish }) {
   const [hovered, setHovered] = useState(false);
   const canBook = service.is_active && service.price > 0 && !salonDisabled && !!onBook;
 
@@ -489,7 +497,8 @@ function ServiceCard({ service, salonDisabled, onBook, index, T, t }) {
         transition: 'border-color 0.2s, box-shadow 0.25s',
         overflow: 'hidden',
         display: 'flex', flexDirection: 'column',
-        direction: 'rtl',
+        direction: isEnglish ? 'ltr' : 'rtl',
+        textAlign: isEnglish ? 'left' : 'right',
         cursor: 'default',
       }}
     >
@@ -525,14 +534,14 @@ function ServiceCard({ service, salonDisabled, onBook, index, T, t }) {
             }}
           >
             {service.is_active ? <BadgeCheck size={11} /> : <XCircle size={11} />}
-            {service.is_active ? 'فعال' : 'غیرفعال'}
+            {service.is_active ? (isEnglish ? 'Active' : 'فعال') : (isEnglish ? 'Inactive' : 'غیرفعال')}
           </motion.span>
         </div>
 
         {/* stats grid */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
-          <StatCell icon={<Clock size={13} />} label="مدت زمان" value={`${toPersianNumber(service.duration_minutes)} دقیقه`} T={T} />
-          <StatCell icon={<Sparkles size={13} />} label="قیمت پایه" value={formatToman(service.price)} highlight T={T} />
+          <StatCell icon={<Clock size={13} />} label={isEnglish ? 'Duration' : 'مدت زمان'} value={isEnglish ? `${service.duration_minutes} min` : `${toPersianNumber(service.duration_minutes)} دقیقه`} T={T} />
+          <StatCell icon={<Sparkles size={13} />} label={isEnglish ? 'Base price' : 'قیمت پایه'} value={formatToman(service.price)} highlight T={T} />
         </div>
 
         {/* book button */}
@@ -542,6 +551,7 @@ function ServiceCard({ service, salonDisabled, onBook, index, T, t }) {
             salonDisabled={salonDisabled}
             onClick={onBook ? () => onBook(service) : undefined}
             T={T}
+            isEnglish={isEnglish}
           />
         </div>
       </div>
@@ -550,7 +560,7 @@ function ServiceCard({ service, salonDisabled, onBook, index, T, t }) {
 }
 
 /* ─── SectionTitle ────────────────────────────────────────────────────────── */
-function SectionTitle({ icon, children, T, t }) {
+function SectionTitle({ icon, children, T, t, isEnglish }) {
   return (
     <motion.div
       initial={{ opacity: 0, x: 16 }}
@@ -559,7 +569,8 @@ function SectionTitle({ icon, children, T, t }) {
       transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
       style={{
         display: 'flex', alignItems: 'center', gap: '0.6rem',
-        marginBottom: '1.4rem', direction: 'rtl',
+        marginBottom: '1.4rem', direction: isEnglish ? 'ltr' : 'rtl',
+        textAlign: isEnglish ? 'left' : 'right',
       }}
     >
       <div style={{
@@ -581,7 +592,7 @@ function SectionTitle({ icon, children, T, t }) {
 }
 
 /* ─── EmptyState ──────────────────────────────────────────────────────────── */
-function EmptyState({ isStaff, T, t }) {
+function EmptyState({ isStaff, T, t, isEnglish }) {
   if (isStaff) {
     // For staff/owners - show a simple message
     return (
@@ -590,9 +601,10 @@ function EmptyState({ isStaff, T, t }) {
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.4 }}
         style={{
-          textAlign: 'center', padding: '4rem 2rem',
+          padding: '4rem 2rem',
           background: T.surface, borderRadius: '24px',
-          border: `2px dashed ${T.border}`, direction: 'rtl',
+          border: `2px dashed ${T.border}`, direction: isEnglish ? 'ltr' : 'rtl',
+          textAlign: isEnglish ? 'left' : 'right',
         }}
       >
         <motion.div
@@ -602,10 +614,10 @@ function EmptyState({ isStaff, T, t }) {
           <Scissors size={52} style={{ color: T.purpleMid, marginBottom: '1rem' }} />
         </motion.div>
         <h3 style={{ color: T.inkMid, fontSize: '1.2rem', fontWeight: 700, margin: '0 0 0.5rem' }}>
-          هنوز خدمتی ثبت نشده
+          {isEnglish ? 'No service has been added yet' : 'هنوز خدمتی ثبت نشده'}
         </h3>
         <p style={{ color: T.inkLight, margin: 0, fontSize: '0.9rem' }}>
-          این سالن هنوز خدمتی اضافه نکرده است.
+          {isEnglish ? 'This salon has not added any services yet.' : 'این سالن هنوز خدمتی اضافه نکرده است.'}
         </p>
       </motion.div>
     );
@@ -618,9 +630,10 @@ function EmptyState({ isStaff, T, t }) {
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.4 }}
       style={{
-        textAlign: 'center', padding: '4rem 2rem',
+        padding: '4rem 2rem',
         background: T.redBg, borderRadius: '24px',
-        border: `2px solid ${T.red}`, direction: 'rtl',
+        border: `2px solid ${T.red}`, direction: isEnglish ? 'ltr' : 'rtl',
+        textAlign: isEnglish ? 'left' : 'right',
       }}
     >
       <motion.div
@@ -630,17 +643,17 @@ function EmptyState({ isStaff, T, t }) {
         <AlertTriangle size={52} style={{ color: T.red, marginBottom: '1rem' }} />
       </motion.div>
       <h3 style={{ color: T.redText, fontSize: '1.2rem', fontWeight: 700, margin: '0 0 0.5rem' }}>
-        سرویسی موجود نیست
+        {isEnglish ? 'No services available' : 'سرویسی موجود نیست'}
       </h3>
       <p style={{ color: T.redText, margin: 0, fontSize: '0.95rem', lineHeight: 1.6 }}>
-        مدیر سالن هنوز سرویسی برای رزرو ثبت نکرده است. لطفاً بعداً دوباره بررسی کنید.
+        {isEnglish ? 'The salon manager has not added any services for booking yet. Please check again later.' : 'مدیر سالن هنوز سرویسی برای رزرو ثبت نکرده است. لطفاً بعداً دوباره بررسی کنید.'}
       </p>
     </motion.div>
   );
 }
 
 /* ─── BackButton ──────────────────────────────────────────────────────────── */
-function BackButton({ onClick, T }) {
+function BackButton({ onClick, T, isEnglish }) {
   return (
     <motion.button
       initial={{ opacity: 0, x: 10 }}
@@ -651,6 +664,7 @@ function BackButton({ onClick, T }) {
       onClick={onClick}
       style={{
         display: 'flex', alignItems: 'center', gap: '4px',
+        flexDirection: isEnglish ? 'row' : 'row',
         background: T.purpleLight,
         border: `1px solid ${T.purpleMid}`,
         borderRadius: '999px',
@@ -661,7 +675,7 @@ function BackButton({ onClick, T }) {
       }}
     >
       <ChevronRight size={15} />
-      بازگشت
+      {isEnglish ? 'Back' : 'بازگشت'}
     </motion.button>
   );
 }
@@ -675,8 +689,11 @@ export default function Services() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { theme } = useTheme();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const T = getThemeTokens(theme);
+  const isEnglish = language === 'en';
+  const pageDirection = isEnglish ? 'ltr' : 'rtl';
+  const pageTextAlign = isEnglish ? 'left' : 'right';
 
   const isStaff = user?.role === 'owner' || user?.role === 'staff';
 
@@ -720,26 +737,27 @@ export default function Services() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.35 }}
-      style={{ minHeight: '100vh', background: T.bg }}
+      style={{ minHeight: '100vh', background: T.bg, direction: pageDirection, textAlign: pageTextAlign }}
     >
       {/* ── Banner ── */}
-      <SalonBanner salon={salon} servicesCount={activeCount} T={T} t={t} />
+      <SalonBanner salon={salon} servicesCount={activeCount} T={T} t={t} isEnglish={isEnglish} />
 
       {/* ── Toolbar ── */}
       <div style={{
         maxWidth: '1100px', margin: '0 auto',
         padding: '1.5rem 1.5rem 0',
-        display: 'flex', justifyContent: 'flex-end',
-        direction: 'rtl',
+        display: 'flex', justifyContent: isEnglish ? 'flex-start' : 'flex-end',
+        direction: pageDirection,
       }}>
-        <BackButton onClick={() => navigate('/')} T={T} />
+        <BackButton onClick={() => navigate('/')} T={T} isEnglish={isEnglish} />
       </div>
 
       {/* ── Content ── */}
       <div style={{
         maxWidth: '1100px', margin: '0 auto',
         padding: '1.75rem 1.5rem 5rem',
-        direction: 'rtl',
+        direction: pageDirection,
+        textAlign: pageTextAlign,
       }}>
         {/* error */}
         <AnimatePresence>
@@ -755,20 +773,20 @@ export default function Services() {
           )}
         </AnimatePresence>
 
-        <DisabledBanner salon={salon} T={T} t={t} />
-        <PriceNote T={T} t={t} />
+        <DisabledBanner salon={salon} T={T} t={t} isEnglish={isEnglish} />
+        <PriceNote T={T} t={t} isEnglish={isEnglish} />
 
-        <AboutOwner salon={salon} T={T} t={t} />
-        <SalonAddressCard salon={salon} T={T} t={t} />
+        <AboutOwner salon={salon} T={T} t={t} isEnglish={isEnglish} />
+        <SalonAddressCard salon={salon} T={T} t={t} isEnglish={isEnglish} />
 
         {/* ── Services ── */}
         <section style={{ marginBottom: '3.5rem' }}>
-          <SectionTitle icon={<Scissors size={18} style={{ color: T.purple }} />} T={T} t={t}>
+          <SectionTitle icon={<Scissors size={18} style={{ color: T.purple }} />} T={T} t={t} isEnglish={isEnglish}>
             {t('services.serviceList')}
           </SectionTitle>
 
           {services.length === 0 ? (
-            <EmptyState isStaff={isStaff} T={T} t={t} />
+            <EmptyState isStaff={isStaff} T={T} t={t} isEnglish={isEnglish} />
           ) : (
             <motion.div
               variants={stagger}
@@ -789,6 +807,7 @@ export default function Services() {
                   onBook={isStaff ? null : handleBook}
                   T={T}
                   t={t}
+                  isEnglish={isEnglish}
                 />
               ))}
             </motion.div>
@@ -803,7 +822,7 @@ export default function Services() {
             viewport={{ once: true, margin: '-60px' }}
             transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
           >
-            <SectionTitle icon={<Star size={18} style={{ color: T.purple }} />} T={T} t={t}>
+            <SectionTitle icon={<Star size={18} style={{ color: T.purple }} />} T={T} t={t} isEnglish={isEnglish}>
               {t('services.reviews')}
             </SectionTitle>
 
