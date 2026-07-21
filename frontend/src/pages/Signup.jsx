@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { motion } from 'framer-motion';
 import { Button } from '../components/Button';
+import { IRAN_CITIES } from '../constants';
 import {
   UserPlus,
   User,
@@ -164,47 +165,6 @@ const FormAlert = ({ msg }) => {
 };
 
 // ─── کامپوننت اصلی ────────────────────────────────────────────────────────────
-// ─── لیست شهرهای ایران ───────────────────────────────────────────────────────
-const IRAN_CITIES = [
-  { value: 'تهران', label: 'تهران' },
-  { value: 'مشهد', label: 'مشهد' },
-  { value: 'اصفهان', label: 'اصفهان' },
-  { value: 'شیراز', label: 'شیراز' },
-  { value: 'تبریز', label: 'تبریز' },
-  { value: 'قم', label: 'قم' },
-  { value: 'کاشان', label: 'کاشان' },
-  { value: 'کرمانشاه', label: 'کرمانشاه' },
-  { value: 'بندرعباس', label: 'بندرعباس' },
-  { value: 'اهواز', label: 'اهواز' },
-  { value: 'یزد', label: 'یزد' },
-  { value: 'کرج', label: 'کرج' },
-  { value: 'اراک', label: 'اراک' },
-  { value: 'همدان', label: 'همدان' },
-  { value: 'خرم آباد', label: 'خرم آباد' },
-  { value: 'سنندج', label: 'سنندج' },
-  { value: 'بجنورد', label: 'بجنورد' },
-  { value: 'سبزوار', label: 'سبزوار' },
-  { value: 'رشت', label: 'رشت' },
-  { value: 'بابل', label: 'بابل' },
-  { value: 'گرگان', label: 'گرگان' },
-  { value: 'رامسر', label: 'رامسر' },
-  { value: 'ساری', label: 'ساری' },
-  { value: 'اردبیل', label: 'اردبیل' },
-  { value: 'زنجان', label: 'زنجان' },
-  { value: 'اردستان', label: 'اردستان' },
-  { value: 'بوشهر', label: 'بوشهر' },
-  { value: 'خوی', label: 'خوی' },
-  { value: 'مهاباد', label: 'مهاباد' },
-  { value: 'مریوان', label: 'مریوان' },
-  { value: 'قائم‌شهر', label: 'قائم‌شهر' },
-  { value: 'لاهیجان', label: 'لاهیجان' },
-  { value: 'علی‌آباد', label: 'علی‌آباد' },
-  { value: 'انزلی', label: 'انزلی' },
-  { value: 'چالوس', label: 'چالوس' },
-  { value: 'نوشهر', label: 'نوشهر' },
-  { value: 'نیشابور', label: 'نیشابور' },
-];
-
 export default function Signup() {
   const [formData, setFormData] = useState({
     username: '',
@@ -310,7 +270,6 @@ export default function Signup() {
   // ─── ترجمه خطا ──────────────────────────────────────────────────────────────
   function toErrorMessage(field, msg) {
     const m = String(msg).toLowerCase();
-    // Remove Persian diacritics for better matching
     const normalizedMsg = m.replace(/[\u064B-\u0652]/g, '');
 
     if (m.includes('already exists') || normalizedMsg.includes('قبلا ثبت شده') || m.includes('duplicate')) {
@@ -364,7 +323,6 @@ export default function Signup() {
         console.log('Register result:', result);
 
         if (result.success) {
-          // پاس دادن redirectTo به صفحه لاگین تا بعد از ورود به مقصد درست بره
           const redirectTo = location.state?.redirectTo || localStorage.getItem('qr_redirect_after_auth');
           navigate('/login', { state: { username: formData.username, redirectTo: redirectTo || undefined } });
           return;
@@ -962,8 +920,15 @@ function CitySelect({ name, label, value, onChange, error }) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
 
-  const filtered = IRAN_CITIES.filter(c => c.label.includes(search) || c.value.includes(search));
+  const getCityLabel = (city) => isEnglish ? city.labelEn : city.labelFa;
+
+  const filtered = IRAN_CITIES.filter(c =>
+    c.value.includes(search) ||
+    getCityLabel(c).includes(search)
+  );
+
   const selected = IRAN_CITIES.find(c => c.value === value);
+  const selectedLabel = selected ? getCityLabel(selected) : '';
 
   const pick = (val) => {
     onChange({ target: { name, value: val } });
@@ -997,7 +962,7 @@ function CitySelect({ name, label, value, onChange, error }) {
       >
         <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <MapPin size={15} color={error ? COLORS.danger : COLORS.muted} />
-          {selected ? selected.label : t('signup.selectCity')}
+          {selected ? selectedLabel : t('signup.selectCity')}
         </span>
         <ChevronDown size={15} color={error ? COLORS.danger : COLORS.muted} />
       </button>
@@ -1072,7 +1037,7 @@ function CitySelect({ name, label, value, onChange, error }) {
                     alignItems: 'center', justifyContent: 'space-between'
                   }}
                 >
-                  {c.label}
+                  {getCityLabel(c)}
                   {value === c.value && <span style={{ color: COLORS.primary, fontSize: '1.1rem' }}>✓</span>}
                 </button>
               ))}

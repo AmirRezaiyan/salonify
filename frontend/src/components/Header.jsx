@@ -6,7 +6,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import {
   Menu, X, LogOut, Home, Calendar, Settings,
-  MessageCircle, ChevronDown, Scissors, Moon, Sun
+  MessageCircle, ChevronDown, Scissors, Moon, Sun, Languages
 } from 'lucide-react';
 
 // ─── Tokens ────────────────────────────────────────────────────────────────────
@@ -100,55 +100,119 @@ function MobileNavItem({ to, icon, children, active, onClick }) {
   );
 }
 
+// ─── ThemeToggle ─────────────────────────────────────────────────────────────
+// Desktop: compact icon-only switch (Sun/Moon cross-fade) — minimal, premium.
+// Mobile: full-width row consistent with the rest of the drawer's menu items.
 function ThemeToggle({ theme, onClick, mobile = false }) {
   const isDark = theme === 'dark';
   const { t } = useLanguage();
+  const label = isDark ? t('header.themeLight') : t('header.themeDark');
+
+  const icon = (
+    <AnimatePresence mode="wait" initial={false}>
+      <Motion.span
+        key={isDark ? 'moon' : 'sun'}
+        initial={{ rotate: -90, opacity: 0, scale: 0.4 }}
+        animate={{ rotate: 0, opacity: 1, scale: 1 }}
+        exit={{ rotate: 90, opacity: 0, scale: 0.4 }}
+        transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+        style={{ display: 'inline-flex' }}
+      >
+        {isDark ? <Moon size={mobile ? 18 : 17} strokeWidth={2.2} /> : <Sun size={mobile ? 18 : 17} strokeWidth={2.2} />}
+      </Motion.span>
+    </AnimatePresence>
+  );
+
+  if (mobile) {
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        aria-label={label}
+        aria-pressed={isDark}
+        className="hdr-mrow"
+      >
+        <span className="hdr-mrow__left">
+          <span className="hdr-mrow__icon">{icon}</span>
+          <span>{label}</span>
+        </span>
+        <span className={`hdr-mswitch${isDark ? ' is-on' : ''}`}>
+          <Motion.span
+            className="hdr-mswitch__thumb"
+            animate={{ x: isDark ? 20 : 2 }}
+            transition={{ type: 'spring', stiffness: 500, damping: 32 }}
+          />
+        </span>
+      </button>
+    );
+  }
+
   return (
     <button
       type="button"
       onClick={onClick}
-      aria-label={t('header.theme')}
+      aria-label={label}
       aria-pressed={isDark}
-      className={`hdr-theme-toggle${mobile ? ' hdr-theme-toggle--mobile' : ''}`}
+      title={label}
+      className="hdr-theme-btn"
     >
-      <span className="hdr-theme-toggle__track">
-        <span className="hdr-theme-toggle__icon hdr-theme-toggle__icon--sun">
-          <Sun size={14} />
-        </span>
-        <Motion.span
-          layout
-          className="hdr-theme-toggle__thumb"
-          animate={{ x: isDark ? (mobile ? 56 : 54) : 0 }}
-          transition={{ type: 'spring', stiffness: 320, damping: 26 }}
-        />
-        <span className="hdr-theme-toggle__icon hdr-theme-toggle__icon--moon">
-          <Moon size={14} />
-        </span>
-      </span>
-      <span className="hdr-theme-toggle__label">{isDark ? t('header.themeLight') : t('header.themeDark')}</span>
+      {icon}
     </button>
   );
 }
 
+// ─── LanguageToggle ─────────────────────────────────────────────────────────
+// Whole element is ONE click target (exactly like before) — clicking anywhere
+// toggles the language. Desktop: compact pill with icon + animated code.
+// Mobile: full-width row (same family as ThemeToggle's mobile row) with a
+// small code badge on the trailing side.
 function LanguageToggle({ mobile = false }) {
   const { language, setLanguage, t } = useLanguage();
   const isEnglish = language === 'en';
+  const label = isEnglish ? t('header.switchToPersian') : t('header.switchToEnglish');
+
+  const code = (
+    <AnimatePresence mode="wait" initial={false}>
+      <Motion.span
+        key={language}
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -6 }}
+        transition={{ duration: 0.18, ease: 'easeOut' }}
+        style={{ display: 'inline-block' }}
+      >
+        {isEnglish ? 'EN' : 'FA'}
+      </Motion.span>
+    </AnimatePresence>
+  );
+
+  if (mobile) {
+    return (
+      <button
+        type="button"
+        onClick={() => setLanguage(isEnglish ? 'fa' : 'en')}
+        aria-label={label}
+        className="hdr-mrow"
+      >
+        <span className="hdr-mrow__left">
+          <span className="hdr-mrow__icon"><Languages size={18} /></span>
+          <span>{label}</span>
+        </span>
+        <span className="hdr-lang-badge">{code}</span>
+      </button>
+    );
+  }
 
   return (
     <button
       type="button"
       onClick={() => setLanguage(isEnglish ? 'fa' : 'en')}
-      aria-label={t('header.toggle')}
-      style={{
-        display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-        padding: mobile ? '12px 14px' : '8px 12px', minWidth: mobile ? '140px' : '110px',
-        borderRadius: '999px', border: '1px solid var(--border)', background: 'var(--card-hover)',
-        color: 'var(--text-primary)', cursor: 'pointer', fontWeight: 700, fontSize: mobile ? '0.95rem' : '0.9rem',
-        transition: 'all 0.2s ease', outline: 'none', boxShadow: 'none',
-      }}
+      aria-label={label}
+      title={label}
+      className="hdr-lang-btn"
     >
-      <span>{isEnglish ? 'FA' : 'EN'}</span>
-      <span>{isEnglish ? t('header.switchToPersian') : t('header.switchToEnglish')}</span>
+      <Languages size={15} strokeWidth={2.2} />
+      <span className="hdr-lang-btn__code">{code}</span>
     </button>
   );
 }
@@ -157,7 +221,7 @@ function LanguageToggle({ mobile = false }) {
 export default function Header() {
   const { isAuthenticated, user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
-  const { t, language, setLanguage } = useLanguage();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -217,115 +281,199 @@ export default function Header() {
       <style>{`
         @media (max-width: 900px) { .hdr-desktop { display: none !important; } }
         @media (min-width: 901px) { .hdr-mobile-btn { display: none !important; } }
+        .hdr-user-btn::-moz-focus-inner,
+        .hdr-theme-btn::-moz-focus-inner,
+        .hdr-lang-btn::-moz-focus-inner,
+        .hdr-mrow::-moz-focus-inner,
+        .hdr-mobile-btn::-moz-focus-inner,
+        .hdr-tg-btn::-moz-focus-inner {
+          border: 0;
+          padding: 0;
+        }
         .hdr-user-btn:hover .hdr-chevron { transform: rotate(180deg); }
         .hdr-chevron { transition: transform 0.25s; }
-        .hdr-tg-btn:hover { background: ${C.tg} !important; color: white !important; }
+        .hdr-tg-btn {
+          -webkit-tap-highlight-color: transparent;
+          user-select: none;
+          -webkit-user-select: none;
+          outline: none;
+        }
+        @media (hover: hover) and (pointer: fine) {
+          .hdr-tg-btn:hover {
+            background: var(--surface) !important;
+            border-color: ${C.accentMid} !important;
+            box-shadow: 0 6px 18px rgba(37, 99, 235, 0.16);
+          }
+        }
+        .hdr-tg-btn:focus,
+        .hdr-tg-btn:focus-visible {
+          outline: none;
+          box-shadow: none;
+        }
 
-        .hdr-theme-toggle {
+        /* ── Theme toggle (desktop): compact icon switch, whole box is one click target ── */
+        .hdr-theme-btn {
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          gap: 10px;
-          padding: 0.45rem 0.8rem;
-          min-width: 128px;
-          height: 44px;
+          width: 42px;
+          height: 42px;
+          padding: 0;
+          margin: 0;
+          box-sizing: border-box;
+          line-height: 0;
+          border-radius: 12px;
+          border: 1px solid var(--border);
+          background: var(--card-hover);
+          color: var(--text-primary) !important;
+          cursor: pointer;
+          overflow: hidden;
+          -webkit-tap-highlight-color: transparent;
+          user-select: none;
+          -webkit-user-select: none;
+          outline: none;
+          transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease, box-shadow 0.25s ease;
+        }
+        @media (hover: hover) and (pointer: fine) {
+          .hdr-theme-btn:hover {
+            background: var(--surface);
+            border-color: ${C.accentMid};
+            box-shadow: 0 6px 18px rgba(37, 99, 235, 0.16);
+            transform: translateY(-1px);
+          }
+        }
+        .hdr-theme-btn:active { transform: translateY(0) scale(0.94); }
+        .hdr-theme-btn:focus,
+        .hdr-theme-btn:focus-visible {
+          outline: none;
+          box-shadow: none;
+        }
+
+        /* ── Language toggle (desktop): single-click pill, whole box is one click target ── */
+        .hdr-lang-btn {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 7px;
+          height: 42px;
+          padding: 0 15px;
           border-radius: 9999px;
           border: 1px solid var(--border);
           background: var(--card-hover);
-          color: var(--text-primary);
+          color: var(--text-primary) !important;
           cursor: pointer;
-          transition: background 0.25s ease, border-color 0.25s ease, transform 0.2s ease, color 0.25s ease;
-          position: relative;
-          line-height: 1;
+          font-weight: 700;
+          font-size: 0.85rem;
+          -webkit-tap-highlight-color: transparent;
+          user-select: none;
+          -webkit-user-select: none;
+          outline: none;
+          transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease, box-shadow 0.25s ease;
         }
-
-        .hdr-theme-toggle:hover {
-          background: var(--surface);
+        @media (hover: hover) and (pointer: fine) {
+          .hdr-lang-btn:hover {
+            background: var(--surface);
+            border-color: ${C.accentMid};
+            box-shadow: 0 6px 18px rgba(37, 99, 235, 0.16);
+            transform: translateY(-1px);
+          }
         }
-
-        .hdr-theme-toggle:focus-visible {
+        .hdr-lang-btn:active { transform: translateY(0) scale(0.96); }
+        .hdr-lang-btn:focus,
+        .hdr-lang-btn:focus-visible {
           outline: none;
           box-shadow: none;
         }
+        .hdr-lang-btn__code { min-width: 18px; overflow: hidden; text-align: center; }
 
-        .hdr-theme-toggle:focus {
-          outline: none;
-          box-shadow: none;
-        }
-
-        .hdr-theme-toggle__track {
-          position: relative;
+        /* ── Language code badge shown inside the mobile row ── */
+        .hdr-lang-badge {
           display: inline-flex;
           align-items: center;
-          justify-content: space-between;
-          width: 96px;
-          min-width: 96px;
-          height: 44px;
-          padding: 0 8px;
+          justify-content: center;
+          min-width: 40px;
+          height: 30px;
+          padding: 0 10px;
           border-radius: 9999px;
-          background: var(--surface);
-          border: 1px solid var(--border);
-          color: var(--text-secondary);
+          background: ${C.accentLow};
+          border: 1px solid ${C.accentMid};
+          color: ${C.brandSolid};
+          font-weight: 800;
+          font-size: 0.8rem;
           flex-shrink: 0;
         }
 
-        .hdr-theme-toggle__icon {
-          z-index: 1;
+        /* ── Shared mobile drawer row (used by both toggles) — the WHOLE row is one <button> ── */
+        .hdr-mrow {
+          width: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+          padding: 12px 14px;
+          margin-top: 4px;
+          border-radius: 12px;
+          border: 1px solid var(--border);
+          background: var(--card-hover);
+          color: var(--text-primary) !important;
+          font-size: 0.95rem;
+          font-weight: 600;
+          cursor: pointer;
+          -webkit-tap-highlight-color: transparent;
+          user-select: none;
+          -webkit-user-select: none;
+          outline: none;
+          transition: background 0.2s ease, border-color 0.2s ease;
+        }
+        @media (hover: hover) and (pointer: fine) {
+          .hdr-mrow:hover { background: var(--surface); }
+        }
+        .hdr-mrow:active { transform: scale(0.99); }
+        .hdr-mrow:focus,
+        .hdr-mrow:focus-visible {
+          outline: none;
+          box-shadow: none;
+        }
+        .hdr-mrow__left {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          pointer-events: none;
+        }
+        .hdr-mrow__icon {
           display: inline-flex;
           align-items: center;
           justify-content: center;
+          opacity: 0.85;
+          pointer-events: none;
+        }
+
+        /* ── Mobile theme switch (track + thumb) — purely visual, not a separate hit target ── */
+        .hdr-mswitch {
+          display: inline-block;
+          position: relative;
+          flex-shrink: 0;
+          width: 44px;
+          height: 26px;
+          border-radius: 9999px;
+          background: var(--surface);
+          border: 1px solid var(--border);
+          transition: background 0.25s ease, border-color 0.25s ease;
+          pointer-events: none;
+        }
+        .hdr-mswitch.is-on {
+          background: ${C.accentLow};
+          border-color: ${C.accentMid};
+        }
+        .hdr-mswitch__thumb {
+          position: absolute;
+          top: 2px;
+          left: 0;
           width: 20px;
           height: 20px;
-          color: inherit;
-          transition: opacity 0.2s ease;
-        }
-
-        .hdr-theme-toggle__thumb {
-          position: absolute;
-          top: 4px;
-          left: 2px;
-          width: 38px;
-          height: 38px;
           border-radius: 9999px;
-          background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
-          box-shadow: 0 10px 24px rgba(37, 99, 235, 0.24);
-          pointer-events: none;
-          z-index: 0;
-        }
-
-        .hdr-theme-toggle__label {
-          font-size: 0.9rem;
-          font-weight: 700;
-          white-space: nowrap;
-        }
-
-        .hdr-theme-toggle--mobile {
-          width: 100%;
-          justify-content: center;
-          gap: 12px;
-          padding: 12px 14px;
-          margin-top: 10px;
-          background: var(--card-hover);
-          border: 1px solid var(--border);
-          min-height: 52px;
-        }
-
-        .hdr-theme-toggle--mobile .hdr-theme-toggle__track {
-          width: 104px;
-          min-width: 104px;
-          height: 48px;
-          padding: 0 8px;
-        }
-
-        .hdr-theme-toggle--mobile .hdr-theme-toggle__thumb {
-          width: 38px;
-          height: 38px;
-          top: 5px;
-          left: 2px;
-        }
-
-        .hdr-theme-toggle--mobile .hdr-theme-toggle__label {
-          font-size: 0.95rem;
+          background: ${C.brand};
+          box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
         }
       `}</style>
 
@@ -412,8 +560,9 @@ export default function Header() {
                 style={{
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
                   padding: '8px 16px', minWidth: '120px', borderRadius: '10px',
+                  border: '1px solid var(--border)',
                   textDecoration: 'none', fontSize: '0.9rem', fontWeight: 600,
-                  color: C.tg, background: C.tgLow,
+                  color: 'var(--text-primary)', background: 'var(--card-hover)',
                   transition: 'all 0.2s ease', marginRight: '4px',
                 }}
               >
@@ -456,7 +605,7 @@ export default function Header() {
                         {rm.label}
                       </div>
                     </div>
-                    <ChevronDown size={15} className="hdr-chevron" style={{ color: C.muted, marginRight: '2px' }} />
+                    <ChevronDown size={15} className="hdr-chevron" style={{ color: 'var(--text-primary)', marginRight: '2px' }} />
                   </button>
 
                   {/* Dropdown */}
@@ -544,6 +693,8 @@ export default function Header() {
                 border: `1.5px solid ${C.border}`, background: 'var(--card-hover)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 cursor: 'pointer', color: 'var(--text-primary)',
+                padding: 0, margin: 0, boxSizing: 'border-box', lineHeight: 0,
+                WebkitTapHighlightColor: 'transparent', userSelect: 'none',
               }}
             >
               <AnimatePresence mode="wait" initial={false}>
@@ -616,9 +767,9 @@ export default function Header() {
                   onClick={() => setMenuOpen(false)}
                   style={{
                     width: '36px', height: '36px', borderRadius: '10px',
-                    border: `1.5px solid ${C.border}`, background: C.accentLow,
+                    border: `1.5px solid ${C.border}`, background: 'var(--card-hover)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    cursor: 'pointer', color: C.brandSolid,
+                    cursor: 'pointer', color: 'var(--text-primary)',
                   }}
                 >
                   <X size={18} />
@@ -660,19 +811,7 @@ export default function Header() {
                       {t('header.myBookings')}
                     </MobileNavItem>
                     {/* Language toggle for customers */}
-                    <button
-                      onClick={() => setLanguage(language === 'en' ? 'fa' : 'en')}
-                      style={{
-                        width: '100%', display: 'flex', alignItems: 'center', gap: '12px',
-                        padding: '14px 16px', borderRadius: '12px',
-                        textDecoration: 'none', fontSize: '1rem', fontWeight: 600,
-                        color: 'var(--text-primary)', background: 'var(--card-hover)', transition: 'all 0.2s',
-                        border: '1px solid var(--border)', cursor: 'pointer', marginTop: '4px',
-                      }}
-                    >
-                      <span style={{ fontWeight: 700 }}>{language === 'en' ? 'FA' : 'EN'}</span>
-                      <span>{language === 'en' ? t('header.switchToPersian') : t('header.switchToEnglish')}</span>
-                    </button>
+                    <LanguageToggle mobile />
                   </>
                 )}
                 {isAuthenticated && isOwnerOrStaff && (
@@ -686,36 +825,12 @@ export default function Header() {
                           {t('header.admin')}
                         </MobileNavItem>
                         {/* Language toggle for owners - below admin */}
-                        <button
-                          onClick={() => setLanguage(language === 'en' ? 'fa' : 'en')}
-                          style={{
-                            width: '100%', display: 'flex', alignItems: 'center', gap: '12px',
-                            padding: '14px 16px', borderRadius: '12px',
-                            textDecoration: 'none', fontSize: '1rem', fontWeight: 600,
-                            color: 'var(--text-primary)', background: 'var(--card-hover)', transition: 'all 0.2s',
-                            border: '1px solid var(--border)', cursor: 'pointer', marginTop: '4px',
-                          }}
-                        >
-                          <span style={{ fontWeight: 700 }}>{language === 'en' ? 'FA' : 'EN'}</span>
-                          <span>{language === 'en' ? t('header.switchToPersian') : t('header.switchToEnglish')}</span>
-                        </button>
+                        <LanguageToggle mobile />
                       </>
                     )}
                     {user?.role !== 'owner' && (
                       /* Language toggle for staff */
-                      <button
-                        onClick={() => setLanguage(language === 'en' ? 'fa' : 'en')}
-                        style={{
-                          width: '100%', display: 'flex', alignItems: 'center', gap: '12px',
-                          padding: '14px 16px', borderRadius: '12px',
-                          textDecoration: 'none', fontSize: '1rem', fontWeight: 600,
-                          color: 'var(--text-primary)', background: 'var(--card-hover)', transition: 'all 0.2s',
-                          border: '1px solid var(--border)', cursor: 'pointer', marginTop: '4px',
-                        }}
-                      >
-                        <span style={{ fontWeight: 700 }}>{language === 'en' ? 'FA' : 'EN'}</span>
-                        <span>{language === 'en' ? t('header.switchToPersian') : t('header.switchToEnglish')}</span>
-                      </button>
+                      <LanguageToggle mobile />
                     )}
                   </>
                 )}
@@ -728,19 +843,20 @@ export default function Header() {
                   href="https://t.me/amir_rezaiyan"
                   target="_blank"
                   rel="noopener noreferrer"
+                  className="hdr-tg-btn"
                   style={{
                     display: 'flex', alignItems: 'center', gap: '12px',
                     padding: '14px 16px', borderRadius: '12px',
+                    border: '1px solid var(--border)',
                     textDecoration: 'none', fontSize: '1rem', fontWeight: 600,
-                    color: C.tg, background: C.tgLow, transition: 'all 0.2s',
+                    color: 'var(--text-primary)', background: 'var(--card-hover)',
+                    transition: 'all 0.2s',
                   }}
                 >
                   <MessageCircle size={18} />
                   {t('header.supportTelegram')}
                 </a>
-                <div style={{ display: 'flex', justifyContent: 'center', paddingTop: '4px', gap: '8px', flexWrap: 'wrap' }}>
-                  <ThemeToggle theme={theme} onClick={toggleTheme} mobile />
-                </div>
+                <ThemeToggle theme={theme} onClick={toggleTheme} mobile />
               </div>
 
               {/* Bottom auth buttons */}

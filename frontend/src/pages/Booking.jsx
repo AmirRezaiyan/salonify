@@ -12,6 +12,7 @@ import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { parseISO } from 'date-fns';
 import {
+  ArrowLeft,
   ArrowRight,
   Calendar,
   Clock,
@@ -27,8 +28,9 @@ import {
 import { formatNumberForToman, formatToman, toPersianNumber } from '../utils/formatCurrency';
 
 // ─── کامپوننت دیالوگ عمومی ────────────────────────────────────────────────────
-function BookingDialog({ dialog, onClose }) {
+function BookingDialog({ dialog, onClose, language }) {
   if (!dialog) return null;
+  const isEnglish = language === 'en';
 
   const configs = {
     success: {
@@ -84,7 +86,7 @@ function BookingDialog({ dialog, onClose }) {
           justifyContent: 'center',
           zIndex: 9999,
           padding: '1rem',
-          direction: 'rtl',
+          direction: isEnglish ? 'ltr' : 'rtl',
         }}
       >
         <motion.div
@@ -118,7 +120,7 @@ function BookingDialog({ dialog, onClose }) {
               style={{
                 position: 'absolute',
                 top: '14px',
-                left: '14px',
+                [isEnglish ? 'right' : 'left']: '14px',
                 background: 'rgba(0,0,0,0.08)',
                 border: 'none',
                 borderRadius: '50%',
@@ -313,9 +315,11 @@ function jalaliFirstWeekday(jy, jm) {
 
 // ─── کامپوننت تقویم شمسی ─────────────────────────────────────────────────────
 
-function JalaliCalendarPicker({ dateOptions, selectedDate, onDateChange, bookedDates, workingHours, onFullDayClick, t }) {
-  const jalaliMonthNames = ['فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان','آذر','دی','بهمن','اسفند'];
-  const dayLabels = ['ش','ی','د','س','چ','پ','ج'];
+function JalaliCalendarPicker({ dateOptions, selectedDate, onDateChange, bookedDates, workingHours, onFullDayClick, t, isEnglish }) {
+  const jalaliMonthNames = isEnglish
+    ? ['Farvardin','Ordibehesht','Khordad','Tir','Mordad','Shahrivar','Mehr','Aban','Azar','Dey','Bahman','Esfand']
+    : ['فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان','آذر','دی','بهمن','اسفند'];
+  const dayLabels = isEnglish ? ['Sat','Sun','Mon','Tue','Wed','Thu','Fri'] : ['ش','ی','د','س','چ','پ','ج'];
 
   // ماه و سال جاری شمسی - محاسبه یک‌بار در خارج از render
   const todayJalali = toJalali(new Date().getFullYear(), new Date().getMonth() + 1, new Date().getDate());
@@ -599,7 +603,9 @@ function JalaliCalendarPicker({ dateOptions, selectedDate, onDateChange, bookedD
 }
 
 export default function Booking() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isEnglish = language === 'en';
+  const pageDirection = isEnglish ? 'ltr' : 'rtl';
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
@@ -786,7 +792,10 @@ export default function Booking() {
           // فقط روزهایی را اضافه کن که سالن در آن روز باز است
           if (hasWorkingHours) {
             const { jalaliDate, gregorianDate } = dateMap[dateStr];
-            const label = `${dayName} - ${jalaliDate}`;
+            // Use English-friendly label when app is in English: weekday + formatted gregorian date
+            const label = isEnglish
+              ? `${getDayName(ourWeekday)} - ${formatBookingDateLabel(gregorianDate)}`
+              : `${dayName} - ${jalaliDate}`;
             opts.push({ key: dateStr, label, dayOfWeek: ourWeekday, gregorianDate });
           }
         }
@@ -836,8 +845,9 @@ export default function Booking() {
   };
 
   const getDayName = (dayOfWeek) => {
-    const days = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'];
-    return days[dayOfWeek] || 'نامشخص';
+    const faDays = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'];
+    const enDays = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+    return isEnglish ? (enDays[dayOfWeek] || 'Unknown') : (faDays[dayOfWeek] || 'نامشخص');
   };
 
   const getWorkingHoursForDay = (dayOfWeek) => {
@@ -1021,7 +1031,7 @@ export default function Booking() {
           // اضافه کردن همه‌ی slotها به لیست، چه رزرو شده باشند چه نه
           slots.push({
             value: isoTime,
-            label: new Date(isoTime).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' }),
+            label: new Date(isoTime).toLocaleTimeString(isEnglish ? 'en-US' : 'fa-IR', { hour: '2-digit', minute: '2-digit' }),
             isBooked: hasOverlap  // ← پرچم رزرو بودن
           });
           slotCount++;
@@ -1040,7 +1050,28 @@ export default function Booking() {
     console.log('=================================\n');
   };
 
-  const jMonths = ['فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان','آذر','دی','بهمن','اسفند'];
+  const jMonths = isEnglish
+    ? ['Farvardin','Ordibehesht','Khordad','Tir','Mordad','Shahrivar','Mehr','Aban','Azar','Dey','Bahman','Esfand']
+    : ['فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان','آذر','دی','بهمن','اسفند'];
+
+  const formatBookingDateLabel = (dateValue) => {
+    const date = new Date(dateValue);
+    if (!date || Number.isNaN(date.getTime())) return '';
+    return new Intl.DateTimeFormat(isEnglish ? 'en-US' : 'fa-IR', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    }).format(date);
+  };
+
+  const formatBookingTimeLabel = (dateValue) => {
+    const date = new Date(dateValue);
+    if (!date || Number.isNaN(date.getTime())) return '';
+    return date.toLocaleTimeString(isEnglish ? 'en-US' : 'fa-IR', {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
 
   const toJalaliString = (gDate) => {
     try {
@@ -1058,16 +1089,16 @@ export default function Booking() {
     const newErrors = {};
 
     if (!formData.service_id && (!formData.service_ids || formData.service_ids.length === 0)) {
-      newErrors.service_id = 'انتخاب حداقل یک سرویس الزامی است';
+      newErrors.service_id = isEnglish ? t('booking.selectServiceHint', 'Please select at least one service') : t('booking.selectServiceHint', 'لطفا حداقل یک سرویس را انتخاب کنید');
     }
 
     if (!formData.date || !formData.time) {
-      newErrors.start_at = 'انتخاب تاریخ و زمان الزامی است';
+      newErrors.start_at = isEnglish ? t('booking.selectDateTimeHint', 'Date and time selection is required') : t('booking.selectDateTimeHint', 'انتخاب تاریخ و زمان الزامی است');
     } else {
       const selectedTime = new Date(formData.time);
       const now = new Date();
       if (selectedTime <= now) {
-        newErrors.start_at = 'نمی‌توانید زمان گذشته را انتخاب کنید';
+        newErrors.start_at = isEnglish ? t('booking.invalidPastTime', 'You cannot select a past time') : t('booking.invalidPastTime', 'نمی‌توانید زمان گذشته را انتخاب کنید');
       }
     }
 
@@ -1111,10 +1142,10 @@ export default function Booking() {
     if (!isAuthenticated) {
       showDialog(
         'warning',
-        'ورود به حساب کاربری',
-        'برای رزرو نوبت ابتدا باید وارد حساب کاربری خود شوید یا ثبت‌نام کنید.',
-        { label: 'ورود / ثبت‌نام', action: () => navigate('/login') },
-        { label: 'انصراف', action: closeDialog }
+        isEnglish ? 'Log in to your account' : 'ورود به حساب کاربری',
+        isEnglish ? 'To book an appointment, you need to log in or sign up first.' : 'برای رزرو نوبت ابتدا باید وارد حساب کاربری خود شوید یا ثبت‌نام کنید.',
+        { label: isEnglish ? 'Log in / Sign up' : 'ورود / ثبت‌نام', action: () => navigate('/login') },
+        { label: isEnglish ? 'Cancel' : 'انصراف', action: closeDialog }
       );
       return;
     }
@@ -1129,9 +1160,9 @@ export default function Booking() {
       const errorMessages = Object.values(newErrors).join('\n');
       showDialog(
         'warning',
-        'اطلاعات ناقص',
+        isEnglish ? 'Incomplete information' : 'اطلاعات ناقص',
         errorMessages,
-        { label: 'باشه', action: closeDialog }
+        { label: isEnglish ? 'OK' : 'باشه', action: closeDialog }
       );
       return;
     }
@@ -1172,10 +1203,10 @@ export default function Booking() {
 
       showDialog(
         'success',
-        'نوبت با موفقیت ثبت شد! 🎉',
-        'نوبت شما با موفقیت رزرو شد. تا 24 ساعت قبل می‌توانید این نوبت را لغو کنید. به زودی به صفحه اصلی منتقل می‌شوید.',
+        isEnglish ? 'Appointment booked successfully! 🎉' : 'نوبت با موفقیت ثبت شد! 🎉',
+        isEnglish ? 'Your appointment was booked successfully. You can cancel it up to 24 hours before the appointment. You will be redirected to the home page shortly.' : 'نوبت شما با موفقیت رزرو شد. تا 24 ساعت قبل می‌توانید این نوبت را لغو کنید. به زودی به صفحه اصلی منتقل می‌شوید.',
         {
-          label: 'بازگشت به صفحه اصلی',
+          label: isEnglish ? 'Back to home' : 'بازگشت به صفحه اصلی',
           action: () => { closeDialog(); navigate('/'); }
         }
       );
@@ -1191,55 +1222,55 @@ export default function Booking() {
         await loadBookedDates();
         showDialog(
           'error',
-          'تداخل زمانی',
-          'متأسفانه این بازه زمانی همین لحظه توسط شخص دیگری رزرو شد. لطفاً ساعت دیگری انتخاب کنید.',
-          { label: 'انتخاب ساعت جدید', action: closeDialog }
+          isEnglish ? 'Time conflict' : 'تداخل زمانی',
+          isEnglish ? 'This time slot has just been booked by another customer. Please choose another time.' : 'متأسفانه این بازه زمانی همین لحظه توسط شخص دیگری رزرو شد. لطفاً ساعت دیگری انتخاب کنید.',
+          { label: isEnglish ? 'Choose another time' : 'انتخاب ساعت جدید', action: closeDialog }
         );
       } else if (statusCode === 401) {
         showDialog(
           'warning',
-          'دسترسی محدود',
-          'برای رزرو نوبت باید وارد حساب کاربری خود شوید.',
-          { label: 'ورود به حساب', action: () => navigate('/login') },
-          { label: 'انصراف', action: closeDialog }
+          isEnglish ? 'Access restricted' : 'دسترسی محدود',
+          isEnglish ? 'You need to log in to your account to book an appointment.' : 'برای رزرو نوبت باید وارد حساب کاربری خود شوید.',
+          { label: isEnglish ? 'Log in' : 'ورود به حساب', action: () => navigate('/login') },
+          { label: isEnglish ? 'Cancel' : 'انصراف', action: closeDialog }
         );
       } else if (statusCode === 403) {
         // اگر پاسخ سرور به خاطر شهر بود، دیالوگ خاص نشان بده
         if (serverMsg && serverMsg.includes('این سالن متعلق به شهر دیگری')) {
           showDialog(
             'error',
-            'شهر نامعتبر',
+            isEnglish ? 'Invalid city' : 'شهر نامعتبر',
             serverMsg,
-            { label: 'باشه', action: closeDialog }
+            { label: isEnglish ? 'OK' : 'باشه', action: closeDialog }
           );
         } else {
           showDialog(
             'warning',
-            'دسترسی محدود',
-            serverMsg || 'شما اجازه انجام این عمل را ندارید.',
-            { label: 'باشه', action: closeDialog }
+            isEnglish ? 'Access restricted' : 'دسترسی محدود',
+            serverMsg || (isEnglish ? 'You are not allowed to perform this action.' : 'شما اجازه انجام این عمل را ندارید.'),
+            { label: isEnglish ? 'OK' : 'باشه', action: closeDialog }
           );
         }
       } else if (statusCode === 400 && serverMsg) {
         showDialog(
           'error',
-          'خطا در ثبت نوبت',
+          isEnglish ? 'Booking error' : 'خطا در ثبت نوبت',
           serverMsg,
-          { label: 'باشه', action: closeDialog }
+          { label: isEnglish ? 'OK' : 'باشه', action: closeDialog }
         );
       } else if (!navigator.onLine) {
         showDialog(
           'error',
-          'عدم اتصال به اینترنت',
-          'اتصال اینترنت شما قطع است. لطفاً اتصال خود را بررسی کنید و دوباره تلاش کنید.',
-          { label: 'باشه', action: closeDialog }
+          isEnglish ? 'No internet connection' : 'عدم اتصال به اینترنت',
+          isEnglish ? 'Your internet connection is offline. Please check your connection and try again.' : 'اتصال اینترنت شما قطع است. لطفاً اتصال خود را بررسی کنید و دوباره تلاش کنید.',
+          { label: isEnglish ? 'OK' : 'باشه', action: closeDialog }
         );
       } else {
         showDialog(
           'error',
-          'خطا در ثبت نوبت',
-          serverMsg || 'ثبت نوبت با مشکل مواجه شد. لطفاً دوباره تلاش کنید.',
-          { label: 'تلاش مجدد', action: closeDialog }
+          isEnglish ? 'Booking error' : 'خطا در ثبت نوبت',
+          serverMsg || (isEnglish ? 'Booking failed. Please try again.' : 'ثبت نوبت با مشکل مواجه شد. لطفاً دوباره تلاش کنید.'),
+          { label: isEnglish ? 'Try again' : 'تلاش مجدد', action: closeDialog }
         );
       }
 
@@ -1273,7 +1304,8 @@ export default function Booking() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: '2rem'
+          padding: '2rem',
+          direction: pageDirection
         }}
       >
         <Card style={{
@@ -1282,9 +1314,9 @@ export default function Booking() {
           padding: '3rem'
         }}>
           <Scissors size={48} color="var(--danger)" style={{ margin: '0 auto 1rem' }} />
-          <h2 style={{ color: "var(--text-primary)", marginBottom: '1rem' }}>سالن هنوز ساعات کاری تعریف نکرده است</h2>
+          <h2 style={{ color: "var(--text-primary)", marginBottom: '1rem' }}>{t('booking.noWorkingHoursTitle', 'This salon has not defined its working hours yet')}</h2>
           <p style={{ color: "var(--text-secondary)", marginBottom: '2rem' }}>
-            مالک سالن هنوز ساعات کاری را تعریف نکرده است. لطفاً بعداً دوباره تلاش کنید.
+            {t('booking.noWorkingHoursMessage', 'The salon owner has not set working hours yet. Please try again later.')}
           </p>
           <button
             onClick={() => navigate('/services')}
@@ -1299,7 +1331,7 @@ export default function Booking() {
               fontWeight: 600
             }}
           >
-            بازگشت به صفحه اصلی
+            {t('booking.noWorkingHoursButton', 'Back to home')}
           </button>
         </Card>
       </motion.div>
@@ -1314,7 +1346,7 @@ export default function Booking() {
       style={{
         minHeight: '100vh',
         background: 'var(--background)',
-        direction: 'rtl'
+        direction: pageDirection
       }}
     >
       {/* هدر با گرادیانت */}
@@ -1393,7 +1425,7 @@ export default function Booking() {
                   textShadow: '0 4px 20px rgba(0,0,0,0.2)'
                 }}
               >
-                رزرو نوبت
+                {t('booking.title', isEnglish ? 'Book an appointment' : 'رزرو نوبت')}
               </motion.h1>
               <motion.p
                 initial={{ opacity: 0, x: -20 }}
@@ -1405,7 +1437,7 @@ export default function Booking() {
                   margin: '4px 0 0 0'
                 }}
               >
-                لطفاً اطلاعات خود را وارد کنید
+                {t('booking.subtitle', isEnglish ? 'Choose a convenient date and time' : 'لطفاً اطلاعات خود را وارد کنید')}
               </motion.p>
             </div>
           </div>
@@ -1442,8 +1474,8 @@ export default function Booking() {
                 e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.3)';
               }}
             >
-              <ArrowRight size={18} />
-              بازگشت
+              {isEnglish ? <ArrowLeft size={18} /> : <ArrowRight size={18} />}
+              {t('booking.back', isEnglish ? 'Back' : 'بازگشت')}
             </Button>
           </motion.div>
         </div>
@@ -1519,7 +1551,7 @@ export default function Booking() {
                     fontWeight: 700,
                     color: "var(--text-primary)"
                   }}>
-                    سرویس‌ها (قابلیت انتخاب چندتایی)
+                    {t('booking.servicesLabel', 'Services (multiple selection)')}
                   </label>
                   <div style={{
                     display: 'grid',
@@ -1562,10 +1594,10 @@ export default function Booking() {
                             <CheckCircle size={14} color="white" />
                           )}
                         </div>
-                        <div style={{ flex: 1, fontSize: '0.9rem', color: "var(--text-primary)" }}>
-                          <span style={{ fontWeight: 600 }}>{s.name}</span>
-                          <span style={{ color: "var(--text-secondary)", marginRight: '0.5rem' }}>
-                            {formatNumberForToman(s.price)} تومان
+                        <div style={{ flex: 1, fontSize: '0.9rem', color: "var(--text-primary)", display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+                          <span style={{ fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.name}</span>
+                          <span style={{ color: "var(--text-secondary)", whiteSpace: 'nowrap', direction: isEnglish ? 'ltr' : 'rtl' }}>
+                            {formatToman(Number(s.price) || 0, isEnglish)}
                           </span>
                         </div>
                       </label>
@@ -1583,7 +1615,7 @@ export default function Booking() {
                     fontWeight: 700,
                     color: "var(--text-primary)"
                   }}>
-                    تاریخ
+                    {t('booking.dateLabel', 'Date')}
                   </label>
                   
                   {dateOptions.length === 0 && workingHours.length === 0 && (
@@ -1640,6 +1672,7 @@ export default function Booking() {
                         { label: t('common.ok', 'OK'), action: closeDialog }
                       )}
                       t={t}
+                      isEnglish={isEnglish}
                     />
                   )}
                 </div>
@@ -1653,7 +1686,7 @@ export default function Booking() {
                     fontWeight: 700,
                     color: "var(--text-primary)"
                   }}>
-                    ساعت
+                    {t('booking.timeLabel', 'Time')}
                   </label>
                   
                   {/* نمایش ساعات کاری روز انتخاب‌شده */}
@@ -1671,7 +1704,7 @@ export default function Booking() {
                         marginBottom: '6px',
                         fontWeight: 600
                       }}>
-                        ساعات کاری برای {getSelectedDateInfo().label}:
+                        {isEnglish ? `Working hours for ${getSelectedDateInfo().label}:` : `ساعات کاری برای ${getSelectedDateInfo().label}:`}
                       </div>
                       <div style={{
                         display: 'grid',
@@ -1710,7 +1743,7 @@ export default function Booking() {
                         color: 'var(--danger-text)',
                         fontWeight: 600
                       }}>
-                        ⚠️ سالن در این روز باز نیست. لطفا روز دیگری را انتخاب کنید.
+                        {isEnglish ? '⚠️ The salon is closed on this day. Please choose another day.' : '⚠️ سالن در این روز باز نیست. لطفا روز دیگری را انتخاب کنید.'}
                       </div>
                     </div>
                   )}
@@ -1728,7 +1761,7 @@ export default function Booking() {
                         color: 'var(--danger-text)',
                         fontWeight: 600
                       }}>
-                        ⚠️ متأسفانه تمام نوبت‌های این روز رزرو شده است. لطفا روز دیگری را انتخاب کنید.
+                        {isEnglish ? '⚠️ All appointments for this day are booked. Please choose another day.' : '⚠️ متأسفانه تمام نوبت‌های این روز رزرو شده است. لطفا روز دیگری را انتخاب کنید.'}
                       </div>
                     </div>
                   )}
@@ -1746,7 +1779,7 @@ export default function Booking() {
                         color: 'var(--info-text)',
                         fontWeight: 600
                       }}>
-                        💡 لطفا ابتدا تاریخ رزرو را انتخاب کنید
+                        {t('booking.selectDateFirst', 'Please choose a booking date first')}
                       </div>
                     </div>
                   )}
@@ -1785,7 +1818,7 @@ export default function Booking() {
                     }}
                   >
                     <Clock size={18} />
-                    {formData.time ? `ساعت ${new Date(formData.time).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' })}` : 'انتخاب ساعت'}
+                    {formData.time ? `${t('booking.timeLabel', 'Time')} ${formatBookingTimeLabel(formData.time)}` : t('booking.selectTimeButton', 'Select time')}
                   </button>
                   {errors.start_at && <FieldErrorBox message={errors.start_at} />}
                 </div>
@@ -1819,7 +1852,7 @@ export default function Booking() {
                       gap: '8px'
                     }}
                   >
-                    {submitting ? 'در حال ثبت...' : 'ثبت نوبت'}
+                    {submitting ? t('booking.submittingButton', 'Booking...') : t('booking.submitButton', 'Book appointment')}
                   </Button>
                 </motion.div>
               </form>
@@ -1877,7 +1910,7 @@ export default function Booking() {
                     fontWeight: 700,
                     margin: 0
                   }}>
-                    خلاصه نوبت
+                    {t('booking.summaryTitle', isEnglish ? 'Booking summary' : 'خلاصه نوبت')}
                   </h2>
                 </div>
 
@@ -1888,7 +1921,7 @@ export default function Booking() {
                   marginBottom: '1.5rem'
                 }}>
                   <div style={{ marginBottom: '1rem' }}>
-                    <div style={{ fontSize: '0.85rem', color: "var(--text-secondary)" }}>سرویس‌ها</div>
+                    <div style={{ fontSize: '0.85rem', color: "var(--text-secondary)" }}>{t('booking.servicesSummary', 'Services')}</div>
                     <div style={{ fontWeight: 700, color: "var(--text-primary)", fontSize: '1.1rem' }}>
                       {Array.isArray(selectedService)
                         ? selectedService.map(s => s.name).join(' + ')
@@ -1903,12 +1936,15 @@ export default function Booking() {
                   }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                       <Clock size={18} style={{ color: 'var(--primary)' }} />
-                      <span style={{ color: "var(--text-secondary)" }}>مدت زمان</span>
+                      <span style={{ color: "var(--text-secondary)" }}>{t('booking.durationSummary', 'Duration')}</span>
                     </div>
-                    <span style={{ fontWeight: 600, color: "var(--text-primary)" }}>
-                      {Array.isArray(selectedService)
-                        ? toPersianNumber(selectedService.reduce((acc, s) => acc + (Number(s.duration_minutes) || 0), 0))
-                        : toPersianNumber(Number(selectedService.duration_minutes) || 0)} دقیقه
+                      <span style={{ fontWeight: 600, color: "var(--text-primary)" }}>
+                      {(() => {
+                        const total = Array.isArray(selectedService)
+                          ? selectedService.reduce((acc, s) => acc + (Number(s.duration_minutes) || 0), 0)
+                          : Number(selectedService.duration_minutes) || 0;
+                        return isEnglish ? `${total} min` : `${toPersianNumber(total)} دقیقه`;
+                      })()}
                     </span>
                   </div>
 
@@ -1918,15 +1954,15 @@ export default function Booking() {
                   }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                       <DollarSign size={18} style={{ color: 'var(--accent)' }} />
-                      <span style={{ color: "var(--text-secondary)" }}>قیمت</span>
+                      <span style={{ color: "var(--text-secondary)" }}>{t('booking.priceSummary', 'Price')}</span>
                     </div>
                     <span style={{ fontWeight: 700, color: 'var(--primary)', fontSize: '1.2rem' }}>
                       {Array.isArray(selectedService)
-                        ? formatToman(selectedService.reduce((acc, s) => {
-                            const price = Number(s.price) || 0;
-                            return acc + price;
-                          }, 0))
-                        : formatToman(Number(selectedService.price) || 0)}
+                          ? formatToman(selectedService.reduce((acc, s) => {
+                              const price = Number(s.price) || 0;
+                              return acc + price;
+                            }, 0), isEnglish)
+                          : formatToman(Number(selectedService.price) || 0, isEnglish)}
                     </span>
                   </div>
                 </div>
@@ -1961,12 +1997,7 @@ export default function Booking() {
                         color: 'var(--surface-accent-text)',
                         lineHeight: 1.3
                       }}>
-                        {(() => {
-                          const date = new Date(formData.time);
-                          const parts = date.toLocaleDateString('fa-IR').split('/');
-                          const monthIdx = parseInt(parts[1], 10) - 1;
-                          return `${jMonths[monthIdx] || ''} ${parts[0]}`;
-                        })()}
+                        {formatBookingDateLabel(formData.time)}
                       </div>
                       <div style={{
                         fontSize: '0.88rem',
@@ -1974,7 +2005,7 @@ export default function Booking() {
                         fontWeight: 600,
                         marginTop: '2px'
                       }}>
-                        ساعت {new Date(formData.time).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' })}
+                        {isEnglish ? 'Time ' : 'ساعت '} {formatBookingTimeLabel(formData.time)}
                       </div>
                     </div>
                   </div>
@@ -1991,7 +2022,7 @@ export default function Booking() {
                     color: 'var(--primary)'
                   }}>
                     <Info size={18} />
-                    <span style={{ fontSize: '0.95rem' }}>تأیید نوبت از طریق پیامک برای شما ارسال می‌شود</span>
+                    <span style={{ fontSize: '0.95rem' }}>{t('booking.confirmationText', 'Your booking confirmation will be sent by Email.')}</span>
                   </div>
                 </div>
 
@@ -2015,7 +2046,7 @@ export default function Booking() {
                         fontSize: '1rem',
                         fontWeight: 700
                       }}>
-                        ساعات کاری سالن
+                        {t('booking.workingHoursTitle', 'Salon working hours')}
                       </h3>
                     </div>
                     <div style={{
@@ -2126,7 +2157,7 @@ export default function Booking() {
                   fontWeight: 700,
                   margin: 0
                 }}>
-                  خلاصه نوبت
+                  {t('booking.summaryTitle', isEnglish ? 'Booking summary' : 'خلاصه نوبت')}
                 </h2>
               </div>
 
@@ -2137,7 +2168,7 @@ export default function Booking() {
                 marginBottom: '1.5rem'
               }}>
                 <div style={{ marginBottom: '1rem' }}>
-                  <div style={{ fontSize: '0.85rem', color: "var(--text-secondary)" }}>سرویس‌ها</div>
+                  <div style={{ fontSize: '0.85rem', color: "var(--text-secondary)" }}>{t('booking.servicesSummary', 'Services')}</div>
                   <div style={{ fontWeight: 700, color: "var(--text-primary)", fontSize: '1.1rem' }}>
                     {Array.isArray(selectedService)
                       ? selectedService.map(s => s.name).join(' + ')
@@ -2152,12 +2183,12 @@ export default function Booking() {
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <Clock size={18} style={{ color: 'var(--primary)' }} />
-                    <span style={{ color: "var(--text-secondary)" }}>مدت زمان</span>
+                    <span style={{ color: "var(--text-secondary)" }}>{t('booking.durationSummary', 'Duration')}</span>
                   </div>
                   <span style={{ fontWeight: 600, color: "var(--text-primary)" }}>
                     {Array.isArray(selectedService)
                       ? toPersianNumber(selectedService.reduce((acc, s) => acc + (Number(s.duration_minutes) || 0), 0))
-                      : toPersianNumber(Number(selectedService.duration_minutes) || 0)} دقیقه
+                        : (isEnglish ? `${Number(selectedService.duration_minutes || 0)} min` : `${toPersianNumber(Number(selectedService.duration_minutes) || 0)} دقیقه`)}
                   </span>
                 </div>
 
@@ -2167,15 +2198,15 @@ export default function Booking() {
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <DollarSign size={18} style={{ color: 'var(--accent)' }} />
-                    <span style={{ color: "var(--text-secondary)" }}>قیمت</span>
+                    <span style={{ color: "var(--text-secondary)" }}>{t('booking.priceSummary', 'Price')}</span>
                   </div>
                   <span style={{ fontWeight: 700, color: 'var(--primary)', fontSize: '1.2rem' }}>
                     {Array.isArray(selectedService)
                       ? formatToman(selectedService.reduce((acc, s) => {
                           const price = Number(s.price) || 0;
                           return acc + price;
-                        }, 0))
-                      : formatToman(Number(selectedService.price) || 0)}
+                        }, 0), isEnglish)
+                      : formatToman(Number(selectedService.price) || 0, isEnglish)}
                   </span>
                 </div>
               </div>
@@ -2210,12 +2241,7 @@ export default function Booking() {
                         color: 'var(--surface-accent-text)',
                         lineHeight: 1.3
                       }}>
-                        {(() => {
-                          const date = new Date(formData.time);
-                          const parts = date.toLocaleDateString('fa-IR').split('/');
-                          const monthIdx = parseInt(parts[1], 10) - 1;
-                          return `${jMonths[monthIdx] || ''} ${parts[0]}`;
-                        })()}
+                        {formatBookingDateLabel(formData.time)}
                       </div>
                       <div style={{
                         fontSize: '0.88rem',
@@ -2223,7 +2249,7 @@ export default function Booking() {
                         fontWeight: 600,
                         marginTop: '2px'
                       }}>
-                        ساعت {new Date(formData.time).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' })}
+                        {isEnglish ? 'Time ' : 'ساعت '} {formatBookingTimeLabel(formData.time)}
                       </div>
                     </div>
                   </div>
@@ -2275,7 +2301,7 @@ export default function Booking() {
                   marginBottom: '20px'
                 }}>
                   <h2 style={{ margin: 0, color: "var(--text-primary)", fontSize: '1.3rem', fontWeight: 700 }}>
-                    انتخاب ساعت
+                    {t('booking.timeModalTitle', 'Select time')}
                   </h2>
                   <button
                     type="button"
@@ -2342,9 +2368,9 @@ export default function Booking() {
                           if (isBooked) {
                             showDialog(
                               'warning',
-                              'این زمان رزرو شده',
-                              'این بازه زمانی قبلاً توسط مشتری دیگری رزرو شده است. لطفاً ساعت دیگری انتخاب کنید.',
-                              { label: 'باشه', action: closeDialog }
+                              t('booking.timeBookedTitle', 'This time is booked'),
+                              t('booking.timeBookedMessage', 'This time slot has already been booked by another customer. Please choose another time.'),
+                              { label: isEnglish ? 'OK' : 'باشه', action: closeDialog }
                             );
                             return;
                           }
@@ -2391,7 +2417,7 @@ export default function Booking() {
                           <span style={{
                             position: 'absolute',
                             top: '-6px',
-                            right: '-6px',
+                            [isEnglish ? 'left' : 'right']: '-6px',
                             background: '#dc2626',
                             color: 'white',
                             fontSize: '10px',
@@ -2399,7 +2425,7 @@ export default function Booking() {
                             borderRadius: '10px',
                             fontWeight: 700
                           }}>
-                            گرفته شده
+                            {t('booking.timeBookedBadge', isEnglish ? 'Booked' : 'گرفته شده')}
                           </span>
                         )}
                       </button>
@@ -2416,7 +2442,7 @@ export default function Booking() {
                     borderRadius: '12px',
                     marginBottom: '20px'
                   }}>
-                    ⏰ متأسفانه هیچ ساعتی در دسترس نیست
+                    {t('booking.noTimeAvailable', 'No available time slots')}
                   </div>
                 )}
 
@@ -2445,7 +2471,7 @@ export default function Booking() {
                     e.currentTarget.style.background = 'var(--card)';
                   }}
                 >
-                  بستن
+                  {t('booking.modalClose', 'Close')}
                 </button>
               </motion.div>
             </motion.div>
@@ -2454,7 +2480,7 @@ export default function Booking() {
       </div>
 
       {/* ─── دیالوگ عمومی ─── */}
-      {dialog && <BookingDialog dialog={dialog} onClose={closeDialog} />}
+      {dialog && <BookingDialog dialog={dialog} onClose={closeDialog} language={language} />}
 
     </motion.div>
   );

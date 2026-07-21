@@ -132,7 +132,7 @@ function SummaryBar({ reviews, isEnglish, t }) {
             <StarRow rating={Math.round(avg)} size={15} />
           </div>
           <span style={{ fontSize: '0.85rem', color: T.inkLight, fontWeight: 600 }}>
-            {t('manageReviews.ratingSummary', 'Average rating from {count} reviews', { count: isEnglish ? total : toPersianNumber(total) })}
+            {t('manageReviews.average', 'Average rating from {count} reviews', { count: isEnglish ? total : toPersianNumber(total) })}
           </span>
         </div>
       </div>
@@ -189,7 +189,7 @@ function ReplyBox({ review, onCancel, onSend, sending, t }) {
           >
             {t('manageReviews.cancel', 'Cancel')}
           </button>
-              <motion.button
+          <motion.button
             whileTap={{ scale: 0.96 }}
             onClick={() => onSend(text)}
             disabled={sending}
@@ -197,8 +197,8 @@ function ReplyBox({ review, onCancel, onSend, sending, t }) {
               display: 'flex', alignItems: 'center', gap: '6px',
               padding: '8px 16px', borderRadius: T.radiusSm,
               border: 'none',
-              	  background: sending ? T.purpleMid : `linear-gradient(135deg, ${T.purple}, ${T.purpleDark})`,
-              	  color: 'var(--text-light)', fontWeight: 700, fontSize: '0.86rem',
+              background: sending ? T.purpleMid : `linear-gradient(135deg, ${T.purple}, ${T.purpleDark})`,
+              color: 'var(--text-light)', fontWeight: 700, fontSize: '0.86rem',
               cursor: sending ? 'wait' : 'pointer',
               boxShadow: sending ? 'none' : '0 4px 14px rgba(124,92,252,0.3)',
             }}
@@ -356,11 +356,11 @@ function Pagination({ page, totalPages, onChange }) {
           key={p}
           whileTap={{ scale: 0.92 }}
           onClick={() => onChange(p)}
-            style={{
+          style={{
             minWidth: '34px', height: '34px', borderRadius: '10px',
             border: `1.5px solid ${p === page ? T.purple : T.border}`,
-              background: p === page ? `linear-gradient(135deg, ${T.purple}, ${T.purpleDark})` : T.surface,
-              color: p === page ? 'var(--text-light)' : T.inkMid,
+            background: p === page ? `linear-gradient(135deg, ${T.purple}, ${T.purpleDark})` : T.surface,
+            color: p === page ? 'var(--text-light)' : T.inkMid,
             fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer',
             padding: '0 8px',
             boxShadow: p === page ? '0 4px 12px rgba(124,92,252,0.3)' : 'none',

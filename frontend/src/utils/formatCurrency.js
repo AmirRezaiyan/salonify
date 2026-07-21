@@ -38,8 +38,12 @@ export function formatNumberForToman(value) {
   return toPersianNumber(rounded);
 }
 
-export function formatToman(value) {
-  return `${formatNumberForToman(value)} تومان`;
+export function formatToman(value, isEnglish) {
+  const resolvedIsEnglish = typeof isEnglish === 'boolean'
+    ? isEnglish
+    : getCurrentNumberLocale() === 'en-US';
+  const unit = resolvedIsEnglish ? 'Toman' : 'تومان';
+  return `${formatNumberForToman(value)} ${unit}`;
 }
 
 export default formatToman;

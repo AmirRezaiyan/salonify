@@ -24,7 +24,7 @@ const translations = {
       brandTitle: 'سالنیفای',
       brandSubtitle: 'نوبت‌دهی آنلاین',
       switchToPersian: 'تغییر به فارسی',
-      switchToEnglish: 'Switch to English',
+      switchToEnglish: 'تغییر به انگلیسی',
     },
     auth: {
       loginTitle: 'ورود به حساب',
@@ -199,9 +199,11 @@ const translations = {
       noSalonsText: 'به زودی آرایشگاه‌های جدید اضافه می‌شوند',
       welcomeSubtitle: 'پلتفرمی برای نوبت‌دهی آنلاین آرایشگاه‌ها؛ آرایشگاه مورد نظرتان را پیدا کنید، خدمت دلخواه را انتخاب کنید و در چند ثانیه نوبت بگیرید',
       welcomeSubtitle2: 'بدون نیاز به تماس تلفنی یا حضور حضوری، آرایشگاه‌های ثبت‌شده در پلتفرم را مرور کنید و نوبت خودتان را مدیریت کنید. صاحبان سالن نیز می‌توانند خدمات و نوبت‌های خود را از طریق پنل مدیریتی کنترل کنند.',
-      startFree: 'شروع کنید — رایگان',
-      loginAccount: 'ورود به حساب',
+      startFree: 'ثبت‌نام رایگان',
+      loginAccount: 'ورود',
       freeSignup: 'ثبت‌نام رایگان',
+      noAppRequired: 'بدون نیاز به نصب اپلیکیشن',          // اضافه شد
+      bookAnyTime: 'رزرو در هر ساعت از شبانه‌روز',        // اضافه شد
       customerSignup: 'ثبت‌نام به‌عنوان مشتری',
       ownerSignup: 'ثبت‌نام به‌عنوان صاحب سالن',
       customerSearchHint: 'جستجوی آرایشگاه‌های ثبت‌شده در پلتفرم بر اساس نام یا شهر',
@@ -210,8 +212,6 @@ const translations = {
       ownerServicesHint: 'تعریف و مدیریت خدمات سالن همراه با قیمت و مدت‌زمان',
       ownerBookingsHint: 'مشاهده و مدیریت نوبت‌های ثبت‌شده توسط مشتریان',
       ownerVisibilityHint: 'معرفی سالن به مشتریان جدید از طریق پلتفرم',
-      noAppRequired: 'بدون نیاز به نصب اپلیکیشن',
-      bookAnyTime: 'رزرو در هر ساعت از شبانه‌روز',
       searchTitle: 'جستجوی آرایشگاه',
       searchSubtitle: 'نام آرایشگاه را جستجو کنید',
       searchPlaceholder: 'نام آرایشگاه را جستجو کنید...',
@@ -319,6 +319,7 @@ const translations = {
       loading: 'در حال بارگذاری خدمات...',
       serviceList: 'لیست خدمات',
       salonInfo: 'اطلاعات سالن',
+      reviews: 'نظرات مشتریان',
       bookNow: 'رزرو نوبت',
     },
     booking: {
@@ -354,6 +355,31 @@ const translations = {
       closed: 'تعطیل',
       fullDayBooked: 'تمام نوبت‌های این روز رزرو شده است',
       salonClosedToday: 'سالن در این روز تعطیل است',
+      servicesLabel: 'سرویس‌ها (قابلیت انتخاب چندتایی)',
+      dateLabel: 'تاریخ',
+      timeLabel: 'ساعت',
+      submitButton: 'ثبت نوبت',
+      submittingButton: 'در حال ثبت...',
+      selectTimeButton: 'انتخاب ساعت',
+      summaryTitle: 'خلاصه نوبت',
+      servicesSummary: 'سرویس‌ها',
+      durationSummary: 'مدت زمان',
+      priceSummary: 'قیمت',
+      confirmationText: 'تأیید نوبت از طریق ایمیل برای شما ارسال می‌شود',
+      workingHoursTitle: 'ساعات کاری سالن',
+      timeModalTitle: 'انتخاب ساعت',
+      timeBookedTitle: 'این زمان رزرو شده',
+      timeBookedMessage: 'این بازه زمانی قبلاً توسط مشتری دیگری رزرو شده است. لطفاً ساعت دیگری انتخاب کنید.',
+      modalClose: 'بستن',
+      noTimeAvailable: '⏰ متأسفانه هیچ ساعتی در دسترس نیست',
+      selectDateFirst: '💡 لطفا ابتدا تاریخ رزرو را انتخاب کنید',
+      noWorkingHoursTitle: 'سالن هنوز ساعات کاری تعریف نکرده است',
+      noWorkingHoursMessage: 'مالک سالن هنوز ساعات کاری را تعریف نکرده است. لطفاً بعداً دوباره تلاش کنید.',
+      noWorkingHoursButton: 'بازگشت به صفحه اصلی',
+      selectServiceHint: 'لطفا حداقل یک سرویس را انتخاب کنید',
+      selectDateTimeHint: 'انتخاب تاریخ و زمان الزامی است',
+      invalidPastTime: 'نمی‌توانید زمان گذشته را انتخاب کنید',
+      timeBookedBadge: 'گرفته شده',
     },
     bookings: {
       title: 'نوبت‌های من',
@@ -396,6 +422,11 @@ const translations = {
       successTitle: 'عملیات موفق',
       successConfirm: 'رزرو با موفقیت تأیید شد.',
       successCancel: 'نوبت با موفقیت لغو شد.',
+      successOk: 'باشه، متوجه شدم',
+      salonSelectionError: 'سالن انتخاب نشده است',
+      salonIdMissingError: 'شناسه سالن برای این نوبت پیدا نشد',
+      bookingActionFailed: 'عملیات انجام نشد. دوباره تلاش کنید.',
+      loadingBookingsError: 'خطا در بارگذاری نوبت‌ها',
       goHome: 'بازگشت به صفحه اصلی',
       noSalonSelectedTitle: 'سالن انتخاب نشده',
       noSalonSelectedText: 'لطفاً ابتدا از صفحه اصلی یک سالن را انتخاب کنید.',
@@ -530,6 +561,8 @@ const translations = {
       qrPrintTitle: 'چاپ QR Code',
       qrScanHint: 'برای رزرو نوبت اسکن کنید',
       qrLoadingText: 'درحال بارگذاری...',
+      currencyUnit: 'تومان',
+      serviceActivationBlockedHint: 'برای فعال‌سازی ابتدا قیمت را مشخص کنید',
       positionEditorVertical: 'عمودی (بالا/پایین)',
       positionEditorReset: 'بازنشانی مرکز',
       positionEditorConfirm: 'تأیید موقعیت ✓',
@@ -561,6 +594,7 @@ const translations = {
       manageServicesInfoNoDelete: 'خدمت حذف نمی‌شود - فقط وضعیتش تغییر می‌کند',
       manageServicesCancel: 'انصراف',
       manageServicesSaving: 'در حال ذخیره...',
+      menuButton: 'منو کاربری',
       workingHoursTitle: 'مدیریت ساعات کاری',
       workingHoursSubtitle: 'روزها را کارت‌محور ببین، شیفت‌ها را با drag & drop بچین و فقط با یک لمس روی چند روز اعمال کن.',
       workingHoursAddButton: 'افزودن زمان‌بندی',
@@ -630,7 +664,27 @@ const translations = {
       presetMorning: 'صبح کاری',
       presetAfternoon: 'بعدازظهر',
       presetSplit: 'صبح / عصر',
-      presetFull: 'تمام روز'
+      presetFull: 'تمام روز',
+      overviewServices: 'کل خدمات',
+      activeServices: 'خدمات فعال',
+      totalBookings: 'کل نوبت‌ها',
+      todayBookings: 'نوبت‌های امروز',
+      overviewSalonInfoTitle: 'اطلاعات سالن',
+      servicesCountLabel: 'کل خدمات',
+      activeServicesLabel: 'خدمات فعال',
+      inactiveServicesLabel: 'خدمات غیرفعال',
+      minutesUnit: 'دقیقه',
+      activateSalonConfirm: 'آیا می‌خواهید سالن را فعال کنید؟',
+      deactivateSalonConfirm: 'آیا می‌خواهید سالن را غیرفعال کنید؟',
+      confirmDisableSalon: 'آیا مطمئن هستید که می‌خواهید سالن را غیرفعال کنید؟',
+      salonStatusUpdateError: 'خطا در بروزرسانی وضعیت سالن',
+      salonDisableError: 'خطا در غیرفعال کردن سالن',
+      contactValidationError: 'شماره تلفن نامعتبر است یا قبلاً برای سالن دیگری ثبت شده است.',
+      qrCodeInvalidError: 'آدرس QR کد نامعتبر است',
+      qrCodeSubtitle: 'مشتریان می‌توانند با اسکن این QR کد نوبت بگیرند',
+      qrPrintHint: 'برای رزرو نوبت اسکن کنید',
+      qrRetryButton: 'تلاش مجدد',
+      serviceEditButton: 'ویرایش'
     },
     portfolioManager: {
       title: 'مدیریت نمونه کارها',
@@ -909,7 +963,7 @@ const translations = {
       ownerPanelTitleText: 'Professional management panel',
       ownerPanelDesc: 'Reporting tools and dedicated support for simple and fast business management',
       welcomeTitle: 'Welcome to Salonify',
-      welcomeSubtitle: 'A platform for online salon booking; find your preferred salon, choose the service you want, and book an appointment in seconds',
+      welcomeSubtitle: 'A platform for online salon booking find your preferred salon, choose the service you want, and book an appointment in seconds',
       welcomeSubtitle2: 'No phone calls or in-person visits required. Browse registered salons on the platform and manage your own bookings. Salon owners can also control services and appointments through the management panel.',
       dashboardTitle: 'Salon monitoring dashboard',
       dashboardSubtitle: 'Essential tools and live analytics based on your real system status.',
@@ -1010,7 +1064,12 @@ const translations = {
       reviewSingular: 'review',
       reviewPlural: 'reviews',
       loadError: 'Loading salon information failed.',
-      salonsLoadError: 'Loading the salon list failed.'
+      salonsLoadError: 'Loading the salon list failed.',
+      startFree: 'Sign up free',
+      loginAccount: 'Log in',
+      freeSignup: 'Free signup',           // اصلاح شد
+      noAppRequired: 'No app required',    // اضافه شد
+      bookAnyTime: 'Book anytime',         // اضافه شد
     },
     salons: {
       title: 'Salonify salons',
@@ -1093,6 +1152,31 @@ const translations = {
       closed: 'Closed',
       fullDayBooked: 'All appointments for this day are booked',
       salonClosedToday: 'The salon is closed on this day',
+      servicesLabel: 'Services (multiple selection)',
+      dateLabel: 'Date',
+      timeLabel: 'Time',
+      submitButton: 'Book appointment',
+      submittingButton: 'Booking...',
+      selectTimeButton: 'Select time',
+      summaryTitle: 'Booking summary',
+      servicesSummary: 'Services',
+      durationSummary: 'Duration',
+      priceSummary: 'Price',
+      confirmationText: 'Your booking confirmation will be sent by Email.',
+      workingHoursTitle: 'Salon working hours',
+      timeModalTitle: 'Select time',
+      timeBookedTitle: 'This time is booked',
+      timeBookedMessage: 'This time slot has already been booked by another customer. Please choose another time.',
+      modalClose: 'Close',
+      noTimeAvailable: 'No available time slots',
+      selectDateFirst: 'Please choose a booking date first',
+      noWorkingHoursTitle: 'This salon has not defined its working hours yet',
+      noWorkingHoursMessage: 'The salon owner has not set working hours yet. Please try again later.',
+      noWorkingHoursButton: 'Back to home',
+      selectServiceHint: 'Please select at least one service',
+      selectDateTimeHint: 'Date and time selection is required',
+      invalidPastTime: 'You cannot select a past time',
+      timeBookedBadge: 'Booked',
     },
     bookings: {
       title: 'My bookings',
@@ -1135,6 +1219,11 @@ const translations = {
       successTitle: 'Success',
       successConfirm: 'Booking confirmed successfully.',
       successCancel: 'Booking cancelled successfully.',
+      successOk: 'Okay, got it',
+      salonSelectionError: 'No salon selected',
+      salonIdMissingError: 'The salon ID for this booking could not be found',
+      bookingActionFailed: 'The operation failed. Please try again.',
+      loadingBookingsError: 'Error loading bookings',
       goHome: 'Back to home',
       noSalonSelectedTitle: 'No salon selected',
       noSalonSelectedText: 'Please choose a salon from the home page first.',
@@ -1271,6 +1360,8 @@ const translations = {
       qrPrintTitle: 'Print QR Code',
       qrScanHint: 'Scan to book an appointment',
       qrLoadingText: 'Loading...',
+      currencyUnit: 'Toman',
+      serviceActivationBlockedHint: 'Set a price before activating',
       positionEditorVertical: 'Vertical (top/bottom)',
       positionEditorReset: 'Reset center',
       positionEditorConfirm: 'Confirm position ✓',
@@ -1302,6 +1393,7 @@ const translations = {
       manageServicesInfoNoDelete: 'The service is not deleted; only its status changes',
       manageServicesCancel: 'Cancel',
       manageServicesSaving: 'Saving...',
+      menuButton: 'Menu',
       workingHoursTitle: 'Manage working hours',
       workingHoursSubtitle: 'Review days visually, arrange shifts with drag and drop, and apply them to multiple days in one step.',
       workingHoursAddButton: 'Add schedule',
@@ -1369,7 +1461,27 @@ const translations = {
       presetMorning: 'Morning shift',
       presetAfternoon: 'Afternoon',
       presetSplit: 'Morning / evening',
-      presetFull: 'Full day'
+      presetFull: 'Full day',
+      overviewServices: 'Total services',
+      activeServices: 'Active services',
+      totalBookings: 'Total bookings',
+      todayBookings: "Today's bookings",
+      overviewSalonInfoTitle: 'Salon information',
+      servicesCountLabel: 'Total services',
+      activeServicesLabel: 'Active services',
+      inactiveServicesLabel: 'Inactive services',
+      minutesUnit: 'min',
+      activateSalonConfirm: 'Do you want to activate the salon?',
+      deactivateSalonConfirm: 'Do you want to deactivate the salon?',
+      confirmDisableSalon: 'Are you sure you want to disable the salon?',
+      salonStatusUpdateError: 'Error updating salon status',
+      salonDisableError: 'Error disabling salon',
+      contactValidationError: 'The phone number is invalid or already registered for another salon.',
+      qrCodeInvalidError: 'The QR code address is invalid',
+      qrCodeSubtitle: 'Customers can book appointments by scanning this QR code',
+      qrPrintHint: 'Scan to book an appointment',
+      qrRetryButton: 'Try again',
+      serviceEditButton: 'Edit'
     },
     portfolioManager: {
       title: 'Portfolio manager',
@@ -1481,14 +1593,36 @@ const getPreferredLanguage = () => {
 };
 
 export const LanguageProvider = ({ children }) => {
-  const [language, setLanguage] = useState(getPreferredLanguage);
+  const [language, setLanguageState] = useState(getPreferredLanguage);
 
+  // Provide a synchronous setter so consumers can change language
+  // and formatting helpers that read document/html attributes or
+  // localStorage observe the new value immediately.
+  const setLanguage = (lang) => {
+    try {
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem(STORAGE_KEY, lang);
+        document.documentElement.lang = lang;
+        document.documentElement.dir = lang === 'en' ? 'ltr' : 'rtl';
+        document.documentElement.setAttribute('data-lang', lang);
+      }
+    } catch (e) {
+      // ignore
+    }
+    setLanguageState(lang);
+  };
+
+  // keep document attributes in sync on mount
   useEffect(() => {
-    document.documentElement.lang = language;
-    document.documentElement.dir = language === 'en' ? 'ltr' : 'rtl';
-    document.documentElement.setAttribute('data-lang', language);
-    localStorage.setItem(STORAGE_KEY, language);
-  }, [language]);
+    try {
+      if (typeof window !== 'undefined') {
+        document.documentElement.lang = language;
+        document.documentElement.dir = language === 'en' ? 'ltr' : 'rtl';
+        document.documentElement.setAttribute('data-lang', language);
+        window.localStorage.setItem(STORAGE_KEY, language);
+      }
+    } catch (e) {}
+  }, []);
 
   const t = (key, fallback = '', params = {}) => {
     const current = translations[language] || translations.fa;

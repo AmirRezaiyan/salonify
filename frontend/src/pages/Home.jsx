@@ -129,250 +129,250 @@ function SearchDialog({ open, onClose, searchQuery, setSearchQuery, selectedCity
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             zIndex: 1001, pointerEvents: 'none',
           }}>
-          {/* Dialog */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.92, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.92, y: 20 }}
-            transition={{ type: 'spring', stiffness: 380, damping: 28 }}
-            style={{
-              width: 'min(560px, 94vw)',
-              background: 'var(--card)',
-              borderRadius: '28px',
-              boxShadow: '0 32px 80px rgba(15,23,42,0.25)',
-              overflow: 'hidden',
-              pointerEvents: 'all',
-            }}
-          >
-            {/* Dialog Header */}
-            <div style={{
-              background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
-              padding: '1.75rem 1.75rem 1.5rem',
-              position: 'relative',
-            }}>
-              <div style={{ position: 'absolute', top: '1rem', left: '1rem' }}>
+            {/* Dialog */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.92, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.92, y: 20 }}
+              transition={{ type: 'spring', stiffness: 380, damping: 28 }}
+              style={{
+                width: 'min(560px, 94vw)',
+                background: 'var(--card)',
+                borderRadius: '28px',
+                boxShadow: '0 32px 80px rgba(15,23,42,0.25)',
+                overflow: 'hidden',
+                pointerEvents: 'all',
+              }}
+            >
+              {/* Dialog Header */}
+              <div style={{
+                background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
+                padding: '1.75rem 1.75rem 1.5rem',
+                position: 'relative',
+              }}>
+                <div style={{ position: 'absolute', top: '1rem', left: '1rem' }}>
+                  <button
+                    onClick={onClose}
+                    style={{
+                      background: 'var(--surface-glass-strong)',
+                      border: 'none',
+                      borderRadius: '50%',
+                      width: '36px', height: '36px',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      cursor: 'pointer', color: 'var(--text-light)',
+                      transition: 'background 0.2s',
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.background = 'var(--surface-glass-strong)'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'var(--surface-glass-muted)'}
+                  >
+                    <X size={18} />
+                  </button>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <div style={{
+                    width: '44px', height: '44px', borderRadius: '14px',
+                    background: 'var(--surface-glass-strong)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    color: 'var(--text-light)'
+                  }}>
+                    <Search size={22} color="var(--text-light)" />
+                  </div>
+                  <div>
+                    <h2 style={{ color: 'var(--text-light)', fontSize: '1.3rem', fontWeight: 700, margin: 0 }}>
+                      {t('home.searchTitle')}
+                    </h2>
+                    <p style={{ color: 'var(--text-light)', fontSize: '0.88rem', margin: 0, marginTop: '2px' }}>
+                      {t('home.searchSubtitle')}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Dialog Body */}
+              <div style={{ padding: '1.5rem' }}>
+                {/* Search Input */}
+                <div style={{ position: 'relative', marginBottom: '1.25rem' }}>
+                  <input
+                    ref={inputRef}
+                    value={searchQuery}
+                    onChange={e => setSearchQuery(e.target.value)}
+                    placeholder={t('home.searchPlaceholder')}
+                    style={{
+                      width: '100%',
+                      padding: '14px 48px 14px 16px',
+                      borderRadius: '14px',
+                      border: '2px solid var(--border)',
+                      fontSize: '1rem',
+                      fontFamily: 'inherit',
+                      outline: 'none',
+                      transition: 'border-color 0.2s',
+                      boxSizing: 'border-box',
+                      direction: isEnglish ? 'ltr' : 'rtl',
+                      backgroundColor: 'var(--surface-muted)',
+                      color: 'var(--text-primary)'
+                    }}
+                    onFocus={e => e.target.style.borderColor = 'var(--primary)'}
+                    onBlur={e => e.target.style.borderColor = 'var(--border)'}
+                  />
+                  <Search
+                    size={20}
+                    style={{
+                      position: 'absolute', top: '50%', right: '14px',
+                      transform: 'translateY(-50%)', color: "var(--text-muted)", pointerEvents: 'none',
+                    }}
+                  />
+                  {searchQuery && (
+                    <button
+                      onClick={() => setSearchQuery('')}
+                      style={{
+                        position: 'absolute', top: '50%', left: '12px',
+                        transform: 'translateY(-50%)',
+                        background: 'var(--card-hover)', border: 'none', borderRadius: '50%',
+                        width: '24px', height: '24px',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        cursor: 'pointer', color: "var(--text-secondary)",
+                      }}
+                    >
+                      <X size={14} />
+                    </button>
+                  )}
+                </div>
+
+                {/* Salons List */}
+                <p style={{ color: "var(--text-secondary)", fontSize: '0.9rem', marginBottom: '0.75rem', fontWeight: 600 }}>
+                  {filteredSalons.length === 0
+                    ? t('home.searchEmpty')
+                    : t('home.resultsCount').replace('{count}', formatCount(filteredSalons.length))}
+                </p>
+                <div style={{ maxHeight: '360px', overflowY: 'auto', paddingLeft: '4px' }}>
+                  {filteredSalons.length === 0 ? (
+                    <div style={{
+                      textAlign: 'center', padding: '2rem 1rem',
+                      color: "var(--text-muted)", fontSize: '0.95rem',
+                    }}>
+                      <Search size={40} style={{ marginBottom: '1rem', opacity: 0.3 }} />
+                      <p style={{ margin: 0 }}>
+                        {searchQuery
+                          ? t('home.searchEmptyHint')
+                          : t('home.searchHint')}
+                      </p>
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                      {filteredSalons.map(salon => (
+                        <button
+                          key={salon.id}
+                          onClick={() => {
+                            setSearchQuery('');
+                            onClose();
+                            if (onSalonSelect) onSalonSelect(salon);
+                          }}
+                          style={{
+                            width: '100%',
+                            padding: '12px 14px',
+                            borderRadius: '12px',
+                            border: '1.5px solid var(--border)',
+                            background: 'var(--background-secondary)',
+                            color: "var(--text-primary)",
+                            fontSize: '0.95rem',
+                            fontWeight: 500,
+                            cursor: 'pointer',
+                            fontFamily: 'inherit',
+                            textAlign: 'right',
+                            transition: 'all 0.2s',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                          }}
+                          onMouseEnter={e => {
+                            e.currentTarget.style.borderColor = 'var(--primary)';
+                            e.currentTarget.style.background = 'rgba(37,99,235,0.06)';
+                            e.currentTarget.style.color = 'var(--primary)';
+                          }}
+                          onMouseLeave={e => {
+                            e.currentTarget.style.borderColor = 'var(--border)';
+                            e.currentTarget.style.background = 'var(--background-secondary)';
+                            e.currentTarget.style.color = 'var(--text-primary)';
+                          }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flex: 1 }}>
+                            <div
+                              style={{
+                                width: '40px', height: '40px', borderRadius: '50%',
+                                background: 'linear-gradient(135deg, var(--primary), var(--primary-hover))',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                color: 'var(--text-light)', fontSize: '0.7rem', fontWeight: 700,
+                                overflow: 'hidden',
+                                border: '2px solid var(--border)',
+                                flexShrink: 0,
+                              }}
+                            >
+                              {salon.owner_image ? (
+                                <img
+                                  src={salon.owner_image}
+                                  alt="Owner"
+                                  style={{
+                                    width: '100%', height: '100%',
+                                    objectFit: 'cover',
+                                  }}
+                                />
+                              ) : (
+                                salon.name?.charAt(0) || 'S'
+                              )}
+                            </div>
+                            <div style={{ textAlign: 'right', flex: 1 }}>
+                              <div style={{ fontWeight: 600 }}>{salon.name}</div>
+                              <div style={{ fontSize: '0.8rem', color: "var(--text-muted)", marginTop: '2px' }}>
+                                {salon.city}
+                              </div>
+                            </div>
+                          </div>
+                          {salon.average_rating > 0 && (
+                            <div style={{
+                              display: 'flex', alignItems: 'center', gap: '4px',
+                              marginRight: '8px', flexShrink: 0,
+                            }}>
+                              <Star size={14} fill="var(--warning)" color="var(--warning)" />
+                              <span style={{
+                                fontWeight: 700, color: 'var(--warning)',
+                                fontSize: '0.85rem',
+                              }}>
+                                {toPersianNumber(salon.average_rating, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
+                              </span>
+                            </div>
+                          )}
+                          <ChevronDown size={16} style={{ transform: 'rotate(-90deg)', opacity: 0.5 }} />
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Apply Button */}
                 <button
                   onClick={onClose}
                   style={{
-                    background: 'var(--surface-glass-strong)',
+                    width: '100%',
+                    marginTop: '1.25rem',
+                    padding: '14px',
+                    borderRadius: '14px',
                     border: 'none',
-                    borderRadius: '50%',
-                    width: '36px', height: '36px',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    cursor: 'pointer', color: 'var(--text-light)',
-                    transition: 'background 0.2s',
+                    background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
+                    color: '#fff',
+                    fontSize: '1rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    fontFamily: 'inherit',
+                    boxShadow: '0 6px 20px rgba(102,126,234,0.35)',
+                    transition: 'transform 0.2s, box-shadow 0.2s',
                   }}
-                  onMouseEnter={e => e.currentTarget.style.background = 'var(--surface-glass-strong)'}
-                  onMouseLeave={e => e.currentTarget.style.background = 'var(--surface-glass-muted)'}
+                  onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 10px 28px rgba(102,126,234,0.45)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(102,126,234,0.35)'; }}
                 >
-                  <X size={18} />
+                  {t('home.close')}
                 </button>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <div style={{
-                  width: '44px', height: '44px', borderRadius: '14px',
-                  background: 'var(--surface-glass-strong)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  color: 'var(--text-light)'
-                }}>
-                  <Search size={22} color="var(--text-light)" />
-                </div>
-                <div>
-                  <h2 style={{ color: 'var(--text-light)', fontSize: '1.3rem', fontWeight: 700, margin: 0 }}>
-                    {t('home.searchTitle')}
-                  </h2>
-                  <p style={{ color: 'var(--text-light)', fontSize: '0.88rem', margin: 0, marginTop: '2px' }}>
-                    {t('home.searchSubtitle')}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Dialog Body */}
-            <div style={{ padding: '1.5rem' }}>
-              {/* Search Input */}
-              <div style={{ position: 'relative', marginBottom: '1.25rem' }}>
-                <input
-                  ref={inputRef}
-                  value={searchQuery}
-                  onChange={e => setSearchQuery(e.target.value)}
-                  placeholder={t('home.searchPlaceholder')}
-                  style={{
-                    width: '100%',
-                    padding: '14px 48px 14px 16px',
-                    borderRadius: '14px',
-                    border: '2px solid var(--border)',
-                    fontSize: '1rem',
-                    fontFamily: 'inherit',
-                    outline: 'none',
-                    transition: 'border-color 0.2s',
-                    boxSizing: 'border-box',
-                    direction: isEnglish ? 'ltr' : 'rtl',
-                    backgroundColor: 'var(--surface-muted)',
-                    color: 'var(--text-primary)'
-                  }}
-                  onFocus={e => e.target.style.borderColor = 'var(--primary)'}
-                  onBlur={e => e.target.style.borderColor = 'var(--border)'}
-                />
-                <Search
-                  size={20}
-                  style={{
-                    position: 'absolute', top: '50%', right: '14px',
-                    transform: 'translateY(-50%)', color: "var(--text-muted)", pointerEvents: 'none',
-                  }}
-                />
-                {searchQuery && (
-                  <button
-                    onClick={() => setSearchQuery('')}
-                    style={{
-                      position: 'absolute', top: '50%', left: '12px',
-                      transform: 'translateY(-50%)',
-                      background: 'var(--card-hover)', border: 'none', borderRadius: '50%',
-                      width: '24px', height: '24px',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      cursor: 'pointer', color: "var(--text-secondary)",
-                    }}
-                  >
-                    <X size={14} />
-                  </button>
-                )}
-              </div>
-
-              {/* Salons List */}
-              <p style={{ color: "var(--text-secondary)", fontSize: '0.9rem', marginBottom: '0.75rem', fontWeight: 600 }}>
-                {filteredSalons.length === 0
-                  ? t('home.searchEmpty')
-                  : t('home.resultsCount').replace('{count}', formatCount(filteredSalons.length))}
-              </p>
-              <div style={{ maxHeight: '360px', overflowY: 'auto', paddingLeft: '4px' }}>
-                {filteredSalons.length === 0 ? (
-                  <div style={{
-                    textAlign: 'center', padding: '2rem 1rem',
-                    color: "var(--text-muted)", fontSize: '0.95rem',
-                  }}>
-                    <Search size={40} style={{ marginBottom: '1rem', opacity: 0.3 }} />
-                    <p style={{ margin: 0 }}>
-                      {searchQuery
-                        ? t('home.searchEmptyHint')
-                        : t('home.searchHint')}
-                    </p>
-                  </div>
-                ) : (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                    {filteredSalons.map(salon => (
-                      <button
-                        key={salon.id}
-                        onClick={() => {
-                          setSearchQuery('');
-                          onClose();
-                          if (onSalonSelect) onSalonSelect(salon);
-                        }}
-                        style={{
-                          width: '100%',
-                          padding: '12px 14px',
-                          borderRadius: '12px',
-                          border: '1.5px solid var(--border)',
-                          background: 'var(--background-secondary)',
-                          color: "var(--text-primary)",
-                          fontSize: '0.95rem',
-                          fontWeight: 500,
-                          cursor: 'pointer',
-                          fontFamily: 'inherit',
-                          textAlign: 'right',
-                          transition: 'all 0.2s',
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                        }}
-                        onMouseEnter={e => {
-                          e.currentTarget.style.borderColor = 'var(--primary)';
-                          e.currentTarget.style.background = 'rgba(37,99,235,0.06)';
-                          e.currentTarget.style.color = 'var(--primary)';
-                        }}
-                        onMouseLeave={e => {
-                          e.currentTarget.style.borderColor = 'var(--border)';
-                          e.currentTarget.style.background = 'var(--background-secondary)';
-                          e.currentTarget.style.color = 'var(--text-primary)';
-                        }}
-                      >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flex: 1 }}>
-                          <div
-                            style={{
-                              width: '40px', height: '40px', borderRadius: '50%',
-                              background: 'linear-gradient(135deg, var(--primary), var(--primary-hover))',
-                              display: 'flex', alignItems: 'center', justifyContent: 'center',
-                              color: 'var(--text-light)', fontSize: '0.7rem', fontWeight: 700,
-                              overflow: 'hidden',
-                              border: '2px solid var(--border)',
-                              flexShrink: 0,
-                            }}
-                          >
-                            {salon.owner_image ? (
-                              <img
-                                src={salon.owner_image}
-                                alt="Owner"
-                                style={{
-                                  width: '100%', height: '100%',
-                                  objectFit: 'cover',
-                                }}
-                              />
-                            ) : (
-                              salon.name?.charAt(0) || 'S'
-                            )}
-                          </div>
-                          <div style={{ textAlign: 'right', flex: 1 }}>
-                            <div style={{ fontWeight: 600 }}>{salon.name}</div>
-                            <div style={{ fontSize: '0.8rem', color: "var(--text-muted)", marginTop: '2px' }}>
-                              {salon.city}
-                            </div>
-                          </div>
-                        </div>
-                        {salon.average_rating > 0 && (
-                          <div style={{
-                            display: 'flex', alignItems: 'center', gap: '4px',
-                            marginRight: '8px', flexShrink: 0,
-                          }}>
-                            <Star size={14} fill="var(--warning)" color="var(--warning)" />
-                            <span style={{
-                              fontWeight: 700, color: 'var(--warning)',
-                              fontSize: '0.85rem',
-                            }}>
-                              {toPersianNumber(salon.average_rating, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
-                            </span>
-                          </div>
-                        )}
-                        <ChevronDown size={16} style={{ transform: 'rotate(-90deg)', opacity: 0.5 }} />
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Apply Button */}
-              <button
-                onClick={onClose}
-                style={{
-                  width: '100%',
-                  marginTop: '1.25rem',
-                  padding: '14px',
-                  borderRadius: '14px',
-                  border: 'none',
-                  background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
-                  color: '#fff',
-                  fontSize: '1rem',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  fontFamily: 'inherit',
-                  boxShadow: '0 6px 20px rgba(102,126,234,0.35)',
-                  transition: 'transform 0.2s, box-shadow 0.2s',
-                }}
-                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 10px 28px rgba(102,126,234,0.45)'; }}
-                onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(102,126,234,0.35)'; }}
-              >
-                {t('home.close')}
-              </button>
-            </div>
-          </motion.div>
+            </motion.div>
           </div>
         </>
       )}
@@ -422,153 +422,153 @@ function CitySelectionDialog({ open, onClose, selectedCity, setSelectedCity, all
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             zIndex: 1001, pointerEvents: 'none',
           }}>
-          {/* Dialog */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.92, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.92, y: 20 }}
-            transition={{ type: 'spring', stiffness: 380, damping: 28 }}
-            style={{
-              width: 'min(560px, 94vw)',
-              background: 'var(--card)',
-              borderRadius: '28px',
-              boxShadow: '0 32px 80px rgba(15,23,42,0.25)',
-              overflow: 'hidden',
-              pointerEvents: 'all',
-            }}
-          >
-            {/* Dialog Header */}
-            <div style={{
-              background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
-              padding: '1.75rem 1.75rem 1.5rem',
-              position: 'relative',
-            }}>
-              <div style={{ position: 'absolute', top: '1rem', left: '1rem' }}>
-                <button
-                  onClick={onClose}
-                  style={{
-                    background: 'var(--surface-glass-strong)',
-                    border: 'none',
-                    borderRadius: '50%',
-                    width: '36px', height: '36px',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    cursor: 'pointer', color: '#fff',
-                    transition: 'background 0.2s',
-                  }}
-                  onMouseEnter={e => e.currentTarget.style.background = 'var(--surface-glass-strong)'}
-                  onMouseLeave={e => e.currentTarget.style.background = 'var(--surface-glass-muted)'}
-                >
-                  <X size={18} />
-                </button>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <div style={{
-                  width: '44px', height: '44px', borderRadius: '14px',
-                  background: 'var(--surface-glass-strong)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}>
-                  <MapPin size={22} color="#fff" />
-                </div>
-                <div>
-                  <h2 style={{ color: '#fff', fontSize: '1.3rem', fontWeight: 700, margin: 0 }}>
-                    {t('home.selectCity')}
-                  </h2>
-                  <p style={{ color: 'var(--text-light)', fontSize: '0.88rem', margin: 0, marginTop: '2px' }}>
-                    {t('home.selectCitySubtitle')}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Dialog Body */}
-            <div style={{ padding: '1.5rem' }}>
-              {/* City Grid */}
-              <p style={{ color: "var(--text-secondary)", fontSize: '0.9rem', marginBottom: '0.75rem', fontWeight: 600 }}>
-                {t('home.selectCity')}
-              </p>
-              <div style={{ maxHeight: '360px', overflowY: 'auto', paddingLeft: '4px' }}>
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(3, 1fr)',
-                  gap: '0.5rem',
-                }}>
+            {/* Dialog */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.92, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.92, y: 20 }}
+              transition={{ type: 'spring', stiffness: 380, damping: 28 }}
+              style={{
+                width: 'min(560px, 94vw)',
+                background: 'var(--card)',
+                borderRadius: '28px',
+                boxShadow: '0 32px 80px rgba(15,23,42,0.25)',
+                overflow: 'hidden',
+                pointerEvents: 'all',
+              }}
+            >
+              {/* Dialog Header */}
+              <div style={{
+                background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
+                padding: '1.75rem 1.75rem 1.5rem',
+                position: 'relative',
+              }}>
+                <div style={{ position: 'absolute', top: '1rem', left: '1rem' }}>
                   <button
-                    onClick={() => { setSelectedCity(''); onClose(); }}
+                    onClick={onClose}
                     style={{
-                      padding: '10px 8px',
-                      borderRadius: '10px',
-                      border: `2px solid ${selectedCity === '' ? 'var(--primary)' : 'var(--border)'}`,
-                      background: selectedCity === '' ? 'linear-gradient(135deg, var(--primary), var(--primary-dark))' : 'var(--background-secondary)',
-                      color: selectedCity === '' ? '#fff' : 'var(--text-secondary)',
-                      fontSize: '0.88rem',
-                      fontWeight: 600,
-                      cursor: 'pointer',
-                      transition: 'all 0.2s',
-                      fontFamily: 'inherit',
+                      background: 'var(--surface-glass-strong)',
+                      border: 'none',
+                      borderRadius: '50%',
+                      width: '36px', height: '36px',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      cursor: 'pointer', color: '#fff',
+                      transition: 'background 0.2s',
                     }}
+                    onMouseEnter={e => e.currentTarget.style.background = 'var(--surface-glass-strong)'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'var(--surface-glass-muted)'}
                   >
-                    {t('home.allCities')}
+                    <X size={18} />
                   </button>
-                  {allCities.map(city => (
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <div style={{
+                    width: '44px', height: '44px', borderRadius: '14px',
+                    background: 'var(--surface-glass-strong)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    <MapPin size={22} color="#fff" />
+                  </div>
+                  <div>
+                    <h2 style={{ color: '#fff', fontSize: '1.3rem', fontWeight: 700, margin: 0 }}>
+                      {t('home.selectCity')}
+                    </h2>
+                    <p style={{ color: 'var(--text-light)', fontSize: '0.88rem', margin: 0, marginTop: '2px' }}>
+                      {t('home.selectCitySubtitle')}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Dialog Body */}
+              <div style={{ padding: '1.5rem' }}>
+                {/* City Grid */}
+                <p style={{ color: "var(--text-secondary)", fontSize: '0.9rem', marginBottom: '0.75rem', fontWeight: 600 }}>
+                  {t('home.selectCity')}
+                </p>
+                <div style={{ maxHeight: '360px', overflowY: 'auto', paddingLeft: '4px' }}>
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(3, 1fr)',
+                    gap: '0.5rem',
+                  }}>
                     <button
-                      key={city}
-                      onClick={() => { setSelectedCity(city); onClose(); }}
+                      onClick={() => { setSelectedCity(''); onClose(); }}
                       style={{
                         padding: '10px 8px',
                         borderRadius: '10px',
-                        border: `2px solid ${selectedCity === city ? 'var(--primary)' : 'var(--border)'}`,
-                        background: selectedCity === city ? 'linear-gradient(135deg, var(--primary), var(--primary-dark))' : 'var(--background-secondary)',
-                        color: selectedCity === city ? '#fff' : 'var(--text-secondary)',
+                        border: `2px solid ${selectedCity === '' ? 'var(--primary)' : 'var(--border)'}`,
+                        background: selectedCity === '' ? 'linear-gradient(135deg, var(--primary), var(--primary-dark))' : 'var(--background-secondary)',
+                        color: selectedCity === '' ? '#fff' : 'var(--text-secondary)',
                         fontSize: '0.88rem',
-                        fontWeight: selectedCity === city ? 700 : 500,
+                        fontWeight: 600,
                         cursor: 'pointer',
                         transition: 'all 0.2s',
                         fontFamily: 'inherit',
                       }}
-                      onMouseEnter={e => {
-                        if (selectedCity !== city) {
-                          e.currentTarget.style.borderColor = 'var(--primary-light)';
-                          e.currentTarget.style.background = 'var(--info-surface)';
-                        }
-                      }}
-                      onMouseLeave={e => {
-                        if (selectedCity !== city) {
-                          e.currentTarget.style.borderColor = 'var(--border)';
-                          e.currentTarget.style.background = 'var(--background-secondary)';
-                        }
-                      }}
                     >
-                      {city}
+                      {t('home.allCities')}
                     </button>
-                  ))}
+                    {allCities.map(city => (
+                      <button
+                        key={city}
+                        onClick={() => { setSelectedCity(city); onClose(); }}
+                        style={{
+                          padding: '10px 8px',
+                          borderRadius: '10px',
+                          border: `2px solid ${selectedCity === city ? 'var(--primary)' : 'var(--border)'}`,
+                          background: selectedCity === city ? 'linear-gradient(135deg, var(--primary), var(--primary-dark))' : 'var(--background-secondary)',
+                          color: selectedCity === city ? '#fff' : 'var(--text-secondary)',
+                          fontSize: '0.88rem',
+                          fontWeight: selectedCity === city ? 700 : 500,
+                          cursor: 'pointer',
+                          transition: 'all 0.2s',
+                          fontFamily: 'inherit',
+                        }}
+                        onMouseEnter={e => {
+                          if (selectedCity !== city) {
+                            e.currentTarget.style.borderColor = 'var(--primary-light)';
+                            e.currentTarget.style.background = 'var(--info-surface)';
+                          }
+                        }}
+                        onMouseLeave={e => {
+                          if (selectedCity !== city) {
+                            e.currentTarget.style.borderColor = 'var(--border)';
+                            e.currentTarget.style.background = 'var(--background-secondary)';
+                          }
+                        }}
+                      >
+                        {city}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
 
-              {/* Apply Button */}
-              <button
-                onClick={onClose}
-                style={{
-                  width: '100%',
-                  marginTop: '1.25rem',
-                  padding: '14px',
-                  borderRadius: '14px',
-                  border: 'none',
-                  background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
-                  color: '#fff',
-                  fontSize: '1rem',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  fontFamily: 'inherit',
-                  boxShadow: '0 6px 20px rgba(102,126,234,0.35)',
-                  transition: 'transform 0.2s, box-shadow 0.2s',
-                }}
-                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 10px 28px rgba(102,126,234,0.45)'; }}
-                onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(102,126,234,0.35)'; }}
-              >
-                {t('home.applyFilter')}
-              </button>
-            </div>
-          </motion.div>
+                {/* Apply Button */}
+                <button
+                  onClick={onClose}
+                  style={{
+                    width: '100%',
+                    marginTop: '1.25rem',
+                    padding: '14px',
+                    borderRadius: '14px',
+                    border: 'none',
+                    background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
+                    color: '#fff',
+                    fontSize: '1rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    fontFamily: 'inherit',
+                    boxShadow: '0 6px 20px rgba(102,126,234,0.35)',
+                    transition: 'transform 0.2s, box-shadow 0.2s',
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 10px 28px rgba(102,126,234,0.45)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(102,126,234,0.35)'; }}
+                >
+                  {t('home.applyFilter')}
+                </button>
+              </div>
+            </motion.div>
           </div>
         </>
       )}
@@ -858,7 +858,7 @@ export default function Home() {
                 width: 220,
                 height: 56,
                 display: 'flex',
-                alignItems: 'flex-end',
+                alignItems: 'center',
                 justifyContent: 'center',
                 padding: '10px 16px',
                 borderRadius: '50px',
@@ -876,7 +876,19 @@ export default function Home() {
               onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 14px 36px rgba(251,191,36,0.5)'; }}
               onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 8px 28px rgba(251,191,36,0.4)'; }}
             >
-              <span style={{ display: 'block', lineHeight: 1, marginBottom: 4 }}>{t('home.startFree')}</span>
+              <span
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '100%',
+                  height: '100%',
+                  lineHeight: 1,
+                  margin: 0
+                }}
+              >
+                {t('home.startFree')}
+              </span>
             </button>
             <button
               onClick={() => navigate('/login')}
@@ -885,7 +897,7 @@ export default function Home() {
                 width: 220,
                 height: 56,
                 display: 'flex',
-                alignItems: 'flex-end',
+                alignItems: 'center',
                 justifyContent: 'center',
                 padding: '10px 16px',
                 borderRadius: '50px',
@@ -903,7 +915,19 @@ export default function Home() {
               onMouseEnter={e => { e.currentTarget.style.background = 'var(--surface-glass)'; }}
               onMouseLeave={e => { e.currentTarget.style.background = 'var(--surface-glass-muted)'; }}
             >
-              <span style={{ display: 'block', lineHeight: 1, marginBottom: 4 }}>{t('home.loginAccount')}</span>
+              <span
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '100%',
+                  height: '100%',
+                  lineHeight: 1,
+                  margin: 0
+                }}
+              >
+                {t('home.loginAccount')}
+              </span>
             </button>
           </motion.div>
 
@@ -913,8 +937,11 @@ export default function Home() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.8 }}
             style={{
-              display: 'flex', gap: '1.5rem', justifyContent: 'center',
-              marginTop: '3rem', flexWrap: 'wrap',
+              display: 'flex',
+              gap: '1.5rem',
+              justifyContent: 'center',
+              marginTop: '3rem',
+              flexWrap: 'wrap',
             }}
           >
             {[
@@ -922,20 +949,25 @@ export default function Home() {
               { icon: <Smartphone size={16} />, text: t('home.noAppRequired') },
               { icon: <Clock size={16} />, text: t('home.bookAnyTime') },
             ].map((b, i) => (
-              <div key={i} style={{
-                display: 'flex', alignItems: 'center', gap: '8px',
-                color: 'var(--text-light)', fontSize: '0.88rem',
-                background: 'var(--surface-glass)',
-                padding: '10px 14px', borderRadius: '50px',
-                border: '1px solid var(--surface-glass)',
-                width: 211,
-                justifyContent: 'center',
-                boxSizing: 'border-box',
-                textAlign: 'center',
-              }}>
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-                  {b.icon}<span>{b.text}</span>
-                </span>
+              <div
+                key={i}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  color: 'var(--text-light)',
+                  fontSize: '0.88rem',
+                  background: 'var(--surface-glass)',
+                  padding: '10px 14px',
+                  borderRadius: '50px',
+                  border: '1px solid var(--surface-glass)',
+                  width: 211,
+                  boxSizing: 'border-box',
+                }}
+              >
+                <span style={{ display: 'flex', alignItems: 'center', lineHeight: 1 }}>{b.icon}</span>
+                <span style={{ lineHeight: 1 }}>{b.text}</span>
               </div>
             ))}
           </motion.div>
@@ -947,13 +979,13 @@ export default function Home() {
     if (isOwnerOrStaff) {
       const salonName = tenant?.name || user?.salon?.name;
       const ownerName = user?.full_name || t('home.ownerFallback');
-      
+
       return (
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
-          style={{ 
+          style={{
             textAlign: 'center',
             maxWidth: '820px',
             margin: '0 auto',
@@ -965,7 +997,7 @@ export default function Home() {
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.1, type: 'spring', stiffness: 200 }}
-              style={{
+            style={{
               display: 'inline-flex',
               alignItems: 'center',
               gap: '8px',
@@ -1010,7 +1042,7 @@ export default function Home() {
           </p>
 
           {/* Elegant Dashboard Buttons Block */}
-</motion.div>
+        </motion.div>
       );
     }
 
@@ -1028,7 +1060,7 @@ export default function Home() {
           transition={{ type: 'spring', stiffness: 300, damping: 22 }}
           style={{ marginBottom: '1.5rem' }}
         >
-            <div style={{
+          <div style={{
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
             width: '90px', height: '90px', borderRadius: '26px',
             background: 'var(--surface-glass-strong)',
@@ -1101,10 +1133,10 @@ export default function Home() {
   const activeServices = services.filter(s => s.is_active && Number(s.price) > 0);
   const activeServicesCount = activeServices.length;
   const inactiveServicesCount = services.filter(s => !s.is_active || Number(s.price) <= 0).length;
-  const averagePrice = activeServicesCount > 0 
-    ? Math.round(activeServices.reduce((sum, s) => sum + (parseFloat(s.price) || 0), 0) / activeServicesCount) 
+  const averagePrice = activeServicesCount > 0
+    ? Math.round(activeServices.reduce((sum, s) => sum + (parseFloat(s.price) || 0), 0) / activeServicesCount)
     : 0;
-  
+
   // Create sharing booking link based on current domain or tenant/host values
   const rawHost = tenant?.host || localStorage.getItem('salon_host') || window.location.host;
   const shareableBookingLink = rawHost ? `https://${rawHost}` : `${window.location.origin}/services?salon=${tenant?.id || ""}`;
@@ -1545,10 +1577,10 @@ export default function Home() {
               >
                 <div style={{
                   width: '64px', height: '64px', borderRadius: '18px',
-                  background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
+                  background: 'linear-gradient(135deg, var(--accent) 0%, var(--primary-hover) 100%)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  color: '#fff', marginBottom: '1.5rem',
-                  boxShadow: '0 8px 20px rgba(102,126,234,0.3)',
+                  color: 'var(--text-light)', marginBottom: '1.5rem',
+                  boxShadow: '0 8px 20px rgba(245,87,108,0.3)',
                 }}>
                   <UserCircle2 size={32} />
                 </div>
@@ -1572,11 +1604,11 @@ export default function Home() {
                   style={{
                     width: '100%', marginTop: '1.75rem', padding: '13px',
                     borderRadius: '14px', border: 'none',
-                    background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
-                    color: '#fff', fontSize: '0.95rem', fontWeight: 700,
+                    background: 'linear-gradient(135deg, var(--accent) 0%, var(--primary-hover) 100%)',
+                    color: 'var(--text-light)', fontSize: '0.95rem', fontWeight: 700,
                     cursor: 'pointer', fontFamily: 'inherit',
                     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                    boxShadow: '0 6px 18px rgba(102,126,234,0.25)',
+                    boxShadow: '0 6px 18px rgba(245,87,108,0.25)',
                     transition: 'all 0.25s',
                   }}
                   onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
@@ -1599,13 +1631,13 @@ export default function Home() {
                   boxShadow: '0 4px 24px rgba(30,41,59,0.07)',
                 }}
               >
-                  <div style={{
-                    width: '64px', height: '64px', borderRadius: '18px',
-                    background: 'linear-gradient(135deg, var(--accent) 0%, var(--primary-hover) 100%)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    color: 'var(--text-light)', marginBottom: '1.5rem',
-                    boxShadow: '0 8px 20px rgba(245,87,108,0.3)',
-                  }}>
+                <div style={{
+                  width: '64px', height: '64px', borderRadius: '18px',
+                  background: 'linear-gradient(135deg, var(--accent) 0%, var(--primary-hover) 100%)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  color: 'var(--text-light)', marginBottom: '1.5rem',
+                  boxShadow: '0 8px 20px rgba(245,87,108,0.3)',
+                }}>
                   <Store size={32} />
                 </div>
                 <h3 style={{ color: "var(--text-primary)", fontSize: '1.3rem', fontWeight: 800, margin: '0 0 1.1rem' }}>
@@ -1632,7 +1664,7 @@ export default function Home() {
                     color: 'var(--text-light)', fontSize: '0.95rem', fontWeight: 700,
                     cursor: 'pointer', fontFamily: 'inherit',
                     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                    boxShadow: '0 6px 18px rgba(245, 104, 108, 0.25)',
+                    boxShadow: '0 6px 18px rgba(245,104,108,0.25)',
                     transition: 'all 0.25s',
                   }}
                   onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
@@ -1719,7 +1751,7 @@ export default function Home() {
                   <p style={{ color: "var(--text-secondary)", fontSize: '0.88rem', lineHeight: 1.7, margin: '0 0 1.5rem' }}>
                     {t('home.bookingLinkDesc')}
                   </p>
-                  
+
                   {/* Visual copy input field */}
                   <div style={{
                     background: 'var(--background-secondary)',
@@ -1879,9 +1911,9 @@ export default function Home() {
                   position: 'relative'
                 }}
               >
-                  <div style={{
-                    position: 'absolute', top: 0, left: 0, right: 0, height: '4px',
-                    background: 'linear-gradient(90deg, var(--success), var(--success))', borderRadius: '24px 24px 0 0'
+                <div style={{
+                  position: 'absolute', top: 0, left: 0, right: 0, height: '4px',
+                  background: 'linear-gradient(90deg, var(--success), var(--success))', borderRadius: '24px 24px 0 0'
                 }} />
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.25rem' }}>
@@ -1909,10 +1941,10 @@ export default function Home() {
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <span style={{ color: "var(--text-secondary)", fontSize: '0.9rem' }}>{t('home.salonGenderLabel')}</span>
-                      <span style={{ 
-                        padding: '4px 10px', 
-                        borderRadius: '20px', 
-                        fontSize: '0.8rem', 
+                      <span style={{
+                        padding: '4px 10px',
+                        borderRadius: '20px',
+                        fontSize: '0.8rem',
                         fontWeight: 800,
                         background: isMale ? 'var(--info-surface)' : 'var(--warning-surface)',
                         color: isMale ? 'var(--primary)' : 'var(--accent)'
@@ -1985,21 +2017,12 @@ export default function Home() {
                 const parsed = typeof pos === 'string' ? JSON.parse(pos) : pos;
                 if (parsed?.x !== undefined) ownerPos = parsed;
               }
-            } catch {}
+            } catch { }
 
             const rankColors = ['var(--warning)', 'var(--border-muted)', 'var(--warning)', 'var(--primary)', 'var(--success)'];
             const rankBg = ['var(--warning-surface)', 'var(--light)', 'var(--warning-surface)', 'var(--background-secondary)', 'var(--success-surface)'];
             const rankColor = rankColors[rank] || 'var(--border-muted)';
             const rankBgColor = rankBg[rank] || 'var(--light)';
-
-            // let ownerPos = { x: 50, y: 50 };
-            // try {
-            //   const pos = salon?.settings?.owner_image_position;
-            //   if (pos) {
-            //     const parsed = typeof pos === 'string' ? JSON.parse(pos) : pos;
-            //     if (parsed?.x !== undefined) ownerPos = parsed;
-            //   }
-            // } catch {}
 
             return (
               <motion.div
@@ -2118,7 +2141,7 @@ export default function Home() {
                     {rating > 0 ? (
                       <>
                         <div style={{ display: 'flex', gap: '2px' }}>
-                          {[1,2,3,4,5].map(s => (
+                          {[1, 2, 3, 4, 5].map(s => (
                             <Star
                               key={s}
                               size={13}
@@ -2341,116 +2364,116 @@ export default function Home() {
 
         {/* ─── PLATFORM STATS (only rendered when real data exists) ─── */}
         {platformStats && (platformStats.salons_count > 0 || platformStats.confirmed_bookings > 0) && (
-        <motion.section
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-          style={{
-            background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
-            borderRadius: '32px',
-            padding: '4rem 2.5rem',
-            position: 'relative',
-            overflow: 'hidden',
-          }}
-        >
-          <div style={{
-            position: 'absolute', top: '-20%', right: '-8%',
-            width: '450px', height: '450px',
-            background: 'var(--surface-glass-muted)', borderRadius: '50%',
-            filter: 'blur(80px)', pointerEvents: 'none',
-          }} />
-          <div style={{
-            position: 'absolute', bottom: '-25%', left: '-8%',
-            width: '380px', height: '380px',
-            background: 'var(--surface-glass)', borderRadius: '50%',
-            filter: 'blur(70px)', pointerEvents: 'none',
-          }} />
-
-          <div style={{ position: 'relative', zIndex: 1 }}>
-            <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-              <motion.div
-                initial={{ scale: 0 }}
-                whileInView={{ scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ type: 'spring', duration: 0.8 }}
-              >
-                <TrendingUp size={52} style={{ color: 'var(--warning)', marginBottom: '1rem' }} />
-              </motion.div>
-              <h2 style={{
-                color: '#fff', fontSize: 'clamp(1.7rem, 4vw, 2.5rem)',
-                fontWeight: 900, margin: '0 0 0.75rem',
-                textShadow: '0 4px 24px rgba(0,0,0,0.2)',
-              }}>
-                {t('home.platformTitle')}
-              </h2>
-              <p style={{
-                color: 'rgba(255,255,255,0.88)',
-                fontSize: '1.05rem', maxWidth: '600px',
-                margin: '0 auto', lineHeight: 1.85,
-              }}>
-                {t('home.platformSubtitle')}
-              </p>
-            </div>
-
+          <motion.section
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            style={{
+              background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
+              borderRadius: '32px',
+              padding: '4rem 2.5rem',
+              position: 'relative',
+              overflow: 'hidden',
+            }}
+          >
             <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-              gap: '1.5rem', maxWidth: '900px', margin: '0 auto',
-            }}>
-              {[
-                {
-                  value: formatCount(platformStats.salons_count || 0),
-                  label: t('home.platformSalons'),
-                  icon: <Scissors size={30} />,
-                },
-                {
-                  value: formatCount(platformStats.confirmed_bookings || 0),
-                  label: t('home.platformBookings'),
-                  icon: <CheckCircle size={30} />,
-                },
-                {
-                  value: `${formatCount(platformStats.satisfaction_percent || 0)}%`,
-                  label: t('home.platformSatisfaction'),
-                  icon: <Star size={30} />,
-                },
-              ].map((stat, index) => (
+              position: 'absolute', top: '-20%', right: '-8%',
+              width: '450px', height: '450px',
+              background: 'var(--surface-glass-muted)', borderRadius: '50%',
+              filter: 'blur(80px)', pointerEvents: 'none',
+            }} />
+            <div style={{
+              position: 'absolute', bottom: '-25%', left: '-8%',
+              width: '380px', height: '380px',
+              background: 'var(--surface-glass)', borderRadius: '50%',
+              filter: 'blur(70px)', pointerEvents: 'none',
+            }} />
+
+            <div style={{ position: 'relative', zIndex: 1 }}>
+              <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
                 <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
+                  initial={{ scale: 0 }}
+                  whileInView={{ scale: 1 }}
                   viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: index * 0.15 }}
-                  whileHover={{ scale: 1.05 }}
-                  style={{
-                    textAlign: 'center',
-                    background: 'var(--surface-glass)',
-                    backdropFilter: 'blur(12px)',
-                    borderRadius: '20px',
-                    padding: '2rem 1.25rem',
-                    border: '1px solid var(--surface-glass)',
-                    transition: 'all 0.3s ease',
-                  }}
+                  transition={{ type: 'spring', duration: 0.8 }}
                 >
-                  <div style={{ color: 'var(--warning)', marginBottom: '1rem', display: 'flex', justifyContent: 'center' }}>
-                    {stat.icon}
-                  </div>
-                  <div style={{
-                    fontSize: 'clamp(2rem, 5vw, 3rem)',
-                    fontWeight: 900, color: '#fff',
-                    marginBottom: '0.4rem',
-                    textShadow: '0 2px 10px rgba(0,0,0,0.2)',
-                  }}>
-                    {stat.value}
-                  </div>
-                  <div style={{ color: 'var(--text-light)', fontSize: '0.98rem', fontWeight: 500 }}>
-                    {stat.label}
-                  </div>
+                  <TrendingUp size={52} style={{ color: 'var(--warning)', marginBottom: '1rem' }} />
                 </motion.div>
-              ))}
+                <h2 style={{
+                  color: '#fff', fontSize: 'clamp(1.7rem, 4vw, 2.5rem)',
+                  fontWeight: 900, margin: '0 0 0.75rem',
+                  textShadow: '0 4px 24px rgba(0,0,0,0.2)',
+                }}>
+                  {t('home.platformTitle')}
+                </h2>
+                <p style={{
+                  color: 'rgba(255,255,255,0.88)',
+                  fontSize: '1.05rem', maxWidth: '600px',
+                  margin: '0 auto', lineHeight: 1.85,
+                }}>
+                  {t('home.platformSubtitle')}
+                </p>
+              </div>
+
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                gap: '1.5rem', maxWidth: '900px', margin: '0 auto',
+              }}>
+                {[
+                  {
+                    value: formatCount(platformStats.salons_count || 0),
+                    label: t('home.platformSalons'),
+                    icon: <Scissors size={30} />,
+                  },
+                  {
+                    value: formatCount(platformStats.confirmed_bookings || 0),
+                    label: t('home.platformBookings'),
+                    icon: <CheckCircle size={30} />,
+                  },
+                  {
+                    value: `${formatCount(platformStats.satisfaction_percent || 0)}%`,
+                    label: t('home.platformSatisfaction'),
+                    icon: <Star size={30} />,
+                  },
+                ].map((stat, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: index * 0.15 }}
+                    whileHover={{ scale: 1.05 }}
+                    style={{
+                      textAlign: 'center',
+                      background: 'var(--surface-glass)',
+                      backdropFilter: 'blur(12px)',
+                      borderRadius: '20px',
+                      padding: '2rem 1.25rem',
+                      border: '1px solid var(--surface-glass)',
+                      transition: 'all 0.3s ease',
+                    }}
+                  >
+                    <div style={{ color: 'var(--warning)', marginBottom: '1rem', display: 'flex', justifyContent: 'center' }}>
+                      {stat.icon}
+                    </div>
+                    <div style={{
+                      fontSize: 'clamp(2rem, 5vw, 3rem)',
+                      fontWeight: 900, color: '#fff',
+                      marginBottom: '0.4rem',
+                      textShadow: '0 2px 10px rgba(0,0,0,0.2)',
+                    }}>
+                      {stat.value}
+                    </div>
+                    <div style={{ color: 'var(--text-light)', fontSize: '0.98rem', fontWeight: 500 }}>
+                      {stat.label}
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
             </div>
-          </div>
-        </motion.section>
+          </motion.section>
         )}
       </div>
     </div>

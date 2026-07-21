@@ -150,13 +150,38 @@ function StatChip({ label, value, color, bg }) {
   );
 }
 
-function Detail({ icon, label, value }) {
+// helper: render numeric runs with a specific color (Persian and Latin digits)
+function renderWithNumberColor(text, numberColor = '#ffffff', defaultColor = undefined) {
+  if (text === null || text === undefined) return null;
+  const str = String(text);
+  const regex = /([0-9\u06F0-\u06F9]+)/g;
+  const parts = [];
+  let lastIndex = 0;
+  let m;
+  while ((m = regex.exec(str)) !== null) {
+    if (m.index > lastIndex) parts.push({ text: str.slice(lastIndex, m.index), isNumber: false });
+    parts.push({ text: m[0], isNumber: true });
+    lastIndex = m.index + m[0].length;
+  }
+  if (lastIndex < str.length) parts.push({ text: str.slice(lastIndex), isNumber: false });
+  return parts.map((p, i) => (
+    <span key={i} style={{ color: p.isNumber ? numberColor : (defaultColor || 'inherit') }}>{p.text}</span>
+  ));
+}
+
+function Detail({ icon, label, value, valueColor, highlightNumbers }) {
+  const renderValue = (val) => {
+    if (val === null || val === undefined) return null;
+    if (highlightNumbers) return renderWithNumberColor(String(val), '#ffffff', valueColor || 'var(--text-primary)');
+    return <span style={{ color: valueColor || '#334155' }}>{val}</span>;
+  };
+
   return (
     <div style={{ display: 'flex', alignItems: 'flex-start', gap: 7 }}>
       <span style={{ color: "var(--text-muted)", marginTop: 2, flexShrink: 0 }}>{icon}</span>
       <div>
         <div style={{ fontSize: '0.72rem', color: "var(--text-muted)", marginBottom: 2 }}>{label}</div>
-        <div style={{ fontSize: '0.85rem', fontWeight: 600, color: '#334155' }}>{value}</div>
+        <div style={{ fontSize: '0.85rem', fontWeight: 600, color: valueColor || 'var(--text-primary)' }}>{renderValue(value)}</div>
       </div>
     </div>
   );
@@ -334,8 +359,8 @@ function BookingCard({
       <div style={{ height: 1, background: 'var(--card-hover)' }} />
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-        <Detail icon={<Scissors size={14} />} label={t('bookings.service', 'خدمت')} value={serviceName} />
-        <Detail icon={<Clock size={14} />} label={t('bookings.time', 'زمان')} value={time} />
+        <Detail icon={<Scissors size={14} />} label={t('bookings.service', 'خدمت')} value={serviceName} valueColor={'var(--text-primary)'} />
+        <Detail icon={<Clock size={14} />} label={t('bookings.time', 'زمان')} value={time} valueColor={'var(--text-primary)'} highlightNumbers />
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
@@ -371,7 +396,7 @@ function BookingCard({
               fontWeight: 600,
             }}
           >
-            {bookingDate.toLocaleDateString(isEnglish ? 'en-US' : 'fa-IR', { year: 'numeric', month: 'long', day: 'numeric' })}
+                {renderWithNumberColor(bookingDate.toLocaleDateString(isEnglish ? 'en-US' : 'fa-IR', { year: 'numeric', month: 'long', day: 'numeric' }), '#ffffff', 'var(--text-secondary)')}
           </span>
         )}
       </div>
@@ -381,18 +406,18 @@ function BookingCard({
           <ActionButton
             onClick={() => onConfirm(booking)}
             disabled={isProcessing}
-            color="#059669"
-            bg="#D1FAE5"
-            hoverBg="#A7F3D0"
+            color="#fff"
+            bg="#059669"
+            hoverBg="#047857"
             icon={<CheckCircle size={14} />}
             label={isProcessing ? '...' : t('bookings.confirmBookingAction', 'تأیید رزرو')}
           />
           <ActionButton
             onClick={() => onCancel(booking)}
             disabled={isProcessing}
-            color="#DC2626"
-            bg="#FEE2E2"
-            hoverBg="#FECACA"
+            color="#fff"
+            bg="#DC2626"
+            hoverBg="#B91C1C"
             icon={<XCircle size={14} />}
             label={isProcessing ? '...' : t('bookings.cancelBookingAction', 'لغو رزرو')}
           />
@@ -404,9 +429,9 @@ function BookingCard({
           <ActionButton
             onClick={() => onCancel(booking)}
             disabled={isProcessing}
-            color="#DC2626"
-            bg="#FEE2E2"
-            hoverBg="#FECACA"
+            color="#fff"
+            bg="#DC2626"
+            hoverBg="#B91C1C"
             icon={<XCircle size={14} />}
             label={isProcessing ? '...' : t('bookings.cancelCustomerBooking', 'لغو نوبت')}
           />
@@ -488,11 +513,14 @@ function InfoItem({ icon, label, value, gradient }) {
 }
 
 function CancelConfirmModal({ open, booking, onClose, onConfirm, processing }) {
+  const { t } = useLanguage();
   if (!open || !booking) return null;
 
   const serviceName = booking.services?.length
     ? booking.services.map((s) => s.name).join(' + ')
     : booking.service?.name || booking.service_name || '—';
+  const detailText = t('bookings.cancelConfirmDetail', 'این عملیات قابل بازگشت نیست. در صورت لغو، نوبت مربوط به {service} حذف می‌شود.')
+    .replace('{service}', serviceName);
 
   return (
     <AnimatePresence>
@@ -541,7 +569,7 @@ function CancelConfirmModal({ open, booking, onClose, onConfirm, processing }) {
             }}
           >
             <AlertTriangle size={22} />
-            <div style={{ fontWeight: 800, fontSize: '1.05rem' }}>تأیید لغو نوبت</div>
+            <div style={{ fontWeight: 800, fontSize: '1.05rem' }}>{t('bookings.cancelConfirmTitle', 'تأیید لغو نوبت')}</div>
           </div>
 
           <div style={{ padding: '1.5rem' }}>
@@ -571,10 +599,10 @@ function CancelConfirmModal({ open, booking, onClose, onConfirm, processing }) {
 
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: '1rem', fontWeight: 700, color: "var(--text-primary)", marginBottom: 6 }}>
-                  مطمئنی که می‌خواهی این نوبت را لغو کنی؟
+                  {t('bookings.cancelConfirmText', 'مطمئنی که می‌خواهی این نوبت را لغو کنی؟')}
                 </div>
                 <div style={{ fontSize: '0.9rem', color: "var(--text-secondary)", lineHeight: 1.9 }}>
-                  این عملیات قابل بازگشت نیست. در صورت لغو، نوبت مربوط به <b>{serviceName}</b> حذف می‌شود.
+                  {detailText}
                 </div>
               </div>
             </div>
@@ -591,7 +619,7 @@ function CancelConfirmModal({ open, booking, onClose, onConfirm, processing }) {
                 lineHeight: 1.8,
               }}
             >
-              برای ادامه، دکمه <b>بله، لغو شود</b> را بزن. اگر منصرف شدی، می‌توانی این پنجره را ببندی.
+              {t('bookings.cancelConfirmHint', 'برای ادامه، دکمه بله، لغو شود را بزن. اگر منصرف شدی، می‌توانی این پنجره را ببندی.')}
             </div>
 
             <div style={{ display: 'flex', gap: 10 }}>
@@ -610,7 +638,7 @@ function CancelConfirmModal({ open, booking, onClose, onConfirm, processing }) {
                   opacity: processing ? 0.6 : 1,
                 }}
               >
-                انصراف
+                {t('bookings.cancelConfirmCancel', 'انصراف')}
               </button>
               <button
                 onClick={onConfirm}
@@ -635,12 +663,12 @@ function CancelConfirmModal({ open, booking, onClose, onConfirm, processing }) {
                 {processing ? (
                   <>
                     <RefreshCw size={16} style={{ animation: 'spin 1s linear infinite' }} />
-                    در حال لغو...
+                    {t('bookings.cancelConfirmSubmitting', 'در حال لغو...')}
                   </>
                 ) : (
                   <>
                     <XCircle size={16} />
-                    بله، لغو شود
+                    {t('bookings.cancelConfirmSubmit', 'بله، لغو شود')}
                   </>
                 )}
               </button>
@@ -653,6 +681,7 @@ function CancelConfirmModal({ open, booking, onClose, onConfirm, processing }) {
 }
 
 function SuccessModal({ open, message, onClose }) {
+  const { t } = useLanguage();
   if (!open) return null;
 
   return (
@@ -718,7 +747,7 @@ function SuccessModal({ open, message, onClose }) {
           </div>
           <div style={{ padding: '1.5rem' }}>
             <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#065f46', marginBottom: 8 }}>
-              عملیات موفق
+              {t('bookings.successTitle', 'عملیات موفق')}
             </div>
             <div style={{ fontSize: '0.95rem', color: '#374151', lineHeight: 1.8, marginBottom: '1.5rem' }}>
               {message}
@@ -738,7 +767,7 @@ function SuccessModal({ open, message, onClose }) {
                 boxShadow: '0 6px 16px rgba(16, 185, 129, 0.3)',
               }}
             >
-              باشه، متوجه شدم
+              {t('bookings.successOk', 'باشه، متوجه شدم')}
             </button>
           </div>
         </motion.div>
@@ -775,7 +804,7 @@ export default function MyBookings() {
       if (isAuthenticated && (user?.role === 'owner' || user?.role === 'staff')) {
         if (!salonId) {
           setBookings([]);
-          setError('سالن انتخاب نشده است');
+          setError(t('bookings.salonSelectionError', 'سالن انتخاب نشده است'));
           return;
         }
         res = await api.getBookings(salonId);
@@ -793,7 +822,7 @@ export default function MyBookings() {
       setError('');
     } catch (err) {
       console.error('Failed to load bookings:', err);
-      setError('خطا در بارگذاری نوبت‌ها');
+      setError(t('bookings.loadingBookingsError', 'خطا در بارگذاری نوبت‌ها'));
     } finally {
       setLoading(false);
       setSearchLoading(false);
@@ -804,7 +833,7 @@ export default function MyBookings() {
     const targetSalonId = getBookingSalonId(booking) || salonId;
 
     if (!targetSalonId) {
-      setError('شناسه سالن برای این نوبت پیدا نشد');
+      setError(t('bookings.salonIdMissingError', 'شناسه سالن برای این نوبت پیدا نشد'));
       return;
     }
 
@@ -821,14 +850,14 @@ export default function MyBookings() {
       setCancelTargetBooking(null);
 
       if (action === 'confirm') {
-        setSuccessModal({ open: true, message: 'رزرو با موفقیت تأیید شد.' });
+        setSuccessModal({ open: true, message: t('bookings.successConfirm', 'رزرو با موفقیت تأیید شد.') });
       } else {
-        setSuccessModal({ open: true, message: 'نوبت با موفقیت لغو شد.' });
+        setSuccessModal({ open: true, message: t('bookings.successCancel', 'نوبت با موفقیت لغو شد.') });
       }
     } catch (err) {
       console.error('Action failed', err);
       setCancelTargetBooking(null);
-      setError(err?.response?.data?.detail || err?.response?.data?.message || 'عملیات انجام نشد. دوباره تلاش کنید.');
+      setError(err?.response?.data?.detail || err?.response?.data?.message || t('bookings.bookingActionFailed', 'عملیات انجام نشد. دوباره تلاش کنید.'));
     } finally {
       setProcessingId(null);
       await loadBookings();
@@ -1241,7 +1270,7 @@ export default function MyBookings() {
                     {searchLoading ? (
                       <>
                         <RefreshCw size={18} style={{ animation: 'spin 1s linear infinite' }} />
-                        در حال جستجو...
+                        {t('bookings.searchLoading', 'در حال جستجو...')}
                       </>
                     ) : (
                       <>

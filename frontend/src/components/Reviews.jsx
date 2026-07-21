@@ -399,7 +399,8 @@ function AlreadyReviewed() {
         fontSize: '0.9rem',
         fontWeight: 600,
         marginBottom: '1.5rem',
-        direction: 'rtl',
+        direction: isEnglish ? 'ltr' : 'rtl',
+        textAlign: isEnglish ? 'left' : 'right',
       }}
     >
       <CheckCircle size={18} style={{ flexShrink: 0 }} />

@@ -238,8 +238,8 @@ function BookingCard({ b, processingId, onConfirm, onCancel, language, t }) {
       <div style={{ height: 1, background: 'var(--card-hover)' }} />
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-        <Detail icon={<Scissors size={14} />} label={t('bookings.service', 'Service')} value={serviceName} />
-        <Detail icon={<Clock size={14} />} label={t('bookings.time', 'Time')} value={time} />
+        <Detail icon={<Scissors size={14} />} label={t('bookings.service', 'Service')} value={serviceName} valueColor={'var(--text-primary)'} />
+        <Detail icon={<Clock size={14} />} label={t('bookings.time', 'Time')} value={time} valueColor={'var(--text-primary)'} highlightNumbers />
       </div>
 
       {isPending && (
@@ -247,14 +247,14 @@ function BookingCard({ b, processingId, onConfirm, onCancel, language, t }) {
           <ActionButton
             onClick={() => onConfirm(b.id)}
             disabled={isProcessing}
-            color="#059669" bg="#D1FAE5" hoverBg="#A7F3D0"
+            color="#fff" bg="#059669" hoverBg="#047857"
             icon={<CheckCircle size={14} />}
             label={isProcessing ? '...' : t('bookings.confirmBookingAction', 'Confirm booking')}
           />
           <ActionButton
             onClick={() => onCancel(b.id)}
             disabled={isProcessing}
-            color="#DC2626" bg="#FEE2E2" hoverBg="#FECACA"
+            color="#fff" bg="#DC2626" hoverBg="#B91C1C"
             icon={<XCircle size={14} />}
             label={isProcessing ? '...' : t('bookings.cancelBookingAction', 'Cancel booking')}
           />
@@ -264,13 +264,32 @@ function BookingCard({ b, processingId, onConfirm, onCancel, language, t }) {
   );
 }
 
-function Detail({ icon, label, value }) {
+function Detail({ icon, label, value, valueColor, highlightNumbers }) {
+  const renderWithNumberColor = (text) => {
+    if (!text) return null;
+    const parts = [];
+    const regex = /([0-9\u06F0-\u06F9]+)/g;
+    let lastIndex = 0;
+    let m;
+    while ((m = regex.exec(text)) !== null) {
+      if (m.index > lastIndex) parts.push({ text: text.slice(lastIndex, m.index), isNumber: false });
+      parts.push({ text: m[0], isNumber: true });
+      lastIndex = m.index + m[0].length;
+    }
+    if (lastIndex < text.length) parts.push({ text: text.slice(lastIndex), isNumber: false });
+    return parts.map((p, i) => (
+      <span key={i} style={{ color: p.isNumber && highlightNumbers ? '#ffffff' : valueColor || 'var(--text-primary)' }}>{p.text}</span>
+    ));
+  };
+
   return (
     <div style={{ display: 'flex', alignItems: 'flex-start', gap: 7 }}>
       <span style={{ color: 'var(--text-muted)', marginTop: 2, flexShrink: 0 }}>{icon}</span>
       <div>
         <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: 2 }}>{label}</div>
-        <div style={{ fontSize: '0.85rem', fontWeight: 600, color: '#334155' }}>{value}</div>
+        <div style={{ fontSize: '0.85rem', fontWeight: 600, color: valueColor || 'var(--text-primary)' }}>
+          {highlightNumbers ? renderWithNumberColor(String(value)) : value}
+        </div>
       </div>
     </div>
   );

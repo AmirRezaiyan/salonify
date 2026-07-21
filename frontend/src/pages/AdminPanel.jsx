@@ -159,7 +159,7 @@ function formatAdminNumber(value, isEnglish = false) {
 // Convert Persian digits to ASCII and extract only digits
 function parsePriceInput(value) {
   if (!value) return '';
-  
+
   // Convert Persian/Farsi digits to ASCII
   let normalized = String(value)
     .replace(/۰/g, '0')
@@ -183,7 +183,7 @@ function parsePriceInput(value) {
     .replace(/٧/g, '7')
     .replace(/٨/g, '8')
     .replace(/٩/g, '9');
-  
+
   // Extract only ASCII digits
   const digitsOnly = normalized.replace(/[^\d]/g, '');
   return digitsOnly;
@@ -621,7 +621,7 @@ export default function AdminPanel() {
       const durationError = err.response?.data?.duration_minutes?.[0];
       const detailError = err.response?.data?.detail;
       const nonFieldError = err.response?.data?.non_field_errors?.[0];
-      
+
       if (nameError) {
         setErrorModal({
           open: true,
@@ -878,14 +878,9 @@ export default function AdminPanel() {
     });
   };
 
-  const handleToggleSalonStatus = async () => {
+  const performToggleSalonStatus = async () => {
     const newStatus = !salon?.is_active;
-    const confirmMessage = newStatus
-      ? t('admin.activateSalonConfirm', 'Do you want to activate the salon?')
-      : t('admin.deactivateSalonConfirm', 'Do you want to deactivate the salon?');
-
-    if (!window.confirm(confirmMessage)) return;
-
+    setConfirmModal({ open: false, title: '', message: '', onConfirm: null });
     try {
       setToggleSalonLoading(true);
       const response = await api.toggleSalonStatus(newStatus ? 'enable' : 'disable', null, '');
@@ -900,10 +895,26 @@ export default function AdminPanel() {
     }
   };
 
-  const handleDisableSalon = async (e) => {
-    e.preventDefault();
-    if (!window.confirm(t('admin.confirmDisableSalon', 'Are you sure you want to disable the salon?'))) return;
+  const handleToggleSalonStatus = () => {
+    const newStatus = !salon?.is_active;
+    const confirmMessage = newStatus
+      ? t('admin.activateSalonConfirm', 'Do you want to activate the salon?')
+      : t('admin.deactivateSalonConfirm', 'Do you want to deactivate the salon?');
 
+    setConfirmModal({
+      open: true,
+      title: newStatus
+        ? t('admin.activateSalonButton', 'Activate salon')
+        : t('admin.deactivateSalonButton', 'Deactivate salon'),
+      message: confirmMessage,
+      cancelText: t('common.cancel', 'Cancel'),
+      confirmText: t('common.confirm', 'Confirm'),
+      onConfirm: performToggleSalonStatus
+    });
+  };
+
+  const performDisableSalon = async () => {
+    setConfirmModal({ open: false, title: '', message: '', onConfirm: null });
     try {
       setToggleSalonLoading(true);
       const days = disableSalonForm.days ? parseInt(disableSalonForm.days, 10) : null;
@@ -918,6 +929,18 @@ export default function AdminPanel() {
     } finally {
       setToggleSalonLoading(false);
     }
+  };
+
+  const handleDisableSalon = (e) => {
+    e.preventDefault();
+    setConfirmModal({
+      open: true,
+      title: t('admin.disableSalonTitle', 'Disable salon'),
+      message: t('admin.confirmDisableSalon', 'Are you sure you want to disable the salon?'),
+      cancelText: t('common.cancel', 'Cancel'),
+      confirmText: t('admin.disableSalonSubmit', 'Disable'),
+      onConfirm: performDisableSalon
+    });
   };
 
   const handleOwnerImageSelect = (e) => {
@@ -1403,7 +1426,7 @@ export default function AdminPanel() {
             transition={{ duration: 0.5, delay: 0.3 }}
             className="admin-header-buttons"
           >
-            <button
+            {/* <button
               onClick={() => { logout(); navigate('/'); }}
               style={{
                 display: 'flex',
@@ -1435,7 +1458,7 @@ export default function AdminPanel() {
             >
               <LogOut size={18} />
               {t('header.logout', 'Log out')}
-            </button>
+            </button> */}
           </motion.div>
         </div>
       </motion.header>
@@ -1448,6 +1471,7 @@ export default function AdminPanel() {
         gridTemplateColumns: 'minmax(200px, 0.25fr) 1fr',
         gap: 'clamp(0.75rem, 2vw, 1.5rem)'
       }} className="admin-main-container">
+        {/* دکمه باز/بسته کردن منو - فقط موبایل */}
         {/* دکمه باز/بسته کردن منو - فقط موبایل */}
         <button
           type="button"
@@ -1470,6 +1494,7 @@ export default function AdminPanel() {
             fontWeight: 700
           }}
         >
+          {/* سمت چپ: آیکون و متن ثابت */}
           <span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <span style={{
               width: '34px',
@@ -1482,13 +1507,15 @@ export default function AdminPanel() {
               justifyContent: 'center',
               flexShrink: 0
             }}>
-              {TAB_META[activeTab]?.icon}
+              <Menu size={18} />
             </span>
-            {TAB_META[activeTab]?.label}
+            {t('admin.menuButton', 'Menu')}
           </span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: "var(--text-secondary)" }}>
+
+          {/* سمت راست: آیکون باز/بسته */}
+          {/* <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: "var(--text-secondary)" }}>
             {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
-          </span>
+          </span> */}
         </button>
 
         {/* نوار کناری */}
@@ -1506,23 +1533,23 @@ export default function AdminPanel() {
           className={`admin-aside${mobileMenuOpen ? ' admin-aside-open' : ''}`}
         >
           <div style={{
-              background: 'var(--card)',
-              borderRadius: '24px',
-              padding: 'clamp(1rem, 2vw, 1.5rem)',
-              boxShadow: 'var(--shadow-lg)',
-              border: '1px solid var(--border)',
-              position: 'relative',
-              overflow: 'hidden'
-            }}>
-              {/* نوار گرادیانت بالا */}
-              <div style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                height: '4px',
-                background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)'
-              }} />
+            background: 'var(--card)',
+            borderRadius: '24px',
+            padding: 'clamp(1rem, 2vw, 1.5rem)',
+            boxShadow: 'var(--shadow-lg)',
+            border: '1px solid var(--border)',
+            position: 'relative',
+            overflow: 'hidden'
+          }}>
+            {/* نوار گرادیانت بالا */}
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: '4px',
+              background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)'
+            }} />
             <nav style={{ overflowY: 'auto', maxHeight: 'calc(100vh - 200px)' }}>
               <TabButton
                 icon={<BarChart3 size={20} />}
@@ -1918,8 +1945,8 @@ export default function AdminPanel() {
                     fontSize: '0.85rem',
                     lineHeight: 1.5
                   }}>
-                    • {t('admin.manageServicesInfoActive', 'If the service is active, customers can see it and book it')}<br/>
-                    • {t('admin.manageServicesInfoInactive', 'If the service is inactive, customers cannot see or book it')}<br/>
+                    • {t('admin.manageServicesInfoActive', 'If the service is active, customers can see it and book it')}<br />
+                    • {t('admin.manageServicesInfoInactive', 'If the service is inactive, customers cannot see or book it')}<br />
                     • {t('admin.manageServicesInfoNoDelete', 'The service is not deleted; only its status changes')}
                   </p>
                 </div>
@@ -2024,6 +2051,7 @@ export default function AdminPanel() {
                                 onChange={(val) => setNewService({ ...newService, price: val })}
                                 placeholder={t('admin.servicePricePlaceholder', 'Example: 500,000')}
                                 required
+                                t={t}
                               />
                               <FormField
                                 label={t('admin.serviceDurationLabel', 'Duration (minutes)')}
@@ -2186,6 +2214,7 @@ export default function AdminPanel() {
                               onChange={(val) => setEditingService({ ...editingService, price: val })}
                               placeholder={t('admin.servicePricePlaceholder', 'Example: 500,000')}
                               required
+                              t={t}
                             />
                             <FormField
                               label={t('admin.serviceDurationLabel', 'Duration (minutes)')}
@@ -2293,6 +2322,7 @@ export default function AdminPanel() {
                       onToggleStatus={handleToggleServiceStatus}
                       onEdit={() => handleEditService(service)}
                       isEnglish={isEnglish}
+                      t={t}
                     />
                   ))}
                 </div>
@@ -3284,11 +3314,11 @@ export default function AdminPanel() {
                                 background: 'var(--background-secondary)',
                                 borderBottom: '1px solid #e2e8f0'
                               }}>
-                                <TableHeader>{t('admin.bookingTableCustomer', 'Customer')}</TableHeader>
-                                <TableHeader>{t('admin.bookingTableService', 'Service')}</TableHeader>
-                                <TableHeader>{t('admin.bookingTableDateTime', 'Date and time')}</TableHeader>
-                                <TableHeader>{t('admin.bookingTableStatus', 'Status')}</TableHeader>
-                                <TableHeader>{t('admin.bookingTableContact', 'Contact info')}</TableHeader>
+                                <TableHeader isEnglish={isEnglish}>{t('admin.bookingTableCustomer', 'Customer')}</TableHeader>
+                                <TableHeader isEnglish={isEnglish}>{t('admin.bookingTableService', 'Service')}</TableHeader>
+                                <TableHeader isEnglish={isEnglish}>{t('admin.bookingTableDateTime', 'Date and time')}</TableHeader>
+                                <TableHeader isEnglish={isEnglish}>{t('admin.bookingTableStatus', 'Status')}</TableHeader>
+                                <TableHeader isEnglish={isEnglish}>{t('admin.bookingTableContact', 'Contact info')}</TableHeader>
                               </tr>
                             </thead>
                             <tbody>
@@ -3663,7 +3693,7 @@ export default function AdminPanel() {
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
                             <div>
                               <label style={{ fontSize: '0.78rem', color: "var(--text-secondary)", fontWeight: 500, display: 'flex', justifyContent: 'space-between' }}>
-                                <span>عمودی (بالا/پایین)</span>
+                                <span>{t('admin.positionEditorVertical', 'Vertical (up/down)')}</span>
                                 <span style={{ color: '#8b5cf6' }}>{Math.round(imagePosition.y)}%</span>
                               </label>
                               <input
@@ -3700,7 +3730,7 @@ export default function AdminPanel() {
                             </button>
                           </div>
                         </div>
-                        ) : (
+                      ) : (
                         /* آپلود عکس */
                         <div style={{ flex: 1, minWidth: '200px' }}>
                           <label
@@ -4167,27 +4197,58 @@ export default function AdminPanel() {
                       {/* راهنمای استفاده */}
                       <div style={{
                         background: 'var(--success-surface)',
-                        padding: 'clamp(0.75rem, 2vw, 1.25rem)',
+                        padding: 'clamp(1rem, 2.5vw, 1.5rem) clamp(1.1rem, 2.5vw, 1.5rem)',
                         borderRadius: '12px',
                         border: '1px solid #dcfce7',
                         borderRight: '4px solid #10b981'
                       }}>
-                        <h3 style={{ color: '#10b981', fontSize: '0.95rem', fontWeight: 700, margin: '0 0 0.75rem 0' }}>
+                        <h3 style={{ color: '#10b981', fontSize: '0.95rem', fontWeight: 700, margin: '0 0 1rem 0' }}>
                           {t('admin.qrHowToUseTitle', '🎯 How to use:')}
                         </h3>
-                        <ol style={{
-                          margin: 0,
-                          paddingRight: '1.2rem',
-                          color: '#15803d',
-                          lineHeight: '1.9',
-                          fontSize: 'clamp(0.8rem, 2vw, 0.9rem)'
+                        <div style={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '0.65rem'
                         }}>
-                          <li>{t('admin.qrHowToUseStep1', 'Download the QR code image')}</li>
-                          <li>{t('admin.qrHowToUseStep2', 'Print it and place it in your shop')}</li>
-                          <li>{t('admin.qrHowToUseStep3', 'Customers scan it with their phone camera')}</li>
-                          <li>{t('admin.qrHowToUseStep4', 'Your salon page opens')}</li>
-                          <li>{t('admin.qrHowToUseStep5', 'The customer books an appointment')}</li>
-                        </ol>
+                          {[
+                            t('admin.qrHowToUseStep1', 'Download the QR code image'),
+                            t('admin.qrHowToUseStep2', 'Print it and place it in your shop'),
+                            t('admin.qrHowToUseStep3', 'Customers scan it with their phone camera'),
+                            t('admin.qrHowToUseStep4', 'Your salon page opens'),
+                            t('admin.qrHowToUseStep5', 'The customer books an appointment')
+                          ].map((step, index) => (
+                            <div key={index} style={{
+                              display: 'flex',
+                              alignItems: 'flex-start',
+                              gap: '0.65rem'
+                            }}>
+                              <span style={{
+                                flexShrink: 0,
+                                width: '22px',
+                                height: '22px',
+                                borderRadius: '50%',
+                                background: '#10b981',
+                                color: '#fff',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                fontSize: '0.72rem',
+                                fontWeight: 700,
+                                marginTop: '0.1rem'
+                              }}>
+                                {index + 1}
+                              </span>
+                              <span style={{
+                                color: '#15803d',
+                                lineHeight: '1.7',
+                                fontSize: 'clamp(0.8rem, 2vw, 0.9rem)',
+                                paddingTop: '0.05rem'
+                              }}>
+                                {step}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     </div>
 
@@ -5249,7 +5310,7 @@ function FormField({ label, type, value, onChange, placeholder, required }) {
   );
 }
 
-function PriceField({ label, value, onChange, placeholder, required }) {
+function PriceField({ label, value, onChange, placeholder, required, t }) {
   return (
     <div>
       <label style={{
@@ -5302,7 +5363,7 @@ function PriceField({ label, value, onChange, placeholder, required }) {
           fontWeight: 600,
           pointerEvents: 'none'
         }}>
-          تومان
+          {t ? t('admin.currencyUnit', 'Toman') : 'Toman'}
         </span>
       </div>
     </div>
@@ -5324,7 +5385,7 @@ function TableHeader({ children, isEnglish = true }) {
   );
 }
 
-function ServiceCard({ service, onToggleStatus, onEdit, isEnglish = true }) {
+function ServiceCard({ service, onToggleStatus, onEdit, isEnglish = true, t }) {
   const isActivationBlocked = !service.is_active && Number(service?.price) <= 0;
 
   return (
@@ -5389,7 +5450,7 @@ function ServiceCard({ service, onToggleStatus, onEdit, isEnglish = true }) {
                 marginTop: '0.15rem'
               }}>
                 <Clock size={13} color="#f093fb" />
-                {formatAdminNumber(service.duration_minutes, isEnglish)} min
+                {formatAdminNumber(service.duration_minutes, isEnglish)} {t ? t('admin.minutesUnit', 'min') : 'min'}
               </div>
             </div>
           </div>
@@ -5398,7 +5459,7 @@ function ServiceCard({ service, onToggleStatus, onEdit, isEnglish = true }) {
             type="button"
             onClick={() => onToggleStatus(service)}
             aria-disabled={isActivationBlocked}
-            title={isActivationBlocked ? 'برای فعال‌سازی ابتدا قیمت را مشخص کنید' : undefined}
+            title={isActivationBlocked ? t('admin.serviceActivationBlockedHint', 'Set a price before activating') : undefined}
             style={{
               padding: '0.35rem 0.65rem',
               borderRadius: '999px',
@@ -5432,7 +5493,7 @@ function ServiceCard({ service, onToggleStatus, onEdit, isEnglish = true }) {
         }}>
           <DollarSign size={16} color="#667eea" />
           <span style={{ fontWeight: 800, color: "var(--text-primary)", fontSize: '0.92rem' }}>
-            {formatToman(service.price)}
+            {formatToman(service.price, isEnglish)}
           </span>
         </div>
 
@@ -5469,7 +5530,7 @@ function ServiceCard({ service, onToggleStatus, onEdit, isEnglish = true }) {
             }}
           >
             <Edit2 size={14} />
-            ویرایش
+            {t('admin.serviceEditButton', 'Edit')}
           </motion.button>
 
         </div>
@@ -5858,7 +5919,10 @@ function BookingRow({ booking, t, isEnglish = true }) {
       <td style={{ padding: 'clamp(0.5rem, 1.5vw, 1rem)' }}>
         <div style={{
           fontSize: 'clamp(0.7rem, 1.2vw, 0.9rem)',
-          color: "var(--text-secondary)"
+          color: "var(--text-secondary)",
+          direction: 'rtl',
+          textAlign: isEnglish ? 'left' : 'right',
+          unicodeBidi: 'plaintext'
         }}>
           {new Date(booking.start_at).toLocaleString('fa-IR', {
             year: 'numeric',
