@@ -2356,14 +2356,14 @@ export default function Booking() {
                   gap: '12px',
                   marginBottom: '20px'
                 }}>
-                  {availableTimes.map((t) => {
-                    const isBooked = t.isBooked;
-                    const isSelected = formData.time === t.value;
+                  {availableTimes.map((slot) => {
+                    const isBooked = slot.isBooked;
+                    const isSelected = formData.time === slot.value;
 
                     return (
                       <button
                         type="button"
-                        key={t.value}
+                        key={slot.value}
                         onClick={() => {
                           if (isBooked) {
                             showDialog(
@@ -2374,7 +2374,7 @@ export default function Booking() {
                             );
                             return;
                           }
-                          setFormData(prev => ({ ...prev, time: t.value }));
+                          setFormData(prev => ({ ...prev, time: slot.value }));
                           setShowTimeModal(false);
                           if (errors.start_at) setErrors(prev => ({ ...prev, start_at: '' }));
                           if (error) setError('');
@@ -2412,7 +2412,7 @@ export default function Booking() {
                           }
                         }}
                       >
-                        {t.label}
+                        {slot.label}
                         {isBooked && (
                           <span style={{
                             position: 'absolute',
