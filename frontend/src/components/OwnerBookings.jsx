@@ -3,7 +3,19 @@ import { api } from '../api/client';
 import { useLanguage } from '../context/LanguageContext';
 import { toPersianNumber } from '../utils/formatCurrency';
 import { Loading } from './Loading';
-import { CheckCircle, XCircle, User, Scissors, Clock, Phone, ChevronLeft, ChevronRight, AlertCircle, X } from 'lucide-react';
+import {
+  CheckCircle,
+  XCircle,
+  User,
+  Scissors,
+  Clock,
+  Phone,
+  ChevronLeft,
+  ChevronRight,
+  AlertCircle,
+  X,
+  LoaderCircle,
+} from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const STATUS_MAP = {
@@ -13,7 +25,7 @@ const STATUS_MAP = {
 };
 
 // ============================================================
-// کامپوننت دیالوگ مدال
+// Dialog Modal (با ترجمه‌ی صحیح)
 // ============================================================
 function DialogModal({ isOpen, onClose, type, title, message, icon, t, language }) {
   const isEnglish = language === 'en';
@@ -52,7 +64,6 @@ function DialogModal({ isOpen, onClose, type, title, message, icon, t, language 
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* overlay + container برای سنتر کردن */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -69,96 +80,91 @@ function DialogModal({ isOpen, onClose, type, title, message, icon, t, language 
               padding: '1rem',
             }}
           >
-          {/* دیالوگ */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.85, y: 30 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.85, y: 30 }}
-            transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-            onClick={e => e.stopPropagation()}
-            style={{
-              position: 'relative',
-              width: '100%',
-              maxWidth: 400,
-              background: 'var(--card)',
-              borderRadius: 24,
-              overflow: 'hidden',
-              boxShadow: '0 25px 60px rgba(0,0,0,0.25)',
-              direction: isEnglish ? 'ltr' : 'rtl',
-              textAlign: isEnglish ? 'left' : 'right',
-            }}
-          >
-            {/* هدر رنگی */}
-            <div style={{
-              background: cfg.headerBg,
-              padding: '1.75rem 1.5rem',
-              display: 'flex', alignItems: 'center', gap: 14,
-              position: 'relative',
-            }}>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.85, y: 30 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.85, y: 30 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+              onClick={e => e.stopPropagation()}
+              style={{
+                position: 'relative',
+                width: '100%',
+                maxWidth: 400,
+                background: 'var(--card)',
+                borderRadius: 24,
+                overflow: 'hidden',
+                boxShadow: '0 25px 60px rgba(0,0,0,0.25)',
+                direction: isEnglish ? 'ltr' : 'rtl',
+                textAlign: isEnglish ? 'left' : 'right',
+              }}
+            >
               <div style={{
-                width: 52, height: 52, borderRadius: 16,
-                background: cfg.iconBg,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                flexShrink: 0,
+                background: cfg.headerBg,
+                padding: '1.75rem 1.5rem',
+                display: 'flex', alignItems: 'center', gap: 14,
+                position: 'relative',
               }}>
-                {icon}
-              </div>
-              <div>
-                <div style={{ color: '#fff', fontWeight: 800, fontSize: '1.15rem' }}>{title}</div>
-              </div>
-              {/* دکمه بستن */}
-              <button
-                onClick={onClose}
-                style={{
-                  position: 'absolute', top: 12, right: isEnglish ? 12 : undefined, left: isEnglish ? undefined : 12,
-                  width: 30, height: 30, borderRadius: 8,
-                  border: 'none', background: 'var(--surface-glass-strong)',
-                  color: '#fff', cursor: 'pointer',
+                <div style={{
+                  width: 52, height: 52, borderRadius: 16,
+                  background: cfg.iconBg,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}
-              >
-                <X size={16} />
-              </button>
-            </div>
-
-            {/* بدنه */}
-            <div style={{ padding: '1.5rem' }}>
-              <p style={{
-                color: "var(--text-secondary)", fontSize: '0.95rem', lineHeight: 1.8,
-                margin: '0 0 1.5rem 0', textAlign: isEnglish ? 'left' : 'center',
-              }}>
-                {message}
-              </p>
-
-              {/* نوار پیشرفت auto-close */}
-              <div style={{
-                height: 3, background: 'var(--card-hover)', borderRadius: 4,
-                marginBottom: '1.25rem', overflow: 'hidden',
-              }}>
-                <motion.div
-                  initial={{ width: '100%' }}
-                  animate={{ width: '0%' }}
-                  transition={{ duration: 4, ease: 'linear' }}
-                  style={{ height: '100%', borderRadius: 4, background: cfg.btnBg }}
-                />
+                  flexShrink: 0,
+                }}>
+                  {icon}
+                </div>
+                <div>
+                  <div style={{ color: '#fff', fontWeight: 800, fontSize: '1.15rem' }}>{title}</div>
+                </div>
+                <button
+                  onClick={onClose}
+                  style={{
+                    position: 'absolute', top: 12, right: isEnglish ? 12 : undefined, left: isEnglish ? undefined : 12,
+                    width: 30, height: 30, borderRadius: 8,
+                    border: 'none', background: 'var(--surface-glass-strong)',
+                    color: '#fff', cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}
+                >
+                  <X size={16} />
+                </button>
               </div>
 
-              <button
-                onClick={onClose}
-                onMouseEnter={() => setBtnHover(true)}
-                onMouseLeave={() => setBtnHover(false)}
-                style={{
-                  width: '100%', padding: '12px',
-                  borderRadius: 12, border: 'none',
-                  background: btnHover ? cfg.btnHover : cfg.btnBg,
-                  color: '#fff', fontWeight: 700, fontSize: '0.95rem',
-                  cursor: 'pointer', transition: 'background 0.2s',
-                }}
-              >
-                {t('common.close', 'Close')}
-              </button>
-            </div>
-          </motion.div>
+              <div style={{ padding: '1.5rem' }}>
+                <p style={{
+                  color: "var(--text-secondary)", fontSize: '0.95rem', lineHeight: 1.8,
+                  margin: '0 0 1.5rem 0', textAlign: isEnglish ? 'left' : 'center',
+                }}>
+                  {message}
+                </p>
+
+                <div style={{
+                  height: 3, background: 'var(--card-hover)', borderRadius: 4,
+                  marginBottom: '1.25rem', overflow: 'hidden',
+                }}>
+                  <motion.div
+                    initial={{ width: '100%' }}
+                    animate={{ width: '0%' }}
+                    transition={{ duration: 4, ease: 'linear' }}
+                    style={{ height: '100%', borderRadius: 4, background: cfg.btnBg }}
+                  />
+                </div>
+
+                <button
+                  onClick={onClose}
+                  onMouseEnter={() => setBtnHover(true)}
+                  onMouseLeave={() => setBtnHover(false)}
+                  style={{
+                    width: '100%', padding: '12px',
+                    borderRadius: 12, border: 'none',
+                    background: btnHover ? cfg.btnHover : cfg.btnBg,
+                    color: '#fff', fontWeight: 700, fontSize: '0.95rem',
+                    cursor: 'pointer', transition: 'background 0.2s',
+                  }}
+                >
+                  {t('common.close', 'Close')}
+                </button>
+              </div>
+            </motion.div>
           </motion.div>
         </>
       )}
@@ -167,7 +173,7 @@ function DialogModal({ isOpen, onClose, type, title, message, icon, t, language 
 }
 
 // ============================================================
-// بقیه کامپوننت‌ها (بدون تغییر)
+// StatusBadge
 // ============================================================
 function StatusBadge({ status, language }) {
   const s = STATUS_MAP[status] || { label: { fa: status || '—', en: status || '—' }, bg: '#F1F5F9', color: "var(--text-secondary)", dot: '#94A3B8' };
@@ -185,10 +191,16 @@ function StatusBadge({ status, language }) {
   );
 }
 
-function BookingCard({ b, processingId, onConfirm, onCancel, language, t }) {
+// ============================================================
+// BookingCard با پردازش اختصاصی هر دکمه
+// ============================================================
+function BookingCard({ b, processingAction, onConfirm, onCancel, language, t }) {
   const [isHovered, setIsHovered] = useState(false);
   const isPending = b.status === 'pending';
-  const isProcessing = processingId === b.id;
+  const isProcessing = processingAction?.bookingId === b.id;
+  const isConfirming = isProcessing && processingAction?.actionType === 'confirm';
+  const isCancelling = isProcessing && processingAction?.actionType === 'cancel';
+
   const serviceName = b.services?.length
     ? b.services.map(s => s.name).join(' + ')
     : (b.service?.name || b.service_name || '—');
@@ -197,7 +209,7 @@ function BookingCard({ b, processingId, onConfirm, onCancel, language, t }) {
   const time = b.start_at ? new Date(b.start_at).toLocaleString('fa-IR') : '—';
 
   return (
-    <div
+    <motion.div
       tabIndex={0}
       role="button"
       style={{
@@ -206,17 +218,20 @@ function BookingCard({ b, processingId, onConfirm, onCancel, language, t }) {
         borderRadius: 16,
         padding: '1.25rem 1.5rem',
         display: 'flex', flexDirection: 'column', gap: 12,
-        transition: 'box-shadow 0.2s, transform 0.2s',
+        transition: 'box-shadow 0.2s, transform 0.2s, opacity 0.3s',
         boxShadow: isHovered
           ? '0 8px 24px rgba(91,79,207,0.16)'
           : (isPending ? '0 0 0 2px #EDE9FE' : '0 1px 4px rgba(0,0,0,0.05)'),
         transform: isHovered ? 'translateY(-2px)' : 'translateY(0)',
         cursor: 'default',
+        opacity: isProcessing ? 0.65 : 1,
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onFocus={() => setIsHovered(true)}
       onBlur={() => setIsHovered(false)}
+      animate={isProcessing ? { scale: 0.98 } : { scale: 1 }}
+      transition={{ duration: 0.2 }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -249,18 +264,20 @@ function BookingCard({ b, processingId, onConfirm, onCancel, language, t }) {
             disabled={isProcessing}
             color="#fff" bg="#059669" hoverBg="#047857"
             icon={<CheckCircle size={14} />}
-            label={isProcessing ? '...' : t('bookings.confirmBookingAction', 'Confirm booking')}
+            label={t('bookings.confirmBookingAction', 'Confirm booking')}
+            isProcessing={isConfirming}
           />
           <ActionButton
             onClick={() => onCancel(b.id)}
             disabled={isProcessing}
             color="#fff" bg="#DC2626" hoverBg="#B91C1C"
             icon={<XCircle size={14} />}
-            label={isProcessing ? '...' : t('bookings.cancelBookingAction', 'Cancel booking')}
+            label={t('bookings.cancelBookingAction', 'Cancel booking')}
+            isProcessing={isCancelling}
           />
         </div>
       )}
-    </div>
+    </motion.div>
   );
 }
 
@@ -295,22 +312,46 @@ function Detail({ icon, label, value, valueColor, highlightNumbers }) {
   );
 }
 
-function ActionButton({ onClick, disabled, color, bg, hoverBg, icon, label }) {
+// ============================================================
+// ActionButton با isProcessing اختصاصی
+// ============================================================
+function ActionButton({ onClick, disabled, color, bg, hoverBg, icon, label, isProcessing }) {
   const [hover, setHover] = useState(false);
+
   return (
-    <button
-      onClick={onClick} disabled={disabled}
-      onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
+    <motion.button
+      onClick={onClick}
+      disabled={disabled}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
       style={{
         flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
         padding: '7px 12px', borderRadius: 10, border: 'none',
         background: hover ? hoverBg : bg, color,
         fontSize: '0.82rem', fontWeight: 600, cursor: disabled ? 'not-allowed' : 'pointer',
-        opacity: disabled ? 0.6 : 1, transition: 'background 0.15s'
+        opacity: disabled ? 0.6 : 1, transition: 'background 0.15s',
+        position: 'relative',
+        overflow: 'hidden',
       }}
+      whileTap={!disabled ? { scale: 0.95 } : {}}
+      animate={isProcessing ? { scale: [1, 1.04, 1] } : { scale: 1 }}
+      transition={{ duration: 0.6, repeat: isProcessing ? Infinity : 0 }}
     >
-      {icon}{label}
-    </button>
+      {isProcessing ? (
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+        >
+          <LoaderCircle size={18} />
+        </motion.div>
+      ) : (
+        <>
+          {icon}
+          {label}
+        </>
+      )}
+    </motion.button>
   );
 }
 
@@ -362,13 +403,12 @@ export function OwnerBookings({ tenantId }) {
   };
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [processingId, setProcessingId] = useState(null);
+  const [processingAction, setProcessingAction] = useState(null); // { bookingId, actionType }
   const [currentPage, setCurrentPage] = useState(1);
 
-  // وضعیت دیالوگ
   const [dialog, setDialog] = useState({
     isOpen: false,
-    type: 'error',       // 'success_confirm' | 'success_cancel' | 'error'
+    type: 'error',
     title: '',
     message: '',
     icon: null,
@@ -404,7 +444,7 @@ export function OwnerBookings({ tenantId }) {
         showDialog(
           'error',
           t('common.error', 'Error'),
-          t('bookings.loadFailed', 'We could not load the bookings. Please try again.')
+          t('bookings.loadingBookingsError', 'Error loading bookings')
         );
       } finally {
         setLoading(false);
@@ -415,7 +455,7 @@ export function OwnerBookings({ tenantId }) {
 
   const handleAction = async (id, action) => {
     if (!tenantId) return;
-    setProcessingId(id);
+    setProcessingAction({ bookingId: id, actionType: action });
     try {
       const res = await api.bookingAction(tenantId, id, action);
       const updated = res.data;
@@ -424,32 +464,24 @@ export function OwnerBookings({ tenantId }) {
       if (action === 'confirm') {
         showDialog(
           'success_confirm',
-          t('bookings.successConfirmTitle', 'Booking confirmed'),
-          t('bookings.successConfirmMessage', 'The booking has been confirmed successfully.')
+          t('bookings.successTitle', 'Success'),
+          t('bookings.successConfirm', 'Booking confirmed successfully.')
         );
       } else {
         showDialog(
           'success_cancel',
-          t('bookings.successCancelTitle', 'Booking cancelled'),
-          t('bookings.successCancelMessage', 'The booking has been cancelled successfully.')
+          t('bookings.successTitle', 'Success'),
+          t('bookings.successCancel', 'Booking cancelled successfully.')
         );
       }
     } catch {
-      if (action === 'confirm') {
-        showDialog(
-          'error',
-          t('common.error', 'Error'),
-          t('bookings.confirmFailed', 'We could not confirm this booking. Please try again.')
-        );
-      } else {
-        showDialog(
-          'error',
-          t('common.error', 'Error'),
-          t('bookings.cancelFailed', 'We could not cancel this booking. Please try again.')
-        );
-      }
+      showDialog(
+        'error',
+        t('common.error', 'Error'),
+        t('bookings.bookingActionFailed', 'The operation failed. Please try again.')
+      );
     } finally {
-      setProcessingId(null);
+      setProcessingAction(null);
     }
   };
 
@@ -462,8 +494,6 @@ export function OwnerBookings({ tenantId }) {
 
   return (
     <div style={{ direction: isEnglish ? 'ltr' : 'rtl' }}>
-
-      {/* دیالوگ مدال */}
       <DialogModal
         isOpen={dialog.isOpen}
         onClose={closeDialog}
@@ -475,7 +505,6 @@ export function OwnerBookings({ tenantId }) {
         language={language}
       />
 
-      {/* خلاصه آماری */}
       {bookings.length > 0 && (
         <div style={{ display: 'flex', gap: 12, marginBottom: '1.5rem', flexWrap: 'wrap' }}>
           <StatChip label={t('bookings.totalBookings', 'Total bookings')} value={formatNumberByLanguage(bookings.length)} color="#5B4FCF" bg="#EDE9FE" />
@@ -502,7 +531,7 @@ export function OwnerBookings({ tenantId }) {
             {paginated.map(b => (
               <BookingCard
                 key={b.id} b={b}
-                processingId={processingId}
+                processingAction={processingAction}
                 onConfirm={(id) => handleAction(id, 'confirm')}
                 onCancel={(id) => handleAction(id, 'cancel')}
                 language={language}

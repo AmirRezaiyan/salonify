@@ -103,7 +103,8 @@ class CustomTokenObtainPairView(TokenObtainPairView):
                     "username": user.username,
                     "email": user.email,
                     "role": user.role,
-                    "phone_number": getattr(user, "phone_number", None),
+                    "phone_number": getattr(user, "phone_number", None) or getattr(user, "phone", None),
+                    "phone": getattr(user, "phone", None),
                     "gender": getattr(user, "gender", None),
                     "city": getattr(user, "city", None),
                 }
@@ -178,7 +179,8 @@ class CurrentUserView(APIView):
             "username": user.username,
             "email": user.email,
             "role": getattr(user, "role", "customer"),
-            "phone_number": getattr(user, "phone_number", None),
+            "phone_number": getattr(user, "phone_number", None) or getattr(user, "phone", None),
+            "phone": getattr(user, "phone", None),
             "gender": getattr(user, "gender", None),
             "city": getattr(user, "city", ""),
         }
@@ -261,3 +263,8 @@ class PasswordResetConfirmView(APIView):
         user.save(update_fields=["password"])
 
         return Response({"message": "رمز عبور با موفقیت تغییر کرد."}, status=status.HTTP_200_OK)
+
+
+
+
+

@@ -141,9 +141,9 @@ class RegisterSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError({"salon_gender": "جنسیت سالن برای مالک الزامی است"})
             if not attrs.get("salon_address", "").strip():
                 raise serializers.ValidationError({"salon_address": "آدرس سالن برای مالک الزامی است"})
-            if attrs.get("role") == "customer":
-                if not attrs.get("city", "").strip():
-                    raise serializers.ValidationError({"city": "شهر برای مشتری الزامی است"})
+
+        if attrs.get("role") == "customer" and not attrs.get("gender", "").strip():
+            raise serializers.ValidationError({"gender": "جنسیت برای مشتری الزامی است"})
 
         try:
             validate_password(attrs.get("password"))
@@ -164,6 +164,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
         user = User(**validated_data)
         user.city = validated_data.get('city', '')
+        user.gender = validated_data.get('gender', user.gender)
         user.set_password(password)
         user.save()
 

@@ -31,10 +31,18 @@ const getThemeTokens = (theme) => ({
 });
 
 /* ── StarRating ─────────────────────────────────────────────────────────────── */
-function StarRating({ value, onChange, size = 28, readonly = false }) {
+function getRatingDescription(rating, isEnglish) {
+  const labels = isEnglish
+    ? ['Very bad', 'Bad', 'Okay', 'Good', 'Excellent']
+    : ['خیلی بد', 'بد', 'متوسط', 'خوب', 'عالی'];
+  return labels[Math.max(0, Math.min(rating - 1, 4))] || '';
+}
+
+function StarRating({ value, onChange, size = 28, readonly = false, isEnglish = false }) {
   const { theme } = useTheme();
   const T = getThemeTokens(theme);
   const [hovered, setHovered] = useState(0);
+  const activeValue = hovered || value;
 
   return (
     <div
@@ -58,7 +66,7 @@ function StarRating({ value, onChange, size = 28, readonly = false }) {
               cursor: readonly ? 'default' : 'pointer',
               lineHeight: 0,
             }}
-            aria-label={readonly ? undefined : `${star} ستاره`}
+            aria-label={readonly ? undefined : (isEnglish ? `${star} star${star > 1 ? 's' : ''}` : `${star} ستاره`)}
           >
             <svg
               width={size}
@@ -105,7 +113,9 @@ function RatingBar({ star, count, total }) {
 /* ── ReviewCard ─────────────────────────────────────────────────────────────── */
 function ReviewCard({ review, isOwner, tenantId, onReplySubmit }) {
   const { theme } = useTheme();
+  const { language, t } = useLanguage();
   const T = getThemeTokens(theme);
+  const isEnglish = language === 'en';
   const [open, setOpen] = useState(false);
   const [replyText, setReplyText] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -183,7 +193,7 @@ function ReviewCard({ review, isOwner, tenantId, onReplySubmit }) {
           marginTop: '0.75rem',
         }}>
           <div style={{ fontSize: '0.78rem', fontWeight: 700, color: T.purpleDark, marginBottom: '4px' }}>
-            پاسخ سالن
+            {t('reviews.ownerReplyLabel', isEnglish ? 'Salon reply' : 'پاسخ سالن')}
           </div>
           <div style={{ fontSize: '0.88rem', color: T.inkMid, lineHeight: 1.6 }}>
             {review.owner_reply}
@@ -204,7 +214,7 @@ function ReviewCard({ review, isOwner, tenantId, onReplySubmit }) {
             }}
           >
             {open ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-            پاسخ به این نظر
+            {t('reviews.replyButton', isEnglish ? 'Reply to this review' : 'پاسخ به این نظر')}
           </button>
 
           <AnimatePresence>
@@ -221,7 +231,7 @@ function ReviewCard({ review, isOwner, tenantId, onReplySubmit }) {
                     rows={3}
                     value={replyText}
                     onChange={e => setReplyText(e.target.value)}
-                    placeholder="پاسخ خود را بنویسید..."
+                    placeholder={t('reviews.replyPlaceholder', isEnglish ? 'Write your reply...' : 'پاسخ خود را بنویسید...')}
                     style={{
                       width: '100%', boxSizing: 'border-box',
                       padding: '10px 12px', borderRadius: T.radiusSm,
@@ -240,7 +250,7 @@ function ReviewCard({ review, isOwner, tenantId, onReplySubmit }) {
                         fontSize: '0.85rem', cursor: 'pointer', color: T.inkMid,
                       }}
                     >
-                      انصراف
+                      {t('reviews.cancel', isEnglish ? 'Cancel' : 'انصراف')}
                     </button>
                     <motion.button
                       whileTap={{ scale: 0.96 }}
@@ -257,7 +267,7 @@ function ReviewCard({ review, isOwner, tenantId, onReplySubmit }) {
                       }}
                     >
                       <Send size={13} />
-                      ارسال پاسخ
+                      {t('reviews.sendReply', isEnglish ? 'Send reply' : 'ارسال پاسخ')}
                     </motion.button>
                   </div>
                 </div>
@@ -273,14 +283,16 @@ function ReviewCard({ review, isOwner, tenantId, onReplySubmit }) {
 /* ── ReviewForm ─────────────────────────────────────────────────────────────── */
 function ReviewForm({ onSubmit, loading }) {
   const { theme } = useTheme();
+  const { language, t } = useLanguage();
   const T = getThemeTokens(theme);
+  const isEnglish = language === 'en';
   const [rating, setRating] = useState(0);
   const [text, setText] = useState('');
   const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (rating === 0) { setError('لطفاً یک امتیاز انتخاب کنید'); return; }
+    if (rating === 0) { setError(t('reviews.minRatingError', isEnglish ? 'Please select a rating' : 'لطفاً یک امتیاز انتخاب کنید')); return; }
     setError('');
     try {
       await onSubmit({ rating, text });
@@ -291,7 +303,7 @@ function ReviewForm({ onSubmit, loading }) {
       if (typeof data === 'string') setError(data);
       else if (data?.detail) setError(data.detail);
       else if (data?.non_field_errors) setError(data.non_field_errors[0]);
-      else setError('خطا در ثبت نظر');
+      else setError(t('reviews.submitError', isEnglish ? 'Failed to submit review' : 'خطا در ثبت نظر'));
     }
   };
 
@@ -305,34 +317,53 @@ function ReviewForm({ onSubmit, loading }) {
         borderRadius: T.radius,
         border: `1.5px solid ${T.border}`,
         padding: '1.25rem',
-        direction: 'rtl',
+        direction: isEnglish ? 'ltr' : 'rtl',
+        textAlign: isEnglish ? 'left' : 'right',
         marginBottom: '1.5rem',
       }}
     >
       <div style={{ fontWeight: 700, fontSize: '0.95rem', color: T.ink, marginBottom: '1rem' }}>
-        نظر خود را ثبت کنید
+        {t('reviews.formTitle', isEnglish ? 'Leave a review' : 'نظر خود را ثبت کنید')}
       </div>
 
       <form onSubmit={handleSubmit}>
         {/* stars */}
         <div style={{ marginBottom: '1rem' }}>
-          <div style={{ fontSize: '0.82rem', color: T.inkMid, marginBottom: '8px' }}>امتیاز شما</div>
-          <StarRating value={rating} onChange={setRating} size={32} />
+          <div style={{ fontSize: '0.82rem', color: T.inkMid, marginBottom: '8px' }}>{t('reviews.ratingLabel', isEnglish ? 'Your rating' : 'امتیاز شما')}</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+            <StarRating value={rating} onChange={setRating} size={32} isEnglish={isEnglish} />
+            <span style={{ fontSize: '0.82rem', fontWeight: 600, color: rating > 0 ? T.purpleDark : T.inkLight }}>
+              {rating > 0 ? getRatingDescription(rating, isEnglish) : t('reviews.ratingHelp', isEnglish ? 'Tap a star to rate your experience' : 'برای این تجربه امتیاز بدهید')}
+            </span>
+          </div>
         </div>
 
         {/* text */}
         <textarea
           value={text}
           onChange={e => setText(e.target.value)}
-          placeholder="تجربه خود را بنویسید... (اختیاری)"
+          placeholder={t('reviews.placeholder', isEnglish ? 'Write your experience... (optional)' : 'تجربه خود را بنویسید... (اختیاری)')}
           rows={4}
           style={{
             width: '100%', boxSizing: 'border-box',
             padding: '10px 12px', borderRadius: T.radiusSm,
             border: `1.5px solid ${T.border}`,
             fontSize: '0.9rem', resize: 'vertical',
-            fontFamily: 'inherit', direction: 'rtl',
-            color: T.ink, marginBottom: '0.75rem',
+            fontFamily: 'inherit', direction: isEnglish ? 'ltr' : 'rtl',
+            textAlign: isEnglish ? 'left' : 'right',
+            color: T.ink,
+            background: theme === 'dark' ? 'rgba(15, 23, 42, 0.72)' : 'rgba(255, 255, 255, 0.95)',
+            boxShadow: 'inset 0 1px 2px rgba(15, 23, 42, 0.06)',
+            outline: 'none',
+            marginBottom: '0.75rem',
+          }}
+          onFocus={(e) => {
+            e.target.style.borderColor = T.purple;
+            e.target.style.boxShadow = `0 0 0 3px ${theme === 'dark' ? 'rgba(139, 92, 246, 0.2)' : 'rgba(124, 92, 252, 0.16)'}`;
+          }}
+          onBlur={(e) => {
+            e.target.style.borderColor = T.border;
+            e.target.style.boxShadow = 'inset 0 1px 2px rgba(15, 23, 42, 0.06)';
           }}
         />
 
@@ -371,7 +402,7 @@ function ReviewForm({ onSubmit, loading }) {
             }}
           >
             <Send size={15} />
-            {loading ? 'در حال ارسال...' : 'ثبت نظر'}
+            {loading ? t('reviews.submitting', isEnglish ? 'Submitting...' : 'در حال ارسال...') : t('reviews.submit', isEnglish ? 'Submit review' : 'ثبت نظر')}
           </motion.button>
         </div>
       </form>
@@ -465,7 +496,7 @@ function RatingSummary({ reviews }) {
 export default function Reviews({ salonId }) {
   const { isAuthenticated, user } = useAuth();
   const { theme } = useTheme();
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const T = getThemeTokens(theme);
   const isEnglish = language === 'en';
   const [reviews, setReviews] = useState([]);
@@ -533,14 +564,14 @@ export default function Reviews({ salonId }) {
           marginBottom: '1.5rem',
           border: `1.5px solid ${T.purpleMid}`,
         }}>
-          {isEnglish ? 'Please sign in to submit a review.' : 'برای ثبت نظر ابتدا وارد حساب کاربری خود شوید.'}
+          {t('reviews.signInPrompt', isEnglish ? 'Please sign in to submit a review.' : 'برای ثبت نظر ابتدا وارد حساب کاربری خود شوید.')}
         </div>
       )}
 
       {/* list */}
       {loading ? (
         <div style={{ textAlign: 'center', padding: '2rem', color: T.inkLight, fontSize: '0.9rem' }}>
-          در حال بارگذاری نظرات...
+          {t('reviews.loading', isEnglish ? 'Loading reviews...' : 'در حال بارگذاری نظرات...')}
         </div>
       ) : reviews.length === 0 ? (
         <motion.div
@@ -553,8 +584,8 @@ export default function Reviews({ salonId }) {
           }}
         >
           <MessageSquare size={36} style={{ color: T.purpleMid, marginBottom: '0.75rem' }} />
-          <div style={{ color: T.inkMid, fontWeight: 600, marginBottom: '4px' }}>{isEnglish ? 'No reviews yet' : 'هنوز نظری ثبت نشده'}</div>
-          <div style={{ color: T.inkLight, fontSize: '0.85rem' }}>{isEnglish ? 'Be the first to leave a review.' : 'اولین نفری باشید که نظر می‌دهد'}</div>
+          <div style={{ color: T.inkMid, fontWeight: 600, marginBottom: '4px' }}>{t('reviews.emptyTitle', isEnglish ? 'No reviews yet' : 'هنوز نظری ثبت نشده')}</div>
+          <div style={{ color: T.inkLight, fontSize: '0.85rem' }}>{t('reviews.emptyText', isEnglish ? 'Be the first to leave a review.' : 'اولین نفری باشید که نظر می‌دهد')}</div>
         </motion.div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>

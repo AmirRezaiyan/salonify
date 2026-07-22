@@ -24,7 +24,8 @@ export const AuthProvider = ({ children }) => {
               username: userInfo.username,
               email: userInfo.email,
               role: userInfo.role || 'customer',
-              phone_number: userInfo.phone_number || '',
+              phone_number: userInfo.phone_number || userInfo.phone || '',
+              phone: userInfo.phone || '',
               gender: userInfo.gender || '',
               city: userInfo.city || '',  // ← اضافه شد
             };
@@ -70,7 +71,8 @@ export const AuthProvider = ({ children }) => {
         username: userData?.username || username,
         email: userData?.email || '',
         role: userData?.role || 'customer',
-        phone_number: userData?.phone_number || '',
+        phone_number: userData?.phone_number || userData?.phone || '',
+        phone: userData?.phone || '',
         gender: userData?.gender || '',
         city: userData?.city || '',  // ← اضافه شد
       };
@@ -90,6 +92,7 @@ export const AuthProvider = ({ children }) => {
         }
       }
       localStorage.setItem('user_data', JSON.stringify(userToStore));
+      localStorage.removeItem('customer_phone');
 
       setUser(userToStore);
       setIsAuthenticated(true);
@@ -122,12 +125,14 @@ export const AuthProvider = ({ children }) => {
         username: userInfo.username,
         email: userInfo.email,
         role: userInfo.role || 'customer',
-        phone_number: userInfo.phone_number || '',
+        phone_number: userInfo.phone_number || userInfo.phone || '',
+        phone: userInfo.phone || '',
         gender: userInfo.gender || '',
         city: userInfo.city || '',  // ← اضافه شد
       };
       
       localStorage.setItem('user_data', JSON.stringify(userToStore));
+      localStorage.removeItem('customer_phone');
       
       return { success: true, user: userInfo };
     } catch (error) {
@@ -216,7 +221,8 @@ export const AuthProvider = ({ children }) => {
           username: userInfo.username,
           email: userInfo.email,
           role: userInfo.role || 'customer',
-          phone_number: userInfo.phone_number || '',
+          phone_number: userInfo.phone_number || userInfo.phone || '',
+          phone: userInfo.phone || '',
           gender: userInfo.gender || '',
           city: userInfo.city || '',
         };

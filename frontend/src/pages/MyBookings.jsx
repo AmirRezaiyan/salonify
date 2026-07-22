@@ -889,6 +889,8 @@ export default function MyBookings() {
 
   useEffect(() => {
     if (isAuthenticated) {
+      localStorage.removeItem('customer_phone');
+      setPhone('');
       loadBookings();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -248,9 +248,8 @@ const normalizePhoneNumber = (phone) =>
     .replace(/[٠-٩]/g, d => '0123456789'['٠١٢٣٤٥٦٧٨٩'.indexOf(d)])
     .replace(/[^\d]/g, '');
 
-// ─── تابع‌های کمکی تقویم شمسی ────────────────────────────────────────────────
+// ─── تابع‌های کمکی تقویم ───────────────────────────────────────────────────
 
-// تبدیل تاریخ میلادی به شمسی و برگرداندن { jy, jm, jd }
 function toJalali(gy, gm, gd) {
   const g_d_no = [0,31,29,31,30,31,30,31,31,30,31,30,31];
   const j_d_no = [0,31,31,31,31,31,31,30,30,30,30,30,29];
@@ -272,12 +271,8 @@ function toJalali(gy, gm, gd) {
   return { jy, jm, jd };
 }
 
-// تبدیل تاریخ شمسی به میلادی
 function toGregorian(jy, jm, jd) {
-  let gy, gm, gd;
   jy += 1595;
-  let days = -355779 + 365*jy + Math.floor(jy/33)*8 + Math.floor(((jy%33)+3)/4) + jm<=6 ? (jm-1)*31 : (jm-7)*30+186;
-  // ساده‌تر با فرمول استاندارد
   const jy2 = jy - 979;
   const jm2 = jm - 1;
   const jd2 = jd - 1;
@@ -296,135 +291,424 @@ function toGregorian(jy, jm, jd) {
   return new Date(gy2, gm2, g_day_no+1);
 }
 
-// تعداد روزهای یک ماه شمسی
 function jalaliMonthDays(jy, jm) {
   if (jm <= 6) return 31;
   if (jm <= 11) return 30;
-  // اسفند - بررسی کبیسه
   return (jy%33===1||jy%33===5||jy%33===9||jy%33===13||jy%33===17||jy%33===22||jy%33===26||jy%33===30) ? 30 : 29;
 }
 
-// روز اول ماه شمسی چه روز هفته‌ای است؟ (0=شنبه ... 6=جمعه)
 function jalaliFirstWeekday(jy, jm) {
   const gDate = toGregorian(jy, jm, 1);
-  // JS getDay: 0=Sun, 1=Mon, ..., 6=Sat
-  // ما می‌خوایم: 0=Sat, 1=Sun, ..., 6=Fri
   const jsDay = gDate.getDay();
-  return (jsDay + 1) % 7; // Sat=0
+  return (jsDay + 1) % 7;
 }
 
-// ─── کامپوننت تقویم شمسی ─────────────────────────────────────────────────────
+function getDateKey(dateValue) {
+  const date = new Date(dateValue);
+  if (Number.isNaN(date.getTime())) return '';
+  date.setHours(0, 0, 0, 0);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}
+
+function getGregorianMonthName(date) {
+  return new Intl.DateTimeFormat('en-US', { month: 'long' }).format(date);
+}
+
+function renderWeekLabels(isEnglish) {
+  const weekLabels = isEnglish ? ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] : ['ش', 'ی', 'د', 'س', 'چ', 'پ', 'ج'];
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', gap: '4px', marginBottom: '8px' }}>
+      {weekLabels.map((label, index) => {
+        const isWeekend = isEnglish ? index === 6 : index === 0;
+        return (
+          <div key={`${label}-${index}`} style={{
+            textAlign: 'center',
+            fontWeight: 700,
+            fontSize: 'clamp(0.65rem, 1.5vw, 0.78rem)',
+            color: isWeekend ? 'var(--danger)' : 'var(--text-secondary)',
+            padding: '4px 0'
+          }}>
+            {label}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function renderHeader({ isEnglish, monthLabel, yearLabel, onPrev, onNext, isPrevDisabled }) {
+  return (
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
+      <button
+        type="button"
+        onClick={onNext}
+        style={{
+          background: 'var(--card-hover)',
+          border: 'none',
+          borderRadius: '10px',
+          width: 'clamp(30px, 8vw, 36px)',
+          height: 'clamp(30px, 8vw, 36px)',
+          cursor: 'pointer',
+          fontSize: 'clamp(16px, 4vw, 20px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: 'var(--primary)',
+          fontWeight: 700
+        }}
+      >‹</button>
+
+      <div style={{ textAlign: 'center' }}>
+        <div style={{ fontWeight: 800, fontSize: 'clamp(0.85rem, 2vw, 0.95rem)', color: 'var(--text-primary)' }}>
+          {monthLabel}
+        </div>
+        <div style={{ fontSize: 'clamp(0.7rem, 1.5vw, 0.82rem)', color: 'var(--text-secondary)', marginTop: '2px', direction: isEnglish ? 'ltr' : 'rtl' }}>
+          {yearLabel}
+        </div>
+      </div>
+
+      <button
+        type="button"
+        onClick={onPrev}
+        disabled={isPrevDisabled}
+        style={{
+          background: isPrevDisabled ? 'var(--background-secondary)' : 'var(--card-hover)',
+          border: 'none',
+          borderRadius: '10px',
+          width: 'clamp(30px, 8vw, 36px)',
+          height: 'clamp(30px, 8vw, 36px)',
+          cursor: isPrevDisabled ? 'not-allowed' : 'pointer',
+          fontSize: 'clamp(16px, 4vw, 20px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: isPrevDisabled ? 'var(--text-muted)' : 'var(--primary)',
+          fontWeight: 700
+        }}
+      >›</button>
+    </div>
+  );
+}
+
+function buildJalaliCells({ currentJY, currentJM, dateOptions, selectedDate, availableDatesSet, isDateFull, isEnglish }) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const daysInThisMonth = jalaliMonthDays(currentJY, currentJM);
+  const firstWeekday = jalaliFirstWeekday(currentJY, currentJM);
+  const cells = [];
+
+  const dateOptionByKey = dateOptions.reduce((map, option) => {
+    map[option.key] = option;
+    return map;
+  }, {});
+
+  for (let i = 0; i < firstWeekday; i++) cells.push(null);
+
+  for (let day = 1; day <= daysInThisMonth; day++) {
+    const jmStr = String(currentJM).padStart(2, '0');
+    const jdStr = String(day).padStart(2, '0');
+    const dateStr = `${currentJY}-${jmStr}-${jdStr}`;
+    const gDate = toGregorian(currentJY, currentJM, day);
+    gDate.setHours(0, 0, 0, 0);
+
+    const dateOption = dateOptionByKey[dateStr];
+    const hasAvailability = !!dateOption && availableDatesSet.has(dateOption.key);
+    const isSelected = selectedDate === dateStr;
+    const isPastDay = gDate < today;
+    const isTodayDate = gDate.getTime() === today.getTime();
+    const isFull = !!dateOption && hasAvailability && !isPastDay && isDateFull(dateOption.key);
+
+    cells.push({
+      dayNumber: day,
+      dateStr,
+      dateOption,
+      gDate,
+      isPast: isPastDay,
+      isAvailable: hasAvailability,
+      isSelected,
+      isToday: isTodayDate,
+      isFull,
+      isEnglish,
+      cellKey: dateStr,
+    });
+  }
+
+  return cells;
+}
+
+function buildGregorianCells({ currentDate, dateOptions, selectedDate, availableDatesSet, isDateFull, isEnglish }) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+  const monthLength = new Date(year, month + 1, 0).getDate();
+  const firstWeekday = new Date(year, month, 1).getDay();
+  const cells = [];
+
+  for (let i = 0; i < firstWeekday; i++) cells.push(null);
+
+  for (let day = 1; day <= monthLength; day++) {
+    const gDate = new Date(year, month, day);
+    gDate.setHours(0, 0, 0, 0);
+    const dateOption = dateOptions.find(option => getDateKey(option.gregorianDate) === getDateKey(gDate));
+    const hasAvailability = !!dateOption && availableDatesSet.has(dateOption.key);
+    const isSelected = selectedDate === dateOption?.key;
+    const isPast = gDate < today;
+    const isToday = gDate.getTime() === today.getTime();
+    const isFull = !!dateOption && hasAvailability && !isPast && isDateFull(dateOption.key);
+
+    cells.push({
+      dayNumber: day,
+      dateStr: dateOption?.key || '',
+      dateOption,
+      gDate,
+      isPast,
+      isAvailable: hasAvailability,
+      isSelected,
+      isToday,
+      isFull,
+      isEnglish,
+      cellKey: dateOption?.key || `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`,
+    });
+  }
+
+  return cells;
+}
+
+function renderCalendarGrid({ cells, isEnglish, onDateChange, onFullDayClick, t }) {
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', gap: '5px' }}>
+      {cells.map((cell, idx) => {
+        if (!cell) return <div key={`empty-${idx}`} />;
+
+        const { dayNumber, dateOption, isPast, isAvailable, isSelected, isToday, isFull } = cell;
+        const canClick = !!dateOption && isAvailable && !isPast && !isFull;
+        const isWeekend = isEnglish ? (idx % 7) === 6 : (idx % 7) === 0;
+
+        let bg = 'transparent';
+        let color = isPast ? 'var(--text-muted)' : isAvailable ? 'var(--text-primary)' : 'var(--text-muted)';
+        let border = 'none';
+        let fontWeight = isToday ? 700 : 500;
+
+        if (isSelected) {
+          bg = 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)';
+          color = 'var(--text-light)';
+          fontWeight = 800;
+          border = 'none';
+        } else if (isFull) {
+          bg = 'var(--danger-surface)';
+          color = 'var(--danger)';
+          fontWeight = 600;
+        } else if (isToday && !isPast && isAvailable) {
+          border = '2px solid var(--primary)';
+          bg = 'var(--surface-accent)';
+          color = 'var(--primary)';
+        } else if (canClick) {
+          bg = 'transparent';
+        } else if (!isAvailable && !isPast) {
+          color = '#cbd5e1';
+        }
+
+        if (isWeekend && !isSelected && !isFull) {
+          color = isPast || !isAvailable ? 'var(--danger)' : 'var(--danger)';
+        }
+
+        return (
+          <button
+            type="button"
+            key={cell.cellKey}
+            onClick={() => {
+              if (isFull && onFullDayClick) {
+                onFullDayClick();
+                return;
+              }
+              if (canClick && dateOption) {
+                onDateChange(dateOption.key);
+              }
+            }}
+            disabled={!canClick && !isFull}
+            title={isFull ? t('booking.fullDayBooked') : (!isAvailable && !isPast ? t('booking.salonClosedToday') : '')}
+            style={{
+              padding: '0',
+              width: '100%',
+              aspectRatio: '1',
+              borderRadius: '10px',
+              border: border || (isToday && !isSelected ? '2px solid var(--primary)' : 'none'),
+              background: bg,
+              color,
+              cursor: canClick ? 'pointer' : 'not-allowed',
+              fontWeight,
+              fontSize: 'clamp(0.7rem, 1.5vw, 0.85rem)',
+              transition: 'all 0.15s',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              opacity: isPast ? 0.38 : (!isAvailable ? 0.45 : 1),
+              position: 'relative',
+            }}
+            onMouseEnter={(e) => {
+              if (canClick && !isSelected) {
+                e.currentTarget.style.background = 'var(--surface-accent)';
+                e.currentTarget.style.transform = 'scale(1.08)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!isSelected) {
+                e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.transform = 'scale(1)';
+              }
+            }}
+          >
+            {dayNumber}
+            {isToday && !isSelected && (
+              <span style={{
+                position: 'absolute',
+                bottom: '3px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                width: '4px',
+                height: '4px',
+                borderRadius: '50%',
+                background: 'var(--primary)',
+                display: 'block'
+              }} />
+            )}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+// ─── کامپوننت تقویم دوگانه ─────────────────────────────────────────────────
 
 function JalaliCalendarPicker({ dateOptions, selectedDate, onDateChange, bookedDates, workingHours, onFullDayClick, t, isEnglish }) {
   const jalaliMonthNames = isEnglish
-    ? ['Farvardin','Ordibehesht','Khordad','Tir','Mordad','Shahrivar','Mehr','Aban','Azar','Dey','Bahman','Esfand']
-    : ['فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان','آذر','دی','بهمن','اسفند'];
-  const dayLabels = isEnglish ? ['Sat','Sun','Mon','Tue','Wed','Thu','Fri'] : ['ش','ی','د','س','چ','پ','ج'];
+    ? ['Farvardin', 'Ordibehesht', 'Khordad', 'Tir', 'Mordad', 'Shahrivar', 'Mehr', 'Aban', 'Azar', 'Dey', 'Bahman', 'Esfand']
+    : ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'];
 
-  // ماه و سال جاری شمسی - محاسبه یک‌بار در خارج از render
   const todayJalali = toJalali(new Date().getFullYear(), new Date().getMonth() + 1, new Date().getDate());
-
   const [currentJY, setCurrentJY] = useState(todayJalali.jy);
   const [currentJM, setCurrentJM] = useState(todayJalali.jm);
+  const [currentGregorianDate, setCurrentGregorianDate] = useState(() => {
+    const initial = new Date();
+    initial.setHours(0, 0, 0, 0);
+    return new Date(initial.getFullYear(), initial.getMonth(), 1);
+  });
 
-  // مجموعه تاریخ‌های در دسترس (کلیدشان dateStr از getDateStringFromJalali هست: "1404-05-03")
   const availableDatesSet = new Set(dateOptions.map(d => d.key));
 
-  // تابع برای بررسی کامل بودن یک روز
   const isDateFull = (dateStr) => {
-    if (!availableDatesSet.has(dateStr)) return false; // روز تعطیل است
-    
-    // پیدا کردن dayOfWeek برای این روز
+    if (!availableDatesSet.has(dateStr)) return false;
+
     const dateOption = dateOptions.find(d => d.key === dateStr);
     if (!dateOption) return false;
-    
-    // بررسی اینکه آیا نوبتی از کل مدت کاری باقی مانده است
+
     const ourWeekday = dateOption.dayOfWeek;
     const dayWorkingHours = workingHours.filter(wh => wh.day_of_week === ourWeekday);
-    
+
     if (dayWorkingHours.length === 0) return false;
-    
-    // بررسی اینکه آیا تمام ساعات کاری رزرو شده است
+
     const gregorianDate = new Date(dateOption.gregorianDate);
     const STEP_MIN = 30;
-    const duration = 30; // مدت پیش‌فرض برای check
-    
+    const duration = 30;
+
     let hasAvailableSlot = false;
-    
+
     for (const wh of dayWorkingHours) {
       const [startHour, startMin] = wh.start_time.split(':').map(x => parseInt(x, 10));
       const [endHour, endMin] = wh.end_time.split(':').map(x => parseInt(x, 10));
-      
+
       const startTimeOfDay = new Date(gregorianDate.getFullYear(), gregorianDate.getMonth(), gregorianDate.getDate(), startHour, startMin, 0);
       const endTimeOfDay = new Date(gregorianDate.getFullYear(), gregorianDate.getMonth(), gregorianDate.getDate(), endHour, endMin, 0);
-      
+
       let slotTime = new Date(startTimeOfDay);
-      
+
       while (slotTime.getTime() + (duration * 60000) <= endTimeOfDay.getTime()) {
         const slotStart = new Date(slotTime);
         const slotEnd = new Date(slotStart.getTime() + duration * 60000);
-        
-        // بررسی تداخل
+
         const hasOverlap = bookedDates.some(b => {
-          // فقط رزروهای تأیید یا در انتظار را در نظر بگیر
           if (b.status === 'cancelled') return false;
           const bStart = parseISO(b.start_at);
           const bEnd = parseISO(b.end_at);
           if (!bStart || !bEnd) return false;
-          // مقایسه عددی
           return slotStart.getTime() < bEnd.getTime() && slotEnd.getTime() > bStart.getTime();
         });
-        
+
         if (!hasOverlap) {
           hasAvailableSlot = true;
           break;
         }
-        
+
         slotTime.setMinutes(slotTime.getMinutes() + STEP_MIN);
       }
-      
+
       if (hasAvailableSlot) break;
     }
-    
-    return !hasAvailableSlot; // کامل است اگر slot خالی نباشد
+
+    return !hasAvailableSlot;
   };
 
   const goToPrevMonth = () => {
-    if (currentJM === 1) { setCurrentJY(y => y-1); setCurrentJM(12); }
-    else setCurrentJM(m => m-1);
+    if (isEnglish) {
+      const prevMonth = new Date(currentGregorianDate.getFullYear(), currentGregorianDate.getMonth() - 1, 1);
+      setCurrentGregorianDate(prevMonth);
+      return;
+    }
+
+    if (currentJM === 1) {
+      setCurrentJY(y => y - 1);
+      setCurrentJM(12);
+    } else {
+      setCurrentJM(m => m - 1);
+    }
   };
+
   const goToNextMonth = () => {
-    if (currentJM === 12) { setCurrentJY(y => y+1); setCurrentJM(1); }
-    else setCurrentJM(m => m+1);
+    if (isEnglish) {
+      const nextMonth = new Date(currentGregorianDate.getFullYear(), currentGregorianDate.getMonth() + 1, 1);
+      setCurrentGregorianDate(nextMonth);
+      return;
+    }
+
+    if (currentJM === 12) {
+      setCurrentJY(y => y + 1);
+      setCurrentJM(1);
+    } else {
+      setCurrentJM(m => m + 1);
+    }
   };
 
-  // نمی‌توان به ماه‌های قبل از ماه جاری رفت
-  const isPrevDisabled = currentJY < todayJalali.jy || (currentJY === todayJalali.jy && currentJM <= todayJalali.jm);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const isPrevDisabled = isEnglish
+    ? currentGregorianDate.getFullYear() < today.getFullYear() || (currentGregorianDate.getFullYear() === today.getFullYear() && currentGregorianDate.getMonth() <= today.getMonth())
+    : currentJY < todayJalali.jy || (currentJY === todayJalali.jy && currentJM <= todayJalali.jm);
 
-  // ساخت آرایه روزها
-  const daysInThisMonth = jalaliMonthDays(currentJY, currentJM);
-  const firstWeekday = jalaliFirstWeekday(currentJY, currentJM); // 0=Sat
+  const cells = isEnglish
+    ? buildGregorianCells({
+        currentDate: currentGregorianDate,
+        dateOptions,
+        selectedDate,
+        availableDatesSet,
+        isDateFull,
+        isEnglish,
+      })
+    : buildJalaliCells({
+        currentJY,
+        currentJM,
+        dateOptions,
+        selectedDate,
+        availableDatesSet,
+        isDateFull,
+        isEnglish,
+      });
 
-  const cells = [];
-  for (let i = 0; i < firstWeekday; i++) cells.push(null);
-  for (let d = 1; d <= daysInThisMonth; d++) {
-    // ساخت dateStr مثل "1404-05-03"
-    const jmStr = String(currentJM).padStart(2,'0');
-    const jdStr = String(d).padStart(2,'0');
-    const dateStr = `${currentJY}-${jmStr}-${jdStr}`;
-
-    // تاریخ میلادی برای مقایسه با امروز
-    const gDate = toGregorian(currentJY, currentJM, d);
-    gDate.setHours(0,0,0,0);
-    const today = new Date(); today.setHours(0,0,0,0);
-    const isPast = gDate < today;
-    const isAvailable = availableDatesSet.has(dateStr);
-    const isSelected = selectedDate === dateStr;
-    const isToday = gDate.getTime() === today.getTime();
-    const isFull = isAvailable && !isPast && isDateFull(dateStr);
-
-    cells.push({ d, dateStr, isPast, isAvailable, isSelected, isToday, isFull });
-  }
+  const monthLabel = isEnglish
+    ? getGregorianMonthName(currentGregorianDate)
+    : jalaliMonthNames[currentJM - 1];
+  const yearLabel = isEnglish ? currentGregorianDate.getFullYear() : currentJY;
 
   return (
     <div style={{
@@ -437,164 +721,50 @@ function JalaliCalendarPicker({ dateOptions, selectedDate, onDateChange, bookedD
       maxWidth: 'clamp(280px, 90vw, 340px)',
       margin: '0 auto'
     }}>
-      {/* ─── هدر ─── */}
-      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'18px' }}>
-        <button
-          type="button" // ✅ جلوگیری از submit فرم
-          onClick={goToNextMonth}
-          style={{
-            background:'var(--card-hover)', border:'none', borderRadius:'10px',
-            width:'clamp(30px, 8vw, 36px)', height:'clamp(30px, 8vw, 36px)', cursor:'pointer', fontSize:'clamp(16px, 4vw, 20px)',
-            display:'flex', alignItems:'center', justifyContent:'center', color:'var(--primary)', fontWeight:700
-          }}
-        >‹</button>
+      {renderHeader({
+        isEnglish,
+        monthLabel,
+        yearLabel,
+        onPrev: goToPrevMonth,
+        onNext: goToNextMonth,
+        isPrevDisabled,
+      })}
 
-        <div style={{ textAlign:'center' }}>
-          <div style={{ fontWeight:800, fontSize:'clamp(0.85rem, 2vw, 0.95rem)', color: "var(--text-primary)" }}>
-            {jalaliMonthNames[currentJM-1]}
-          </div>
-          <div style={{ fontSize:'clamp(0.7rem, 1.5vw, 0.82rem)', color: "var(--text-secondary)", marginTop:'2px', direction:'ltr' }}>
-            {currentJY}
-          </div>
-        </div>
+      {renderWeekLabels(isEnglish)}
 
-        <button
-          type="button" // ✅ جلوگیری از submit فرم
-          onClick={goToPrevMonth}
-          disabled={isPrevDisabled}
-          style={{
-            background: isPrevDisabled ? 'var(--background-secondary)' : 'var(--card-hover)',
-            border:'none', borderRadius:'10px',
-            width:'clamp(30px, 8vw, 36px)', height:'clamp(30px, 8vw, 36px)',
-            cursor: isPrevDisabled ? 'not-allowed' : 'pointer',
-            fontSize:'clamp(16px, 4vw, 20px)', display:'flex', alignItems:'center', justifyContent:'center',
-            color: isPrevDisabled ? 'var(--text-muted)' : 'var(--primary)', fontWeight:700
-          }}
-        >›</button>
-      </div>
+      {renderCalendarGrid({
+        cells,
+        isEnglish,
+        onDateChange,
+        onFullDayClick,
+        t,
+      })}
 
-      {/* ─── نام روزها ─── */}
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(7,1fr)', gap:'4px', marginBottom:'8px' }}>
-        {dayLabels.map((lbl, i) => (
-          <div key={i} style={{
-            textAlign:'center', fontWeight:700, fontSize:'clamp(0.65rem, 1.5vw, 0.78rem)',
-            color: i === 6 ? 'var(--danger)' : 'var(--text-secondary)', // جمعه قرمز
-            padding:'4px 0'
-          }}>{lbl}</div>
-        ))}
-      </div>
-
-      {/* ─── شبکه روزها ─── */}
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(7,1fr)', gap:'5px' }}>
-        {cells.map((cell, idx) => {
-          if (!cell) return <div key={`e-${idx}`} />;
-
-          const { d, dateStr, isPast, isAvailable, isSelected, isToday, isFull } = cell;
-          const canClick = isAvailable && !isPast && !isFull;
-          const isFriday = (idx % 7) === 6; // ستون آخر = جمعه
-
-          let bg = 'transparent';
-          let color = isPast ? 'var(--text-muted)' : isAvailable ? 'var(--text-primary)' : 'var(--text-muted)';
-          let border = 'none';
-          let fontWeight = isToday ? 700 : 500;
-
-          if (isSelected) {
-            bg = 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)';
-            color = 'var(--text-light)';
-            fontWeight = 800;
-            border = 'none';
-          } else if (isFull) {
-            // روز کامل - نوبت‌های آن روز تمام شده است
-            bg = 'var(--danger-surface)';
-            color = 'var(--danger)';
-            fontWeight = 600;
-          } else if (isToday && !isPast && isAvailable) {
-            border = '2px solid var(--primary)';
-            bg = 'var(--surface-accent)';
-            color = 'var(--primary)';
-          } else if (canClick) {
-            bg = 'transparent';
-          } else if (!isAvailable && !isPast) {
-            // روز بسته (نه تعطیل، بلکه صاحب سالن این روز را ثبت نکرده)
-            color = '#cbd5e1';
-          }
-
-          if (isFriday && !isSelected && !isFull) color = isPast || !isAvailable ? 'var(--danger)' : 'var(--danger)';
-
-          return (
-            <button
-              type="button" // ✅ جلوگیری از submit فرم
-              key={dateStr}
-              onClick={() => {
-                if (isFull && onFullDayClick) { onFullDayClick(); return; }
-                canClick && onDateChange(dateStr);
-              }}
-              disabled={!canClick && !isFull}
-              title={isFull ? t('booking.fullDayBooked') : (!isAvailable && !isPast ? t('booking.salonClosedToday') : '')}
-              style={{
-                padding:'0',
-                width:'100%',
-                aspectRatio:'1',
-                borderRadius:'10px',
-                border: border || (isToday && !isSelected ? '2px solid var(--primary)' : 'none'),
-                background: bg,
-                color,
-                cursor: canClick ? 'pointer' : 'not-allowed',
-                fontWeight,
-                fontSize:'clamp(0.7rem, 1.5vw, 0.85rem)',
-                transition:'all 0.15s',
-                display:'flex', alignItems:'center', justifyContent:'center',
-                opacity: isPast ? 0.38 : (!isAvailable ? 0.45 : 1),
-                position:'relative',
-              }}
-              onMouseEnter={(e) => {
-                if (canClick && !isSelected) {
-                  e.currentTarget.style.background = 'var(--surface-accent)';
-                  e.currentTarget.style.transform = 'scale(1.08)';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!isSelected) {
-                  e.currentTarget.style.background = 'transparent';
-                  e.currentTarget.style.transform = 'scale(1)';
-                }
-              }}
-            >
-              {d}
-              {/* نقطه زیر روزهای امروز */}
-              {isToday && !isSelected && (
-                <span style={{
-                  position:'absolute', bottom:'3px', left:'50%',
-                  transform:'translateX(-50%)',
-                  width:'4px', height:'4px', borderRadius:'50%',
-                  background:'var(--primary)', display:'block'
-                }} />
-              )}
-            </button>
-          );
-        })}
-      </div>
-
-              {/* راهنما ─── */}
       <div style={{
-        marginTop:'10px', paddingTop:'10px', borderTop:'1px solid #f1f5f9',
-        display:'flex', gap:'16px', justifyContent:'center',
-        fontSize:'clamp(0.65rem, 1.5vw, 0.78rem)', color: "var(--text-secondary)", flexWrap:'wrap'
+        marginTop: '10px',
+        paddingTop: '10px',
+        borderTop: '1px solid #f1f5f9',
+        display: 'flex',
+        gap: '16px',
+        justifyContent: 'center',
+        fontSize: 'clamp(0.65rem, 1.5vw, 0.78rem)',
+        color: 'var(--text-secondary)',
+        flexWrap: 'wrap'
       }}>
-        <span style={{ display:'flex', alignItems:'center', gap:'5px' }}>
-          <span style={{ display:'inline-block', width:'14px', height:'14px', borderRadius:'50%', background:'linear-gradient(135deg,var(--primary),var(--primary-hover))' }} />
+        <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+          <span style={{ display: 'inline-block', width: '14px', height: '14px', borderRadius: '50%', background: 'linear-gradient(135deg,var(--primary),var(--primary-hover))' }} />
           {t('booking.selected')}
         </span>
-        <span style={{ display:'flex', alignItems:'center', gap:'5px' }}>
-          <span style={{ display:'inline-block', width:'14px', height:'14px', borderRadius:'4px', border: '2px solid var(--primary)', background:'var(--surface-accent)' }} />
+        <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+          <span style={{ display: 'inline-block', width: '14px', height: '14px', borderRadius: '4px', border: '2px solid var(--primary)', background: 'var(--surface-accent)' }} />
           {t('booking.today')}
         </span>
-        <span style={{ display:'flex', alignItems:'center', gap:'5px' }}>
-          <span style={{ display:'inline-block', width:'14px', height:'14px', borderRadius:'4px', background:'#fecaca' }} />
+        <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+          <span style={{ display: 'inline-block', width: '14px', height: '14px', borderRadius: '4px', background: '#fecaca' }} />
           {t('booking.full')}
         </span>
-        <span style={{ display:'flex', alignItems:'center', gap:'5px' }}>
-          <span style={{ display:'inline-block', width:'14px', height:'14px', borderRadius:'4px', background:'var(--card-hover)', opacity:0.5 }} />
+        <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+          <span style={{ display: 'inline-block', width: '14px', height: '14px', borderRadius: '4px', background: 'var(--card-hover)', opacity: 0.5 }} />
           {t('booking.closed')}
         </span>
       </div>
@@ -745,11 +915,20 @@ export default function Booking() {
       setAvailableTimes([]);
       setSalonClosed(true);
     }
-  }, [workingHours]);
+  }, [workingHours, isEnglish, salonId]);
 
   useEffect(() => {
     buildAvailableTimes();
   }, [formData.date, formData.service_ids, formData.service_id, bookedDates, workingHours, dateOptions, services]);
+
+  const buildDateOptionLabel = (dayName, gregorianDate, dayOfWeek) => {
+    if (isEnglish) {
+      return `${getDayName(dayOfWeek)} - ${formatBookingDateLabel(gregorianDate)}`;
+    }
+
+    const jalaliLabel = toJalaliString(gregorianDate);
+    return `${dayName || getDayName(dayOfWeek)} - ${jalaliLabel}`;
+  };
 
   const buildDateOptions = async (days = 60) => {
     const opts = [];
@@ -792,11 +971,8 @@ export default function Booking() {
           // فقط روزهایی را اضافه کن که سالن در آن روز باز است
           if (hasWorkingHours) {
             const { jalaliDate, gregorianDate } = dateMap[dateStr];
-            // Use English-friendly label when app is in English: weekday + formatted gregorian date
-            const label = isEnglish
-              ? `${getDayName(ourWeekday)} - ${formatBookingDateLabel(gregorianDate)}`
-              : `${dayName} - ${jalaliDate}`;
-            opts.push({ key: dateStr, label, dayOfWeek: ourWeekday, gregorianDate });
+            const label = buildDateOptionLabel(dayName, gregorianDate, ourWeekday);
+            opts.push({ key: dateStr, label, dayOfWeek: ourWeekday, gregorianDate, dayName });
           }
         }
       }
@@ -821,26 +997,25 @@ export default function Booking() {
   const getDateStringFromJalali = (gDate) => {
     // تبدیل تاریخ میلادی به فارسی (Jalali) در قالب "1404-04-04"
     try {
-      const jalaliStr = gDate.toLocaleDateString('fa-IR');
-      // jalaliStr looks like "۱۴۰۴/۰۴/۰۴" (Persian digits)
-      // Convert to "1404/04/04" (English digits)
+      const jalaliStr = gDate.toLocaleDateString('fa-IR-u-nu-latn');
       const parts = jalaliStr.split('/');
       if (parts.length === 3) {
-        let [py, pm, pd] = parts;
-        
-        // Convert Persian digits to English
-        const persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
-        const englishDigits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-        
-        for (let i = 0; i < 10; i++) {
-          py = py.replaceAll(persianDigits[i], englishDigits[i]);
-          pm = pm.replaceAll(persianDigits[i], englishDigits[i]);
-          pd = pd.replaceAll(persianDigits[i], englishDigits[i]);
+        const [py, pm, pd] = parts.map((part) => part.replace(/[^0-9]/g, ''));
+        if (py && pm && pd) {
+          return `${py.padStart(4, '0')}-${pm.padStart(2, '0')}-${pd.padStart(2, '0')}`;
         }
-        
-        return `${py}-${pm.padStart(2, '0')}-${pd.padStart(2, '0')}`;
       }
-    } catch (e) {}
+    } catch (e) {
+      console.error('getDateStringFromJalali failed:', e);
+    }
+
+    try {
+      const [jy, jm, jd] = toJalali(gDate.getFullYear(), gDate.getMonth() + 1, gDate.getDate());
+      return `${String(jy).padStart(4, '0')}-${String(jm).padStart(2, '0')}-${String(jd).padStart(2, '0')}`;
+    } catch (e) {
+      console.error('getDateStringFromJalali fallback failed:', e);
+    }
+
     return '';
   };
 
@@ -866,8 +1041,10 @@ export default function Booking() {
     const dateOption = dateOptions.find(d => d.key === normalizedDate);
     if (!dateOption) return null;
     const dayWorkingHours = getWorkingHoursForDay(dateOption.dayOfWeek);
+    const label = buildDateOptionLabel(dateOption.dayName, dateOption.gregorianDate, dateOption.dayOfWeek);
     return {
       ...dateOption,
+      label,
       workingHours: dayWorkingHours
     };
   };
@@ -887,15 +1064,14 @@ export default function Booking() {
   };
 
   const normalizeDate = (dateStr) => {
-    // تبدیل اعداد فارسی به انگریزی در تاریخ
-    // ۰۱۲۳۴۵۶۷۸۹ -> 0123456789
     if (!dateStr) return dateStr;
-    const persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
-    const englishDigits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-    let normalized = dateStr;
-    for (let i = 0; i < 10; i++) {
-      normalized = normalized.replaceAll(persianDigits[i], englishDigits[i]);
-    }
+    const digitsMap = {
+      '۰': '0', '۱': '1', '۲': '2', '۳': '3', '۴': '4', '۵': '5', '۶': '6', '۷': '7', '۸': '8', '۹': '9',
+      '٠': '0', '١': '1', '٢': '2', '٣': '3', '٤': '4', '٥': '5', '٦': '6', '٧': '7', '٨': '8', '٩': '9',
+    };
+    let normalized = String(dateStr).trim();
+    normalized = normalized.replace(/[۰-۹٠-٩]/g, (char) => digitsMap[char] || char);
+    normalized = normalized.replace(/\s+/g, '');
     return normalized;
   };
 
@@ -1075,14 +1251,14 @@ export default function Booking() {
 
   const toJalaliString = (gDate) => {
     try {
-      const parts = gDate.toLocaleDateString('fa-IR').split('/');
-      if (parts.length === 3) {
-        const [py, pm, pd] = parts;
-        const monthIdx = parseInt(pm, 10) - 1;
-        return `${pd} ${jMonths[monthIdx] || ''} ${py}`;
-      }
-    } catch (e) {}
-    return gDate.toLocaleDateString('fa-IR');
+      return new Intl.DateTimeFormat('fa-IR', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      }).format(gDate);
+    } catch (e) {
+      return gDate.toLocaleDateString('fa-IR');
+    }
   };
 
   const validateForm = () => {
@@ -2379,8 +2555,8 @@ export default function Booking() {
                           if (errors.start_at) setErrors(prev => ({ ...prev, start_at: '' }));
                           if (error) setError('');
                         }}
-                        disabled={false}
-                        title={isBooked ? '⛔ این زمان قبلاً رزرو شده است' : ''}
+                        disabled={isBooked}
+                        title={isBooked ? (isEnglish ? 'This time is already booked' : '⛔ این زمان قبلاً رزرو شده است') : ''}
                         style={{
                           padding: '14px 12px',
                           borderRadius: '12px',

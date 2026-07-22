@@ -1,7 +1,9 @@
 # backend/bookings/views.py
 import logging
+import re
 import jdatetime
 
+from django.db.models import Q
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 
@@ -23,6 +25,16 @@ from .services import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+def normalize_phone_digits(value):
+    if value is None:
+        return ''
+    return re.sub(r'\D', '', str(value))
+
+
+def get_phone_last10(normalized_phone):
+    return normalized_phone[-10:] if len(normalized_phone) >= 10 else normalized_phone
 
 
 class IsOwnerOrAdminOrReadOnly(permissions.BasePermission):
@@ -73,25 +85,62 @@ class BookingListCreateView(generics.ListCreateAPIView):
                     )
                     qs = qs.none()
             else:
-                phone = getattr(user, "phone_number", None)
+                phone = getattr(user, "phone_number", None) or getattr(user, "phone", None)
+                email = getattr(user, "email", None)
                 username = getattr(user, "username", None)
+                full_name = getattr(user, "get_full_name", lambda: "")()
 
                 if phone:
-                    qs = qs.filter(customer_phone=phone)
+                    normalized_phone = normalize_phone_digits(phone)
+                    if normalized_phone:
+                        qs = qs.filter(
+                            Q(customer_phone=phone) |
+                            Q(customer_phone__endswith=get_phone_last10(normalized_phone))
+                        )
+                    else:
+                        qs = qs.filter(customer_phone=phone)
                     logger.debug(
-                        "BookingListCreateView: filtered bookings for customer %s with phone %s",
+                        "BookingListCreateView: filtered customer bookings for user %s by phone %s",
                         username,
                         phone,
                     )
+                elif email:
+                    qs = qs.filter(customer_email=email)
+                    logger.debug(
+                        "BookingListCreateView: filtered customer bookings for user %s by email %s",
+                        username,
+                        email,
+                    )
+                elif username:
+                    qs = qs.filter(customer_name=username)
+                    logger.debug(
+                        "BookingListCreateView: filtered customer bookings for user %s by username %s",
+                        username,
+                        username,
+                    )
+                elif full_name and full_name.strip():
+                    qs = qs.filter(customer_name=full_name)
+                    logger.debug(
+                        "BookingListCreateView: filtered customer bookings for user %s by full_name %s",
+                        username,
+                        full_name,
+                    )
                 else:
-                    logger.warning("Customer %s has no phone number to filter bookings", username)
+                    logger.warning("Customer %s has no phone number or recognizable identity to filter bookings", username)
                     qs = qs.none()
 
             return qs.order_by("-created_at")
 
         customer_phone = self.request.GET.get("customer_phone") or self.request.GET.get("phone")
         if customer_phone:
-            qs = qs.filter(customer_phone=customer_phone)
+            normalized_phone = normalize_phone_digits(customer_phone)
+            if normalized_phone:
+                qs = qs.filter(
+                    Q(customer_phone=customer_phone) |
+                    Q(customer_phone__endswith=get_phone_last10(normalized_phone))
+                )
+            else:
+                qs = qs.filter(customer_phone=customer_phone)
 
         return qs.order_by("-created_at")
 
@@ -383,35 +432,68 @@ class BookingActionAPIView(APIView):
 class CustomerBookingsView(generics.ListAPIView):
     """
     API view for authenticated customers to see all their bookings across all salons.
-    Filters by phone number (if set) OR by customer name matching username.
+    Filters by phone number (if set) OR by customer name matching username/full name/first name.
     """
     serializer_class = BookingListSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        from django.db.models import Q
-
         user = self.request.user
         user_role = getattr(user, "role", "customer")
         if user_role not in ["customer"]:
             logger.warning("Non-customer user %s tried to access customer bookings view", user.username)
             return Booking.objects.none()
 
-        phone = getattr(user, "phone_number", None)
+        phone = getattr(user, "phone_number", None) or getattr(user, "phone", None)
+        email = getattr(user, "email", None)
         username = getattr(user, "username", None)
+        first_name = getattr(user, "first_name", None)
+        full_name = getattr(user, "get_full_name", lambda: "")()
 
         query = Q()
 
         if phone:
-            query |= Q(customer_phone=phone)
-            logger.debug("CustomerBookingsView: added phone filter for customer %s with phone %s", username, phone)
-
-        if username:
+            normalized_phone = normalize_phone_digits(phone)
+            if normalized_phone:
+                query |= Q(customer_phone=phone) | Q(customer_phone__endswith=get_phone_last10(normalized_phone))
+            else:
+                query |= Q(customer_phone=phone)
+            logger.debug(
+                "CustomerBookingsView: filtering bookings for customer %s by phone %s",
+                username,
+                phone,
+            )
+        elif email:
+            query |= Q(customer_email=email)
+            logger.debug(
+                "CustomerBookingsView: filtering bookings for customer %s by email %s",
+                username,
+                email,
+            )
+        elif username:
             query |= Q(customer_name=username)
-            logger.debug("CustomerBookingsView: added username filter for customer %s", username)
+            logger.debug(
+                "CustomerBookingsView: filtering bookings for customer %s by username %s",
+                username,
+                username,
+            )
+        elif first_name:
+            query |= Q(customer_name=first_name)
+            logger.debug(
+                "CustomerBookingsView: filtering bookings for customer %s by first_name %s",
+                username,
+                first_name,
+            )
+        elif full_name and full_name.strip() and full_name != username:
+            query |= Q(customer_name=full_name)
+            logger.debug(
+                "CustomerBookingsView: filtering bookings for customer %s by full_name %s",
+                username,
+                full_name,
+            )
 
         if not query:
-            logger.warning("Customer %s has no phone number or username to filter by", username)
+            logger.warning("Customer %s has no phone number, email or recognizable name to filter by", username)
             return Booking.objects.none()
 
         qs = Booking.objects.filter(query)

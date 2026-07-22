@@ -262,6 +262,7 @@ export default function Signup() {
 
     if (formData.role === 'customer') {
       if (!formData.city?.trim()) e.city = t('signup.cityRequired');
+      if (!formData.gender?.trim()) e.gender = t('signup.genderRequired');
     }
 
     return e;
@@ -308,7 +309,15 @@ export default function Signup() {
     setErrors({});
 
     const payload = {
-      ...formData,
+      username: formData.username,
+      email: formData.email,
+      password: formData.password,
+      password_confirm: formData.password_confirm,
+      first_name: formData.first_name,
+      last_name: formData.last_name,
+      phone_number: formData.phone_number,
+      role: formData.role,
+      gender: formData.gender,
       city: formData.role === 'customer' ? formData.city : (formData.city || ''),
       salon_name: formData.role === 'owner' ? formData.salon_name : '',
       salon_city: formData.role === 'owner' ? formData.salon_city : '',
